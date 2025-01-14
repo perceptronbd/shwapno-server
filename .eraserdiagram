@@ -1,0 +1,151 @@
+entity-relationship-diagram
+
+// ERP Platform
+
+Company [icon: building, color: blue]{
+    id string pk
+    name string required unique
+    location string 
+    Branches Branch[]
+  }
+  
+  Branch [icon: store, color: green] {
+    id string pk
+    name string required unique
+    location string required
+    products BranchProduct[]
+    companyId string fk > Company.id
+    userRoles UserRole[]
+  }
+  
+  User [icon: user, color: blue] {
+    id string pk
+    first_name string required
+    last_name string 
+    email string required unique
+    password string required
+    userRoles UserRole[]
+  }
+  
+  Role [icon: key, color: skyblue] {
+    id string pk
+    name string required unique
+    permissions RolePermission[]  
+  }
+  
+  Permission [icon: lock, color: skyblue] {
+    id string pk
+    name string required unique
+    roles RolePermission[] 
+  }
+  
+  RolePermission[icon: lock, color: skyblue] {
+    id string pk
+    roleId string fk < Role.id
+    permissionId string fk < Permission.id
+  }
+  
+  UserRole [icon:key, color:yellow]{
+    id string pk
+    userId string fk < User.id
+    roleId string fk < Role.id
+    branchId string fk < Branch.id
+  }
+  
+  Product [icon: box, color: orange] {
+    id string pk
+    name string required
+    description string optional
+    price decimal required
+    categories ProductCategory[]
+    branches BranchProduct[]
+    stock Stock[]
+    qrCode string unique
+  }
+  
+  BranchProduct [icon: link, color: yellow] {
+    id string pk
+    branchId string fk < Branch.id
+    productId string fk < Product.id
+  }
+  
+  Category [icon: tag, color: purple] {
+    id string pk
+    name string required unique
+    products ProductCategory[]
+  }
+  
+  ProductCategory [icon: link, color: yellow] {
+    id string pk
+    productId string fk < Product.id
+    categoryId string fk < Category.id
+  }
+  
+  Order [icon: shopping_cart, color: blue] {
+    id string pk
+    customerId string fk < Customer.id
+    branchId string fk < Branch.id
+    orderDate datetime required
+    totalAmount decimal required
+    status string required // e.g., pending, shipped, delivered
+    items OrderItem[]
+  }
+  
+  OrderItem [icon: link, color: yellow] {
+    id string pk
+    orderId string fk < Order.id
+    productId string fk < Product.id
+    quantity int required
+    price decimal required
+  }
+  
+  Invoice [icon: file, color: gray] {
+    id string pk
+    orderId string fk < Order.id
+    invoiceDate datetime required
+    totalAmount decimal required
+  }
+  
+  Stock [icon: warehouse, color: green] {
+    id string pk
+    branchId string fk < Branch.id
+    productId string fk < Product.id
+    quantity int required
+    lowStockAlert boolean optional
+  }
+  
+  Notification [icon: bell, color: red] {
+    id string pk
+    type string required // e.g., lowStock, newOrder
+    content string required
+    createdAt datetime required
+    branchId string fk < Branch.id
+  }
+  
+  // E-Commerce Platform
+  
+  Customer [icon: user, color: pink] {
+    id string pk
+    firstName string required
+    lastName string optional
+    email string required unique
+    mobile string required
+    address string required
+    orders Order[]
+  }
+  
+  ShoppingCart [icon: cart, color: orange] {
+    id string pk
+    customerId string fk < Customer.id
+    items ShoppingCartItem[]
+  }
+  
+  ShoppingCartItem [icon: link, color: yellow] {
+    id string pk
+    cartId string fk < ShoppingCart.id
+    productId string fk < Product.id
+    quantity int required
+    price decimal required
+  }
+  
+  
