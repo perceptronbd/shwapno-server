@@ -1,4 +1,4 @@
-![image](https://github.com/perceptronbd/treatme-server/assets/53243993/c0ffefe3-0fa0-4a23-a913-d5ab5499e3c6)
+# PUT IMAGE HERE
 
 ## $\color{#FFE338}\textsf{\kern{0.2cm}\normalsize POSTMAN LINK}$
 
@@ -7,7 +7,7 @@
 ## Postman Environment Variable
 
 ```json
-Variable: treatMe-v1,
+Variable: shwapno-v1,
 Type: default,
 initial_value:"localhost:5001/api/v1",
 current_value:"localhost:5001/api/v1"
