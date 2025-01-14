@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "rootDir": "./src",
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"],
+      "@modules/*": ["./modules/*"],
+      "@utils/*": ["./utils/*"],
+      "@helpers/*": ["./helpers/*"],
+      "@config/*": ["./config/*"],
+      "@handlers/*": ["./handlers/*"],
+      "@middlewares/*": ["./middlewares/*"],
+      "@types/*": ["./types/*"],
+      "@tests/*": ["./tests/*"]
+    },
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"]
+}
