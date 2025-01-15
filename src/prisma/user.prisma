@@ -1,0 +1,51 @@
+model User {
+    id        String     @id @default(uuid())
+    firstName String     @map("first_name")
+    lastName  String?    @map("last_name")
+    email     String     @unique
+    password  String
+    userRoles UserRole[]
+    Sale      Sale[]
+
+    @@index([email])
+}
+
+model Role {
+    id          String           @id @default(uuid())
+    name        String           @unique
+    permissions RolePermission[]
+    userRoles   UserRole[]
+}
+
+model Permission {
+    id    String           @id @default(uuid())
+    name  String           @unique
+    roles RolePermission[]
+}
+
+model RolePermission {
+    id           String     @id @default(uuid())
+    roleId       String
+    permissionId String
+    role         Role       @relation(fields: [roleId], references: [id])
+    permission   Permission @relation(fields: [permissionId], references: [id])
+
+    @@unique([roleId, permissionId])
+    @@index([roleId])
+    @@index([permissionId])
+}
+
+model UserRole {
+    id       String @id @default(uuid())
+    userId   String
+    roleId   String
+    branchId String
+    user     User   @relation(fields: [userId], references: [id])
+    role     Role   @relation(fields: [roleId], references: [id])
+    branch   Branch @relation(fields: [branchId], references: [id])
+
+    @@unique([userId, roleId, branchId])
+    @@index([userId])
+    @@index([roleId])
+    @@index([branchId])
+}

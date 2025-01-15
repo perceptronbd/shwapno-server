@@ -1,0 +1,23 @@
+model Company {
+    id       String   @id @default(uuid())
+    name     String   @unique
+    location String?
+    branches Branch[]
+}
+
+model Branch {
+    id            String          @id @default(uuid())
+    name          String          @unique
+    location      String
+    companyId     String
+    company       Company         @relation(fields: [companyId], references: [id])
+    products      BranchProduct[]
+    userRoles     UserRole[]
+    orders        Order[]
+    stock         Stock[]
+    notifications Notification[]
+    Sale          Sale[]
+
+    @@index([companyId])
+    @@index([name])
+}
