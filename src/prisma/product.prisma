@@ -1,0 +1,59 @@
+model Product {
+    id          String             @id @default(uuid())
+    name        String
+    description String?
+    price       Decimal
+    qrCode      String             @unique
+    categories  ProductCategory[]
+    branches    BranchProduct[]
+    stock       Stock[]
+    orderItems  OrderItem[]
+    cartItems   ShoppingCartItem[]
+
+    @@index([name])
+    @@index([qrCode])
+}
+
+model Category {
+    id       String            @id @default(uuid())
+    name     String            @unique
+    products ProductCategory[]
+}
+
+model Stock {
+    id            String   @id @default(uuid())
+    branchId      String
+    productId     String
+    quantity      Int
+    lowStockAlert Boolean?
+    branch        Branch   @relation(fields: [branchId], references: [id])
+    product       Product  @relation(fields: [productId], references: [id])
+
+    @@unique([branchId, productId])
+    @@index([branchId])
+    @@index([productId])
+}
+
+model ProductCategory {
+    id         String   @id @default(uuid())
+    productId  String
+    categoryId String
+    product    Product  @relation(fields: [productId], references: [id])
+    category   Category @relation(fields: [categoryId], references: [id])
+
+    @@unique([productId, categoryId])
+    @@index([productId])
+    @@index([categoryId])
+}
+
+model BranchProduct {
+    id        String  @id @default(uuid())
+    branchId  String
+    productId String
+    branch    Branch  @relation(fields: [branchId], references: [id])
+    product   Product @relation(fields: [productId], references: [id])
+
+    @@unique([branchId, productId])
+    @@index([branchId])
+    @@index([productId])
+}

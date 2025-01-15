@@ -1,0 +1,33 @@
+model Sale {
+    id              String        @id @default(uuid())
+    orderId         String        @unique
+    paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+    paymentStatus   PaymentStatus
+    salesPersonId   String
+    branchId        String
+    subtotal        Decimal
+    tax             Decimal
+    discount        Decimal?
+    totalAmount     Decimal
+    order           Order         @relation(fields: [orderId], references: [id])
+    salesPerson     User          @relation(fields: [salesPersonId], references: [id])
+    branch          Branch        @relation(fields: [branchId], references: [id])
+    paymentMethodId String
+
+    @@index([salesPersonId])
+    @@index([branchId])
+    @@index([paymentMethodId])
+    @@index([paymentStatus])
+}
+
+model PaymentMethod {
+    id   String @id @default(uuid())
+    name String @unique
+    Sale Sale[]
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}
