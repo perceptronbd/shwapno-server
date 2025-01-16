@@ -74,6 +74,6 @@
     "@tests": "dist/tests"
   },
   "prisma": {
-    "schema": "./src/prisma"
+    "schema": "./src/prisma/schema/schema.prisma"
   }
 }
