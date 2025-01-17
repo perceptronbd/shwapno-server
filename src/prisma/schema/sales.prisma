@@ -13,6 +13,7 @@ model Sale {
     salesPerson     User          @relation(fields: [salesPersonId], references: [id])
     branch          Branch        @relation(fields: [branchId], references: [id])
     paymentMethodId String        @db.Uuid
+    Audits          Audit[]       @relation("SaleAudits")
 
     @@index([salesPersonId])
     @@index([branchId])

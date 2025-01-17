@@ -10,6 +10,7 @@ model Order {
     customer    Customer    @relation(fields: [customerId], references: [id])
     branch      Branch      @relation(fields: [branchId], references: [id])
     sale        Sale?
+    Audits      Audit[]     @relation("OrderAudits")
 
     @@index([customerId])
     @@index([branchId])
@@ -37,6 +38,7 @@ model Invoice {
     invoiceDate DateTime
     totalAmount Decimal
     order       Order    @relation(fields: [orderId], references: [id])
+    Audits      Audit[]  @relation("InvoiceAudits")
 
     @@index([invoiceDate])
 }
