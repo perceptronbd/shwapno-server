@@ -1,15 +1,16 @@
 model Company {
-    id       String   @id @default(uuid())
+    id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     name     String   @unique
     location String?
     branches Branch[]
+    roles    Role[]
 }
 
 model Branch {
-    id            String          @id @default(uuid())
+    id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     name          String          @unique
     location      String
-    companyId     String
+    companyId     String          @db.Uuid
     company       Company         @relation(fields: [companyId], references: [id])
     products      BranchProduct[]
     userRoles     UserRole[]

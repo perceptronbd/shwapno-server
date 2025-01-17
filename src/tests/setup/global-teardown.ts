@@ -1,8 +1,13 @@
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export default async function globalTeardown() {
-  //clean up the database
-  await mongoose.connection.dropDatabase();
-
-  await mongoose.connection.close();
+  try {
+    //clean up the database
+    await prisma.$disconnect();
+  } catch (error) {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
+  }
 }
