@@ -11,6 +11,7 @@ model Branch {
     name          String          @unique
     location      String
     companyId     String          @db.Uuid
+    qrImageURL    String?
     company       Company         @relation(fields: [companyId], references: [id])
     products      BranchProduct[]
     userRoles     UserRole[]

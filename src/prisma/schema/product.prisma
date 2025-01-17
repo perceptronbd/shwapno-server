@@ -1,9 +1,9 @@
 model Product {
     id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    barcode     String?            @unique
     name        String
     description String?
     price       Decimal
-    qrCode      String             @unique
     categories  ProductCategory[]
     branches    BranchProduct[]
     stock       Stock[]
@@ -12,7 +12,7 @@ model Product {
     Audits      Audit[]            @relation("ProductAudits")
 
     @@index([name])
-    @@index([qrCode])
+    @@index([barcode])
 }
 
 model Category {
