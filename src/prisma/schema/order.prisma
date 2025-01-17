@@ -1,10 +1,10 @@
 model Order {
-    id          String      @id @default(uuid())
-    customerId  String
-    branchId    String
+    id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    customerId  String      @db.Uuid
+    branchId    String      @db.Uuid
     orderDate   DateTime
     totalAmount Decimal
-    status      OrderStatus
+    status      OrderStatus @default(PENDING)
     items       OrderItem[]
     invoice     Invoice?
     customer    Customer    @relation(fields: [customerId], references: [id])
@@ -18,9 +18,9 @@ model Order {
 }
 
 model OrderItem {
-    id        String  @id @default(uuid())
-    orderId   String
-    productId String
+    id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId   String  @db.Uuid
+    productId String  @db.Uuid
     quantity  Int
     price     Decimal
     order     Order   @relation(fields: [orderId], references: [id])
@@ -32,8 +32,8 @@ model OrderItem {
 }
 
 model Invoice {
-    id          String   @id @default(uuid())
-    orderId     String   @unique
+    id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId     String   @unique @db.Uuid
     invoiceDate DateTime
     totalAmount Decimal
     order       Order    @relation(fields: [orderId], references: [id])

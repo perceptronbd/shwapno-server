@@ -1,5 +1,5 @@
 model Customer {
-    id        String        @id @default(uuid())
+    id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     firstName String
     lastName  String?
     email     String        @unique
@@ -13,16 +13,16 @@ model Customer {
 }
 
 model ShoppingCart {
-    id         String             @id @default(uuid())
-    customerId String             @unique
+    id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    customerId String             @unique @db.Uuid
     items      ShoppingCartItem[]
     customer   Customer           @relation(fields: [customerId], references: [id])
 }
 
 model ShoppingCartItem {
-    id        String       @id @default(uuid())
-    cartId    String
-    productId String
+    id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    cartId    String       @db.Uuid
+    productId String       @db.Uuid
     quantity  Int
     price     Decimal
     cart      ShoppingCart @relation(fields: [cartId], references: [id])

@@ -1,6 +1,5 @@
-import { RestaurantRoutes } from "@modules/restaurant/routes/index";
 import { AuthRoutes } from "@modules/auth/routes/auth.route";
-import { AdminRoutes } from "@modules/admin/routes/index";
+import { UserRotes } from "../user/routes";
 import { Router } from "express";
 
 const router = Router();
@@ -11,12 +10,8 @@ const moduleRoutes = [
     module: AuthRoutes,
   },
   {
-    path: "/super-admin",
-    module: AdminRoutes,
-  },
-  {
-    path: "/restaurant",
-    module: RestaurantRoutes,
+    path: "/users",
+    module: UserRotes,
   },
 ];
 

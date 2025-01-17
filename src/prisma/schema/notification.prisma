@@ -1,9 +1,9 @@
 model Notification {
-    id        String   @id @default(uuid())
+    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     type      String
     content   String
     createdAt DateTime
-    branchId  String
+    branchId  String   @db.Uuid
     branch    Branch   @relation(fields: [branchId], references: [id])
 
     @@index([branchId])

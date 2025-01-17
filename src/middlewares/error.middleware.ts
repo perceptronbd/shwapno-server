@@ -2,7 +2,6 @@ import { HTTP_STATUS_CODES } from "../utils/http-status-codes";
 import { AppError, ErrorResponse } from "../types/error.type";
 import { NextFunction, Request, Response } from "express";
 import { errorHandler } from "../handlers/error.handler";
-import { MongoServerError } from "mongodb"; // Import for specific MongoDB errors
 import { STATUS_CODES } from "http";
 import { ZodError } from "zod";
 
@@ -26,8 +25,6 @@ export const errorMiddleware = (
     errorHandler.appError(error, response);
   } else if (error instanceof ZodError) {
     errorHandler.zodError(error, response);
-  } else if (error instanceof MongoServerError) {
-    errorHandler.mongoError(error, response);
   } else if (error instanceof Error) {
     errorHandler.generalError(error, response);
   }

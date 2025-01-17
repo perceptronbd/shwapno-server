@@ -1,10 +1,10 @@
 model Sale {
-    id              String        @id @default(uuid())
-    orderId         String        @unique
+    id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId         String        @unique @db.Uuid
     paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
     paymentStatus   PaymentStatus
-    salesPersonId   String
-    branchId        String
+    salesPersonId   String        @db.Uuid
+    branchId        String        @db.Uuid
     subtotal        Decimal
     tax             Decimal
     discount        Decimal?
@@ -12,7 +12,7 @@ model Sale {
     order           Order         @relation(fields: [orderId], references: [id])
     salesPerson     User          @relation(fields: [salesPersonId], references: [id])
     branch          Branch        @relation(fields: [branchId], references: [id])
-    paymentMethodId String
+    paymentMethodId String        @db.Uuid
 
     @@index([salesPersonId])
     @@index([branchId])
@@ -21,7 +21,7 @@ model Sale {
 }
 
 model PaymentMethod {
-    id   String @id @default(uuid())
+    id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     name String @unique
     Sale Sale[]
 }

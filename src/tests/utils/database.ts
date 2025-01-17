@@ -1,6 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose from "mongoose";
+import { PrismaClient } from "@prisma/client";
 
-export const cleanupDatabase = async (models: mongoose.Model<any>[]) => {
-  await Promise.all(models.map((model) => model.deleteMany({})));
+const prisma = new PrismaClient();
+
+export const cleanupDatabase = async () => {
+  await prisma.userRole.deleteMany({});
+  await prisma.rolePermission.deleteMany({});
+  await prisma.permission.deleteMany({});
+  await prisma.role.deleteMany({});
+  await prisma.branch.deleteMany({});
+  await prisma.company.deleteMany({});
+  await prisma.user.deleteMany({});
 };
+
+export default prisma;
