@@ -18,6 +18,7 @@ model Branch {
     stock         Stock[]
     notifications Notification[]
     Sale          Sale[]
+    Audits        Audit[]         @relation("BranchAudits")
 
     @@index([companyId])
     @@index([name])
