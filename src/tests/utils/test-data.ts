@@ -11,3 +11,8 @@ export const productData = {
   price: 100,
   quantity: 10,
 };
+
+export const categoryData = {
+  id: "1",
+  name: "Category 1",
+};
