@@ -4,6 +4,7 @@ node_modules
 logs
 dist
 .vscode
+coverage
 # MongoDB data files
 data/mongodb/
 data/diagnostic.data/
