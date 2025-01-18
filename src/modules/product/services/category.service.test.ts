@@ -50,7 +50,7 @@ describe("Category Service", () => {
 
   describe("Delete Category", () => {
     it("should delete a category", async () => {
-      const { id, ...category } = categoryData;
+      const { id, ..._category } = categoryData;
 
       (prisma.category.delete as jest.Mock).mockResolvedValue(categoryData);
 

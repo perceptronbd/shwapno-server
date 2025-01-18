@@ -1,14 +1,14 @@
-const create = async (req: Request, res: Response) => {};
+const create = async () => {};
 
-const update = async (req: Request, res: Response) => {};
+const update = async () => {};
 
-const remove = async (req: Request, res: Response) => {};
+const remove = async () => {};
 
-const getAll = async (req: Request, res: Response) => {};
+const getAll = async () => {};
 
-const getById = async (req: Request, res: Response) => {};
+const getById = async () => {};
 
-const getByBranch = async (req: Request, res: Response) => {};
+const getByBranch = async () => {};
 
 export const productController = {
   create,
