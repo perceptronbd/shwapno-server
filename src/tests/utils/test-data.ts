@@ -16,3 +16,10 @@ export const categoryData = {
   id: "1",
   name: "Category 1",
 };
+
+export const stockData = {
+  id: "1",
+  productId: "1",
+  branchId: "1",
+  quantity: 10,
+};
