@@ -2,6 +2,7 @@ import { productService } from "../services/product.service";
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
 import { productController } from "./product.controller";
+import { productData } from "@/tests/utils/test-data";
 import { mocks } from "@/tests/utils/mocks";
 import { Request, Response } from "express";
 
@@ -14,10 +15,18 @@ describe("Product Controller", () => {
     jest.clearAllMocks();
   });
 
+  const { id, ...product } = productData;
+
+  const mockProducts = [
+    {
+      ...productData,
+    },
+  ];
+
   describe("Create Product", () => {
     it("should create a product", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { name: "Test Product", price: 100.0, barcode: "1234567890" },
+        body: product,
       });
 
       const mockResult = { id: 1, ...req.body };
@@ -56,13 +65,11 @@ describe("Product Controller", () => {
   describe("Update Product", () => {
     it("should update a product", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { name: "Test Product", price: 100.0, barcode: "1234567890" },
-        params: { id: "1" },
+        body: product,
+        params: { id },
       });
 
-      const mockResult = { id: "1", ...req.body };
-
-      (productService.update as jest.Mock).mockResolvedValue(mockResult);
+      (productService.update as jest.Mock).mockResolvedValue(productData);
 
       await productController.update(req as Request, res as Response);
 
@@ -72,7 +79,7 @@ describe("Product Controller", () => {
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        mockResult,
+        productData,
         HTTP_STATUS_CODES.OK,
         "Product updated successfully",
       );
@@ -81,7 +88,7 @@ describe("Product Controller", () => {
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: { name: "", price: -100, barcode: "" },
-        params: { id: "1" },
+        params: { id },
       });
 
       (productService.update as jest.Mock).mockRejectedValue(
@@ -103,7 +110,7 @@ describe("Product Controller", () => {
   describe("Delete Product", () => {
     it("should delete a product", async () => {
       const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
+        params: { id },
       });
 
       const mockResult = { id: "1" };
@@ -125,7 +132,7 @@ describe("Product Controller", () => {
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
+        params: { id },
       });
 
       (productService.remove as jest.Mock).mockRejectedValue(
@@ -146,15 +153,6 @@ describe("Product Controller", () => {
   describe("Get All Products", () => {
     it("should get all products", async () => {
       const { req, res } = mocks.createMockReqRes();
-
-      const mockProducts = [
-        {
-          id: "1",
-          name: "Test Product",
-          price: 100.0,
-          barcode: "1234567890",
-        },
-      ];
 
       (productService.getAll as jest.Mock).mockResolvedValue(mockProducts);
 
@@ -188,14 +186,11 @@ describe("Product Controller", () => {
   describe("Get Product By Id", () => {
     it("should get a product by id", async () => {
       const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
+        params: { id },
       });
 
       const mockProduct = {
-        id: "1",
-        name: "Test Product",
-        price: 100.0,
-        barcode: "1234567890",
+        ...productData,
       };
 
       (productService.getById as jest.Mock).mockResolvedValue(mockProduct);
@@ -235,15 +230,6 @@ describe("Product Controller", () => {
         params: { branchId: "1" },
         query: { category: "Test Category" },
       });
-
-      const mockProducts = [
-        {
-          id: "1",
-          name: "Test Product",
-          price: 100.0,
-          barcode: "1234567890",
-        },
-      ];
 
       (productService.getByCategory as jest.Mock).mockResolvedValue(
         mockProducts,
@@ -286,15 +272,6 @@ describe("Product Controller", () => {
       const { req, res } = mocks.createMockReqRes({
         params: { branchId: "1" },
       });
-
-      const mockProducts = [
-        {
-          id: "1",
-          name: "Test Product",
-          price: 100.0,
-          barcode: "1234567890",
-        },
-      ];
 
       (productService.getByBranch as jest.Mock).mockResolvedValue(mockProducts);
 

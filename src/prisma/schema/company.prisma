@@ -7,19 +7,20 @@ model Company {
 }
 
 model Branch {
-    id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    name          String          @unique
+    id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name          String           @unique
     location      String
-    companyId     String          @db.Uuid
+    companyId     String           @db.Uuid
     qrImageURL    String?
-    company       Company         @relation(fields: [companyId], references: [id])
+    company       Company          @relation(fields: [companyId], references: [id])
     products      BranchProduct[]
+    categories    BranchCategory[]
     userRoles     UserRole[]
     orders        Order[]
     stock         Stock[]
     notifications Notification[]
     Sale          Sale[]
-    Audits        Audit[]         @relation("BranchAudits")
+    Audits        Audit[]          @relation("BranchAudits")
 
     @@index([companyId])
     @@index([name])

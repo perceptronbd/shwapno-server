@@ -4,7 +4,8 @@ model Product {
     name        String
     description String?
     price       Decimal
-    categories  ProductCategory[]
+    categoryId  String?            @db.Uuid
+    category    Category?          @relation(fields: [categoryId], references: [id])
     branches    BranchProduct[]
     stock       Stock[]
     orderItems  OrderItem[]
@@ -16,10 +17,12 @@ model Product {
 }
 
 model Category {
-    id       String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    name     String            @unique
-    products ProductCategory[]
-    Audits   Audit[]           @relation("CategoryAudits")
+    id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name     String    @unique
+    products Product[]
+
+    Audits         Audit[]          @relation("CategoryAudits")
+    BranchCategory BranchCategory[]
 }
 
 model Stock {
@@ -37,16 +40,12 @@ model Stock {
     @@index([productId])
 }
 
-model ProductCategory {
+model BranchCategory {
     id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    productId  String   @db.Uuid
+    branchId   String   @db.Uuid
     categoryId String   @db.Uuid
-    product    Product  @relation(fields: [productId], references: [id])
+    branch     Branch   @relation(fields: [branchId], references: [id])
     category   Category @relation(fields: [categoryId], references: [id])
-
-    @@unique([productId, categoryId])
-    @@index([productId])
-    @@index([categoryId])
 }
 
 model BranchProduct {
