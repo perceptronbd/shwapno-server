@@ -4,11 +4,15 @@ import { sendResponse } from "@handlers/response.handler";
 import { setCookie } from "@utils/cookie.util";
 import { Request, Response } from "express";
 
-const refresh = async (req: Request, res: Response) => {
+const login = async () => {};
+
+const logout = async () => {};
+
+const resetPassword = async () => {};
+
+const refreshTokens = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
   const rememberMe = req.body.rememberMe;
-
-  console.log("cookies", req.cookies);
 
   const tokens = await authService.refreshTokens(refreshToken, rememberMe);
 
@@ -25,5 +29,8 @@ const refresh = async (req: Request, res: Response) => {
 };
 
 export const authController = {
-  refresh,
+  login,
+  logout,
+  resetPassword,
+  refreshTokens,
 };

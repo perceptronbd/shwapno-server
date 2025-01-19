@@ -4,6 +4,6 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/refresh", asyncHandler(authController.refresh));
+router.post("/refresh", asyncHandler(authController.refreshTokens));
 
 export const AuthRoutes = router;

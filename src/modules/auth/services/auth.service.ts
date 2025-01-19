@@ -3,6 +3,10 @@ import { generateTokens } from "@utils/token.utili";
 import { AppError } from "@/types/error.type";
 import jwt from "jsonwebtoken";
 
+const login = async () => {};
+
+const resetPassword = async () => {};
+
 const refreshTokens = async (refreshToken: string, rememberMe: boolean) => {
   try {
     const decoded = jwt.verify(
@@ -24,5 +28,7 @@ const refreshTokens = async (refreshToken: string, rememberMe: boolean) => {
 };
 
 export const authService = {
+  login,
+  resetPassword,
   refreshTokens,
 };
