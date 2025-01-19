@@ -1,3 +1,14 @@
+export const userData = {
+  id: "00",
+  phone: "1234567890",
+  email: "user_00@gmail.com",
+  password: "admin1234",
+  policy: {
+    roles: ["admin"],
+    permissions: ["CREATE:ALL"],
+  },
+};
+
 export const branchData = {
   id: "1",
   name: "Branch 1",
