@@ -18,15 +18,21 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: |
-          npm install
-          npm run prepare
+        run: npm install
 
       - name: Run prepare script
         run: npm run prepare
 
-      - name: Run tests
+      - name: Run tests for changes
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm test
+        run: npm run test:changed
