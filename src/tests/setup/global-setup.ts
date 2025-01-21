@@ -12,9 +12,9 @@ export default async function globalSetup() {
     dotenv.config({ path: ".env.test" });
 
     // Connect to express app
-    console.log("Test Server is running on localhost:5000/api/v1");
-    app.listen(5000, () => {
-      console.log("Test Server is running on localhost:5000/api/v1");
+    console.log("Test Server is running on localhost:5007/api/v1");
+    app.listen(5007, () => {
+      console.log("Test Server is running on localhost:5007/api/v1");
     });
 
     console.log("Connecting to the database");
