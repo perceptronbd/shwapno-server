@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -27,6 +29,7 @@ jobs:
         run: npx jest --changedSince=origin/dev
 
       - name: Run all tests (last resort fallback)
+        if: failure()
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx jest
