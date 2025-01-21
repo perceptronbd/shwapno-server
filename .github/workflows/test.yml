@@ -9,7 +9,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     steps:
+      - name: Cache fetched Git commits
+        uses: actions/cache@v3
+        with:
+          path: .git
+          key: git-cache-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            git-cache-${{ github.ref_name }}-
+
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
@@ -24,12 +35,8 @@ jobs:
         run: npm install
 
       - name: Run only changed tests
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx jest --changedSince=origin/dev
 
       - name: Run all tests (last resort fallback)
         if: failure()
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx jest
