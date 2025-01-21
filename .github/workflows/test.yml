@@ -38,3 +38,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npm run test:changed
+
+      - name: Debug changed files
+        run: git diff --name-only HEAD~1
+
+      - name: Run changed tests
+        run: jest --listTests --onlyChanged
