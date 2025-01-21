@@ -1,9 +1,9 @@
 import { clearCookieAndHeader, setCookie } from "@utils/cookie.util";
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
-import { authService } from "../../services/auth.service";
 import { sendResponse } from "@handlers/response.handler";
-import { authController } from "../auth.controller";
+import { authService } from "../services/auth.service";
 import { userData } from "@/tests/utils/test-data";
+import { authController } from "./auth.controller";
 import { mocks } from "@/tests/utils/mocks";
 import { Request, Response } from "express";
 
