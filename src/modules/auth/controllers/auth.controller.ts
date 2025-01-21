@@ -9,7 +9,7 @@ const login = async () => {};
 const logout = async () => {};
 
 const resetPassword = async (_req: Request, _res: Response) => {
-  console.log("reset password!!!");
+  console.log("reset password");
   return "reset password";
 };
 
