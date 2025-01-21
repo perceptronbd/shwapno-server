@@ -24,9 +24,6 @@ jobs:
       - name: Debug Jest test matching
         run: npx jest --listTests
 
-      - name: Debug changed files
-        run: git diff --name-only HEAD~1
-
       - name: Run specific test (manual fallback)
         run: npx jest src/modules/auth/controllers/__tests__/auth.controller.test.ts
 
