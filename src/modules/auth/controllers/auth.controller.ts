@@ -8,7 +8,10 @@ const login = async () => {};
 
 const logout = async () => {};
 
-const resetPassword = async (_req: Request, _res: Response) => {};
+const resetPassword = async (_req: Request, _res: Response) => {
+  console.log("reset password");
+  return "reset password";
+};
 
 const refreshTokens = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
