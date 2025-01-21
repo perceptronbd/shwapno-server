@@ -43,4 +43,4 @@ jobs:
         run: git diff --name-only HEAD~1
 
       - name: Run changed tests
-        run: jest --listTests --onlyChanged
+        run: npx jest --listTests --onlyChanged
