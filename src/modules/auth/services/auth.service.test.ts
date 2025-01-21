@@ -92,7 +92,7 @@ describe("Auth Service", () => {
     //write test case for resetPassword where an email is sent to the user with a link to reset password
 
     it("should reset password", async () => {
-      const { email } = userData;
+      const { email, password } = userData;
 
       (prisma.user.findFirst as jest.Mock).mockResolvedValue(userData);
       (prisma.user.update as jest.Mock).mockResolvedValue(userData);
