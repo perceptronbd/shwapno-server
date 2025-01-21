@@ -35,7 +35,7 @@ jobs:
         run: npm install
 
       - name: Run only changed tests
-        run: npx jest --changedSince=origin/dev
+        run: npx jest --changedSince=origin/dev --detectOpenHandles
 
       - name: Run all tests (last resort fallback)
         if: failure()
