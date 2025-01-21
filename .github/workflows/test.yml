@@ -21,8 +21,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Debug Jest test matching
-        run: npx jest --listTests
+      - name: Run only changed tests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx jest --changedSince=origin/dev
 
       - name: Run all tests (last resort fallback)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx jest
