@@ -36,7 +36,3 @@ jobs:
 
       - name: Run only changed tests
         run: npx jest --changedSince=origin/dev --detectOpenHandles --forceExit
-
-      - name: Run all tests (last resort fallback)
-        if: failure()
-        run: npx jest
