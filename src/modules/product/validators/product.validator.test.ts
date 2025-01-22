@@ -116,6 +116,7 @@ describe("Product Validator", () => {
     it("should validate a valid request", () => {
       const request = {
         params: { branchId: "1" },
+        query: { page: 1, limit: 10 },
       };
 
       expect(() => validateProduct.getByBranch.parse(request)).not.toThrow();

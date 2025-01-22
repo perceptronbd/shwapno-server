@@ -114,16 +114,41 @@ describe("Product Service", () => {
   });
 
   describe("Get Products By Branch", () => {
-    it("should get products by branch", async () => {
-      (prisma.product.findMany as jest.Mock).mockResolvedValue([productData]);
+    it("should get products by branch with pagination", async () => {
+      const page = 1;
+
+      const mockFilteredProducts = [productData].map((product) => ({
+        imageURL: product.imgURL,
+        name: product.name,
+        price: product.price,
+        category: product.category,
+      }));
+
+      (prisma.product.findMany as jest.Mock).mockResolvedValue(
+        mockFilteredProducts,
+      );
 
       const result = await productService.getByBranch({
         branchId: branchData.id,
+        limit: 10,
+        page,
       });
 
-      expect(result).toEqual([productData]);
+      expect(result).toEqual(mockFilteredProducts);
       expect(prisma.product.findMany).toHaveBeenCalledWith({
         where: { branchProducts: { some: { branchId: branchData.id } } },
+        take: 10,
+        skip: 10 * (page - 1),
+        select: {
+          imageURL: true,
+          name: true,
+          price: true,
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
       });
     });
   });
