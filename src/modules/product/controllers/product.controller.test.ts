@@ -3,8 +3,8 @@ import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
 import { productController } from "./product.controller";
 import { productData } from "@/tests/utils/test-data";
-import { mocks } from "@/tests/utils/mocks";
 import { Request, Response } from "express";
+import { mocks } from "@/tests/utils/mocks";
 
 // Mock dependencies
 jest.mock("@handlers/response.handler");
@@ -271,18 +271,30 @@ describe("Product Controller", () => {
     it("should get products by branch", async () => {
       const { req, res } = mocks.createMockReqRes({
         params: { branchId: "1" },
+        query: { limit: "10", page: "1" },
       });
 
-      (productService.getByBranch as jest.Mock).mockResolvedValue(mockProducts);
+      const mockFilteredProducts = mockProducts.map((product) => ({
+        imageURL: product.imgURL,
+        name: product.name,
+        price: product.price,
+        category: product.category,
+      }));
+
+      (productService.getByBranch as jest.Mock).mockResolvedValue(
+        mockFilteredProducts,
+      );
 
       await productController.getByBranch(req as Request, res as Response);
 
-      expect(productService.getByBranch).toHaveBeenCalledWith(
-        req.params?.branchId,
-      );
+      expect(productService.getByBranch).toHaveBeenCalledWith({
+        branchId: req.params?.branchId,
+        limit: req.query?.limit,
+        page: req.query?.page,
+      });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        mockProducts,
+        mockFilteredProducts,
         HTTP_STATUS_CODES.OK,
         "Products retrieved successfully",
       );
@@ -291,6 +303,7 @@ describe("Product Controller", () => {
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
         params: { branchId: "1" },
+        query: { limit: "10", page: "1" },
       });
 
       (productService.getByBranch as jest.Mock).mockRejectedValue(
@@ -301,9 +314,11 @@ describe("Product Controller", () => {
         productController.getByBranch(req as Request, res as Response),
       ).rejects.toThrow("Service Error");
 
-      expect(productService.getByBranch).toHaveBeenCalledWith(
-        req.params?.branchId,
-      );
+      expect(productService.getByBranch).toHaveBeenCalledWith({
+        branchId: req.params?.branchId,
+        limit: req.query?.limit,
+        page: req.query?.page,
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });

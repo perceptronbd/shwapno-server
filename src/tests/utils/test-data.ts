@@ -19,8 +19,12 @@ export const branchData = {
 export const productData = {
   id: "1",
   name: "Product 1",
+  barcode: "1234567890",
   price: 100,
   quantity: 10,
+  imgURL: "https://example.com",
+  categoryId: "1",
+  category: "Category 1",
 };
 
 export const categoryData = {
