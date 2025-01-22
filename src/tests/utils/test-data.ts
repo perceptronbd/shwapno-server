@@ -38,3 +38,21 @@ export const stockData = {
   branchId: "1",
   quantity: 10,
 };
+
+export const cartData = {
+  id: "1",
+  sessionId: "1234567890",
+  customerId: "1",
+  items: [
+    {
+      id: "1",
+      cartId: "1",
+      productId: productData.id,
+      quantity: 2,
+      price: productData.price,
+      product: {
+        ...productData,
+      },
+    },
+  ],
+};
