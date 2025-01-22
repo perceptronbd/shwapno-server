@@ -3,8 +3,8 @@ import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
 import { productController } from "./product.controller";
 import { productData } from "@/tests/utils/test-data";
-import { Request, Response } from "express";
 import { mocks } from "@/tests/utils/mocks";
+import { Request, Response } from "express";
 
 // Mock dependencies
 jest.mock("@handlers/response.handler");
