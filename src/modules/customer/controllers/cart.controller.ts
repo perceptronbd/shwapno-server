@@ -8,5 +8,4 @@ export const cartController = {
   add,
   update,
   get,
-  remove,
 };
