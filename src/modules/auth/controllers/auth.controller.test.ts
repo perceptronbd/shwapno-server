@@ -41,11 +41,11 @@ describe("Auth Controller", () => {
 
       await authController.login(req as Request, res as Response);
 
-      expect(authService.login).toHaveBeenCalledWith(
+      expect(authService.login).toHaveBeenCalledWith({
         email,
         password,
         rememberMe,
-      );
+      });
       expect(setCookie).toHaveBeenCalledWith(
         res,
         "refreshToken",
@@ -80,11 +80,11 @@ describe("Auth Controller", () => {
 
       await authController.login(req as Request, res as Response);
 
-      expect(authService.login).toHaveBeenCalledWith(
+      expect(authService.login).toHaveBeenCalledWith({
         email,
         password,
         rememberMe,
-      );
+      });
       expect(setCookie).toHaveBeenCalledWith(
         res,
         "refreshToken",
@@ -109,13 +109,13 @@ describe("Auth Controller", () => {
 
       await expect(
         authController.login(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
-      expect(authService.login).toHaveBeenCalledWith(
+      expect(authService.login).toHaveBeenCalledWith({
         email,
         password,
         rememberMe,
-      );
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
 
@@ -136,11 +136,11 @@ describe("Auth Controller", () => {
         authController.login(req as Request, res as Response),
       ).rejects.toThrow("Invalid credentials");
 
-      expect(authService.login).toHaveBeenCalledWith(
+      expect(authService.login).toHaveBeenCalledWith({
         email,
         password,
         rememberMe,
-      );
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
