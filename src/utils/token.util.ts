@@ -1,11 +1,16 @@
 import jwt from "jsonwebtoken";
-
-export const generateTokens = (
-  id: string,
-  email: string,
-  policy: { roles: string[]; permissions: string[] },
-  rememberMe: boolean = false,
-) => {
+type TGenerateTokens = {
+  id: string;
+  email: string;
+  policy: { roles: string[]; permissions: string[] };
+  rememberMe: boolean;
+};
+export const generateTokens = ({
+  id,
+  email,
+  policy,
+  rememberMe,
+}: TGenerateTokens) => {
   const expiresIn: string = rememberMe ? "7d" : "1d";
 
   const accessToken = jwt.sign(
