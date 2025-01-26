@@ -4,9 +4,23 @@ import { sendResponse } from "@handlers/response.handler";
 import { setCookie } from "@utils/cookie.util";
 import { Request, Response } from "express";
 
-const login = async () => {};
+const login = async (req: Request, res: Response) => {
+  const { email, password, rememberMe } = req.body;
 
-const logout = async () => {};
+  const { accessToken, refreshToken, user } = await authService.login({
+    email,
+    password,
+    rememberMe,
+  });
+
+  setCookie(res, "refreshToken", refreshToken);
+  res.setHeader("Authorization", `Bearer ${accessToken}`);
+  sendResponse(res, user, HTTP_STATUS_CODES.OK, "Login successful!");
+};
+
+const logout = async (req: Request, res: Response) => {
+  console.log(req, res);
+};
 
 const resetPassword = async (_req: Request, _res: Response) => {
   console.log("reset password");

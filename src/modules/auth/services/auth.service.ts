@@ -1,9 +1,21 @@
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
+import { TLoginRequest } from "../validators/auth.validate";
 import { generateTokens } from "@utils/token.utili";
 import { AppError } from "@/types/error.type";
 import jwt from "jsonwebtoken";
 
-const login = async () => {};
+const login = async ({ email, password, rememberMe }: TLoginRequest) => {
+  console.log(email, password, rememberMe);
+  return {
+    accessToken: "accessToken",
+    refreshToken: "refreshToken",
+    user: {
+      id: 1,
+      email: "email",
+      roles: ["admin"],
+    },
+  };
+};
 
 const resetPassword = async () => {};
 
