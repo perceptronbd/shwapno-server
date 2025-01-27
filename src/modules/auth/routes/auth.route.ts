@@ -10,6 +10,15 @@ router.post(
   validate(validateAuth.login),
   asyncHandler(authController.login),
 );
+
+router.post(
+  "/reset-password",
+  validate(validateAuth.resetPassword),
+  asyncHandler(authController.resetPassword),
+);
+
+router.post("/logout", asyncHandler(authController.logout));
+
 router.post("/refresh", asyncHandler(authController.refreshTokens));
 
 export const AuthRoutes = router;

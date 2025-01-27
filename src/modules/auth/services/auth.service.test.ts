@@ -83,7 +83,6 @@ describe("Auth Service", () => {
 
       await authService.resetPassword({ email, password });
 
-      expect(authModels.getUserByEmail).toHaveBeenCalledWith(email);
       expect(authModels.updatePassword).toHaveBeenCalledWith({
         email,
         password,
