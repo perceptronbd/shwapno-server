@@ -25,7 +25,7 @@ const logout = async (_: Request, res: Response) => {
 
 const resetPassword = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  
+
   // Call the service to reset the password
   await authService.resetPassword({ email, password });
 
