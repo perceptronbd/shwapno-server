@@ -1,8 +1,9 @@
+import { TPermissions } from "@/modules/auth/types";
 import jwt from "jsonwebtoken";
 type TGenerateTokens = {
   id: string;
   email: string;
-  policy: { roles: string[]; permissions: string[] };
+  policy: { roles: string[]; permissions: TPermissions[] };
   rememberMe: boolean;
 };
 export const generateTokens = ({
