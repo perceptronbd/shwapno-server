@@ -14,9 +14,12 @@ model Customer {
 
 model ShoppingCart {
     id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    customerId String             @unique @db.Uuid
+    sessionId  String             @unique
+    customerId String?            @unique @db.Uuid
     items      ShoppingCartItem[]
-    customer   Customer           @relation(fields: [customerId], references: [id])
+    customer   Customer?          @relation(fields: [customerId], references: [id])
+
+    @@index([customerId])
 }
 
 model ShoppingCartItem {

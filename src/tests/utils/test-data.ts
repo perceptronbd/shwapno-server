@@ -1,5 +1,5 @@
 export const userData = {
-  id: "00",
+  id: "user-001",
   phone: "1234567890",
   email: "user_00@gmail.com",
   password: "admin1234",
@@ -9,28 +9,85 @@ export const userData = {
   },
 };
 
+export const customerData = {
+  id: "customer-001",
+  phone: "1234567890",
+  firstName: "Customer",
+  lastName: "One",
+  email: "customer@gmail.com",
+  mobile: "1234567890",
+  address: "Address 1",
+};
+
 export const branchData = {
-  id: "1",
+  id: "branch-001",
   name: "Branch 1",
   address: "Address 1",
-  companyId: "1",
+  companyId: "company-001",
 };
 
 export const productData = {
-  id: "1",
+  id: "product-001",
   name: "Product 1",
+  barcode: "1234567890",
   price: 100,
   quantity: 10,
+  imgURL: "https://example.com",
+  categoryId: "category-001",
+  category: "Category 1",
 };
 
 export const categoryData = {
-  id: "1",
+  id: "category-001",
   name: "Category 1",
 };
 
 export const stockData = {
-  id: "1",
-  productId: "1",
-  branchId: "1",
+  id: "stock-001",
+  productId: "product-001",
+  branchId: "branch-001",
   quantity: 10,
+};
+
+export const cartData = {
+  id: "cart-001",
+  sessionId: "session-001",
+  customerId: "customer-001",
+  items: [
+    {
+      id: "cart-item-001",
+      cartId: "cart-001",
+      productId: productData.id,
+      quantity: 2,
+      price: productData.price,
+      product: {
+        ...productData,
+      },
+    },
+  ],
+};
+
+export const orderData = {
+  id: "order-001",
+  customerId: "customer-001",
+  branchId: "branch-001",
+  customer: {
+    ...customerData,
+  },
+  items: [
+    {
+      id: "order-item-001",
+      orderId: "order-001",
+      productId: productData.id,
+      quantity: 2,
+      price: productData.price,
+      product: {
+        ...productData,
+      },
+    },
+  ],
+  status: "PENDING",
+  totalAmount: 200,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };

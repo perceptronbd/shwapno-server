@@ -9,30 +9,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     steps:
+      - name: Cache fetched Git commits
+        uses: actions/cache@v3
+        with:
+          path: .git
+          key: git-cache-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            git-cache-${{ github.ref_name }}-
+
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "20"
 
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install dependencies
         run: npm install
 
-      - name: Run prepare script
-        run: npm run prepare
-
-      - name: Run tests for changes
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npm run test:changed
+      - name: Run only changed tests
+        run: npx jest --changedSince=origin/dev --detectOpenHandles --forceExit
