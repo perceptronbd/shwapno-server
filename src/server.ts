@@ -1,6 +1,3 @@
-//prettier-ignore
-// import "module-alias/register";
-
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { connectDB } from "./config/db.config";
 import express, { Application } from "express";
