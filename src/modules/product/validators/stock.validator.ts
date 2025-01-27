@@ -8,7 +8,7 @@ const productId = z.string({ invalid_type_error: "Invalid ID format" });
 const quantity = z.number().positive().int().default(1);
 
 // Validation for Create Stock
-const createStockSchema = z.object({
+const create = z.object({
   body: z.object({
     quantity,
     productId,
@@ -16,7 +16,7 @@ const createStockSchema = z.object({
 });
 
 // Validation for Update Stock
-const updateStockSchema = z.object({
+const update = z.object({
   body: z.object({
     quantity,
     productId,
@@ -27,39 +27,46 @@ const updateStockSchema = z.object({
 });
 
 // Validation for Delete Stock
-const deleteStockSchema = z.object({
+const remove = z.object({
   params: z.object({
     id,
   }),
 });
 
 // Validation for Get All Stocks (company)
-const getAllStocksSchema = z.object({
+const getAll = z.object({
   params: z.object({
     id,
   }),
 });
 
 // Validation for Get Stock By Id
-const getStockByIdSchema = z.object({
+const getById = z.object({
   params: z.object({
     id,
   }),
 });
 
 // Validation for Get Stock By Branch
-const getStockByBranchSchema = z.object({
+const getByBranch = z.object({
   params: z.object({
     id,
   }),
 });
 
+export type TCreateStock = z.infer<typeof create>["body"];
+export type TUpdateStock = z.infer<typeof update>["body"];
+export type TDeleteStock = z.infer<typeof remove>["params"];
+export type TGetAllStocks = z.infer<typeof getAll>["params"];
+export type TGetStockById = z.infer<typeof getById>["params"];
+export type TGetStockByBranch = z.infer<typeof getByBranch>["params"];
+
 // Exporting all schemas
 export const validateStock = {
-  create: createStockSchema,
-  update: updateStockSchema,
-  remove: deleteStockSchema,
-  getAll: getAllStocksSchema,
-  getById: getStockByIdSchema,
-  getByBranch: getStockByBranchSchema,
+  create,
+  update,
+  remove,
+  getAll,
+  getById,
+  getByBranch,
 };

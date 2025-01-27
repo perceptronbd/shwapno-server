@@ -1,4 +1,4 @@
-import { categoryController } from "../services/category.service";
+import { categoryController } from "../controllers/category.controller";
 import { categoryService } from "../services/category.service";
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
