@@ -10,6 +10,9 @@ router.post(
   validate(validateAuth.login),
   asyncHandler(authController.login),
 );
+
+router.post("/logout", asyncHandler(authController.logout));
+
 router.post("/refresh", asyncHandler(authController.refreshTokens));
 
 export const AuthRoutes = router;

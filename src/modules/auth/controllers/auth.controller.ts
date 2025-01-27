@@ -1,7 +1,7 @@
+import { clearCookieAndHeader, setCookie } from "@utils/cookie.util";
 import { authService } from "@modules/auth/services/auth.service";
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
-import { setCookie } from "@utils/cookie.util";
 import { Request, Response } from "express";
 
 const login = async (req: Request, res: Response) => {
@@ -18,8 +18,9 @@ const login = async (req: Request, res: Response) => {
   sendResponse(res, user, HTTP_STATUS_CODES.OK, "Login successful!");
 };
 
-const logout = async (req: Request, res: Response) => {
-  console.log(req, res);
+const logout = async (_: Request, res: Response) => {
+  clearCookieAndHeader(res);
+  sendResponse(res, null, HTTP_STATUS_CODES.OK, "Logout successful!");
 };
 
 const resetPassword = async (_req: Request, _res: Response) => {
