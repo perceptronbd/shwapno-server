@@ -6,6 +6,8 @@ const createMockReqRes = (
 ) => {
   const mockJson = jest.fn();
   const mockStatus = jest.fn().mockReturnValue({ json: mockJson });
+  const mockCookie = jest.fn();
+  const mockHeader = jest.fn();
 
   const req: Partial<Request> = {
     body: {},
@@ -16,6 +18,8 @@ const createMockReqRes = (
   const res: Partial<Response> = {
     status: mockStatus,
     json: mockJson,
+    setHeader: mockHeader,
+    cookie: mockCookie,
     ...paramsOverrides,
   };
 

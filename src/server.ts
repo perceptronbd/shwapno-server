@@ -1,6 +1,3 @@
-//prettier-ignore
-// import "module-alias/register";
-
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { connectDB } from "./config/db.config";
 import express, { Application } from "express";
@@ -21,7 +18,7 @@ app.use(cookieParser());
 
 // cross origin resource sharing
 const corsOptions = {
-  // allow all in the developemnt mode
+  // allow all in the development mode
   origin: process.env.NODE_ENV === "development" ? "*" : process.env.CLIENT_URL,
   credentials: true,
 };
