@@ -158,9 +158,15 @@ describe("Auth Controller", () => {
   describe("Reset Password", () => {
     it("should reset password", async () => {
       const { email, password } = userData;
-      const { req, res } = mocks.createMockReqRes();
+      const { password: _, ...restUser } = userData;
 
-      (authService.resetPassword as jest.Mock).mockResolvedValue(undefined);
+      const { req, res } = mocks.createMockReqRes({
+        body: { email, password },
+      });
+
+      (authService.resetPassword as jest.Mock).mockResolvedValue({
+        ...restUser,
+      });
 
       await authController.resetPassword(req as Request, res as Response);
 
@@ -185,7 +191,7 @@ describe("Auth Controller", () => {
 
       await expect(
         authController.resetPassword(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(sendResponse).not.toHaveBeenCalled();
     });

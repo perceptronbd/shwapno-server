@@ -23,9 +23,19 @@ const logout = async (_: Request, res: Response) => {
   sendResponse(res, null, HTTP_STATUS_CODES.OK, "Logout successful!");
 };
 
-const resetPassword = async (_req: Request, _res: Response) => {
-  console.log("reset password");
-  return "reset password";
+const resetPassword = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  
+  // Call the service to reset the password
+  await authService.resetPassword({ email, password });
+
+  // Send a success response
+  sendResponse(
+    res,
+    null,
+    HTTP_STATUS_CODES.OK,
+    "Password updated successfully!",
+  );
 };
 
 const refreshTokens = async (req: Request, res: Response) => {
