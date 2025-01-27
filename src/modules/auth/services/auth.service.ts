@@ -11,7 +11,7 @@ import jwt from "jsonwebtoken";
 
 const login = async ({ email, password, rememberMe }: TLoginRequest) => {
   const user = await authModels.getUserByEmail(email);
-  console.log("🚀 > login > user:", user)
+  console.log("🚀 > login > user:", user);
 
   if (!user) {
     throw new AppError(HTTP_STATUS_CODES.UNAUTHORIZED, "Invalid password");

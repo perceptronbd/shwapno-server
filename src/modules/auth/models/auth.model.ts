@@ -28,7 +28,7 @@ const getUserByEmail = async (email: string): Promise<TUser> => {
     user?.userRoles
       .map((role) =>
         role.role.permissions.map(
-          (p) => `${p.permission.action}:${p.permission.resource}` ,
+          (p) => `${p.permission.action}:${p.permission.resource}`,
         ),
       )
       .flat() ?? [];

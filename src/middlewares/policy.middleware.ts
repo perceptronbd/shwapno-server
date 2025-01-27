@@ -55,7 +55,7 @@ async function fetchRolePermissions(userId: string): Promise<IPolicy> {
 export function checkPolicy(role: string, action: Action, resource: Resource) {
   return async (_req: Request, res: Response, next: NextFunction) => {
     const permission = `${action}:${resource}`;
-    
+
     try {
       // const userId = req.cookies.userId;
       const userId = "920e12d7-9e6d-48de-bc1f-c7ae6910f4bf";
