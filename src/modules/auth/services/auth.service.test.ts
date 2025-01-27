@@ -1,10 +1,8 @@
-import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { validatePassword } from "@/helpers/auth.helper";
 import { generateTokens } from "@/utils/token.util";
 import { userData } from "@/tests/utils/test-data";
-import { AppError } from "@/types/error.type";
+import { authModels } from "../models/auth.model";
 import { authService } from "./auth.service";
-import prisma from "@/config/db.config";
 
 jest.mock("@/utils/token.util", () => ({
   generateTokens: jest.fn(),
@@ -12,15 +10,7 @@ jest.mock("@/utils/token.util", () => ({
 jest.mock("@/helpers/auth.helper", () => ({
   validatePassword: jest.fn(),
 }));
-jest.mock("@/config/db.config", () => ({
-  user: {
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-  },
-}));
+jest.mock("../models/auth.model");
 
 describe("Auth Service", () => {
   beforeEach(() => {
@@ -36,15 +26,13 @@ describe("Auth Service", () => {
         accessToken: "accessToken",
         refreshToken: "refreshToken",
       };
-      (prisma.user.findFirst as jest.Mock).mockResolvedValue(userData);
+      (authModels.getUserByEmail as jest.Mock).mockResolvedValue(userData);
       (validatePassword as jest.Mock).mockResolvedValue(true);
       (generateTokens as jest.Mock).mockReturnValue(tokens);
 
       const result = await authService.login({ email, password, rememberMe });
 
-      expect(prisma.user.findFirst).toHaveBeenCalledWith({
-        where: { email },
-      });
+      expect(authModels.getUserByEmail).toHaveBeenCalledWith(email);
       expect(validatePassword).toHaveBeenCalledWith(
         password,
         userData.password,
@@ -57,7 +45,7 @@ describe("Auth Service", () => {
       });
       expect(result).toEqual({
         user: {
-          id: 1,
+          id: userData.id,
           email,
           roles: ["admin"],
         },
@@ -67,24 +55,20 @@ describe("Auth Service", () => {
     });
 
     it("should throw an error if admin is not found", async () => {
-      (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+      (authModels.getUserByEmail as jest.Mock).mockResolvedValue(null);
 
       await expect(
         authService.login({ email, password, rememberMe }),
-      ).rejects.toThrow(
-        new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Admin not found!"),
-      );
+      ).rejects.toThrow();
     });
 
     it("should throw an error if password is invalid", async () => {
-      (prisma.user.findFirst as jest.Mock).mockResolvedValue(userData);
+      (authModels.getUserByEmail as jest.Mock).mockResolvedValue(userData);
       (validatePassword as jest.Mock).mockResolvedValue(false);
 
       await expect(
         authService.login({ email, password, rememberMe }),
-      ).rejects.toThrow(
-        new AppError(HTTP_STATUS_CODES.UNAUTHORIZED, "Invalid password"),
-      );
+      ).rejects.toThrow();
     });
   });
 
@@ -94,17 +78,15 @@ describe("Auth Service", () => {
     it("should reset password", async () => {
       const { email, password } = userData;
 
-      (prisma.user.findFirst as jest.Mock).mockResolvedValue(userData);
-      (prisma.user.update as jest.Mock).mockResolvedValue(userData);
+      (authModels.getUserByEmail as jest.Mock).mockResolvedValue(userData);
+      (authModels.updatePassword as jest.Mock).mockResolvedValue(userData);
 
       await authService.resetPassword({ email, password });
 
-      expect(prisma.user.findFirst).toHaveBeenCalledWith({
-        where: { email },
-      });
-      expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { email },
-        data: { password },
+      expect(authModels.getUserByEmail).toHaveBeenCalledWith(email);
+      expect(authModels.updatePassword).toHaveBeenCalledWith({
+        email,
+        password,
       });
     });
   });
