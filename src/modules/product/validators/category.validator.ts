@@ -64,12 +64,12 @@ const findByBranch = z.object({
   }),
 });
 
-export type TCreate = z.infer<typeof create>["body"];
-export type TUpdate = z.infer<typeof update>["body"];
-export type TRemove = z.infer<typeof remove>["params"];
-export type TFindMany = z.infer<typeof findMany>["query"];
-export type TFindUnique = z.infer<typeof findUnique>["params"];
-export type TFindByBranch = z.infer<typeof findByBranch>["query"];
+export type TCreateCategory = z.infer<typeof create>["body"];
+export type TUpdateCategory = z.infer<typeof update>["body"];
+export type TRemoveCategory = z.infer<typeof remove>["params"];
+export type TFindManyCategory = z.infer<typeof findMany>["query"];
+export type TFindUniqueCategory = z.infer<typeof findUnique>["params"];
+export type TFindByBranchCategory = z.infer<typeof findByBranch>["query"];
 
 export const validateCategory = {
   create,
