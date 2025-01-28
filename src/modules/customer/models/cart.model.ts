@@ -4,7 +4,7 @@ import { AppError } from "@/types/error.type";
 import prisma from "@/config/db.config";
 
 // Get all cart items
-const findAll = async (cartId: string) => {
+const findOne = async (cartId: string) => {
   return await prisma.shoppingCartItem.findMany({
     where: {
       cartId,
@@ -59,7 +59,10 @@ const create = async ({
   });
 };
 
-export const cartModels = {
-  findAll,
+const update = async () => {};
+
+export const cartModel = {
+  findOne,
   create,
+  update,
 };
