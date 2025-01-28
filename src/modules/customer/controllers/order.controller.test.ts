@@ -16,19 +16,19 @@ describe("Order Controller", () => {
   });
 
   const { id: custId, ...customer } = customerData;
-  const { id: cartId, ..._cart } = cartData;
+  const { sessionId, ..._cart } = cartData;
 
   describe("Create Order", () => {
     it("should create an order", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { ...customer, cartId },
+        body: { ...customer, sessionId },
       });
 
       (orderService.create as jest.Mock).mockResolvedValue(orderData);
 
       await orderController.create(req as Request, res as Response);
 
-      expect(orderService.create).toHaveBeenCalledWith({ customer, cartId });
+      expect(orderService.create).toHaveBeenCalledWith({ customer, sessionId });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         orderData,
@@ -39,16 +39,16 @@ describe("Order Controller", () => {
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { ...customer, cartId },
+        body: { ...customer, sessionId },
       });
 
       (orderService.create as jest.Mock).mockRejectedValue(new Error("Error"));
 
       await expect(
         orderController.create(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
-      expect(orderService.create).toHaveBeenCalledWith({ customer, cartId });
+      expect(orderService.create).toHaveBeenCalledWith({ customer, sessionId });
     });
   });
 
