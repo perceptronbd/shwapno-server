@@ -65,7 +65,7 @@ describe("Category Validator", () => {
     it("should validate a valid request", () => {
       const request = {};
 
-      expect(() => validateCategory.findMany.parse(request)).not.toThrow();
+      expect(() => validateCategory.getAll.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
@@ -73,7 +73,7 @@ describe("Category Validator", () => {
         query: { page: "invalid" },
       };
 
-      expect(() => validateCategory.findMany.parse(request)).toThrow();
+      expect(() => validateCategory.getAll.parse(request)).toThrow();
     });
   });
 
@@ -83,7 +83,7 @@ describe("Category Validator", () => {
         params: { id: "1" },
       };
 
-      expect(() => validateCategory.findUnique.parse(request)).not.toThrow();
+      expect(() => validateCategory.getById.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
@@ -91,7 +91,7 @@ describe("Category Validator", () => {
         params: { id: null },
       };
 
-      expect(() => validateCategory.findUnique.parse(request)).toThrow();
+      expect(() => validateCategory.getById.parse(request)).toThrow();
     });
   });
 
@@ -101,7 +101,7 @@ describe("Category Validator", () => {
         query: { branchId: "1" },
       };
 
-      expect(() => validateCategory.findByBranch.parse(request)).not.toThrow();
+      expect(() => validateCategory.getByBranch.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
@@ -109,7 +109,7 @@ describe("Category Validator", () => {
         query: { branchId: null },
       };
 
-      expect(() => validateCategory.findByBranch.parse(request)).toThrow();
+      expect(() => validateCategory.getByBranch.parse(request)).toThrow();
     });
   });
 });

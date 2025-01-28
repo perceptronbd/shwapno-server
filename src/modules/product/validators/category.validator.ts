@@ -34,7 +34,7 @@ const remove = z.object({
 });
 
 // Get all categories validation
-const findMany = z.object({
+const getAll = z.object({
   query: z
     .object({
       page: z
@@ -51,14 +51,14 @@ const findMany = z.object({
 });
 
 // Get category by ID validation
-const findUnique = z.object({
+const getById = z.object({
   params: z.object({
     id: id,
   }),
 });
 
 // Get categories by branch validation
-const findByBranch = z.object({
+const getByBranch = z.object({
   query: z.object({
     branchId: branchId,
   }),
@@ -67,15 +67,15 @@ const findByBranch = z.object({
 export type TCreateCategory = z.infer<typeof create>["body"];
 export type TUpdateCategory = z.infer<typeof update>["body"];
 export type TRemoveCategory = z.infer<typeof remove>["params"];
-export type TFindManyCategory = z.infer<typeof findMany>["query"];
-export type TFindUniqueCategory = z.infer<typeof findUnique>["params"];
-export type TFindByBranchCategory = z.infer<typeof findByBranch>["query"];
+export type TFindManyCategory = z.infer<typeof getAll>["query"];
+export type TFindUniqueCategory = z.infer<typeof getById>["params"];
+export type TGetByBranchCategory = z.infer<typeof getByBranch>["query"];
 
 export const validateCategory = {
   create,
   update,
   remove,
-  findMany,
-  findUnique,
-  findByBranch,
+  getAll,
+  getById,
+  getByBranch,
 };

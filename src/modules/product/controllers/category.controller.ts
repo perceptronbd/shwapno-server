@@ -14,10 +14,9 @@ const create = async (req: Request, res: Response) => {
 };
 
 const update = async (req: Request, res: Response) => {
-  const result = await categoryService.update({
-    id: req.params.id,
-    categoryData: req.body,
-  });
+  const id = req.params.id;
+  const category = req.body;
+  const result = await categoryService.update({ id, category });
   sendResponse(
     res,
     result,
@@ -57,7 +56,9 @@ const getById = async (req: Request, res: Response) => {
 };
 
 const getByBranch = async (req: Request, res: Response) => {
-  const categories = await categoryService.getByBranch(req.params.id);
+  const categories = await categoryService.getByBranch({
+    branchId: req.params.id,
+  });
   sendResponse(
     res,
     categories,
