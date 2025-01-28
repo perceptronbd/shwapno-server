@@ -19,9 +19,8 @@ export const generalError = (error: Error, response: ErrorResponse) => {
   response.details =
     process.env.NODE_ENV === "development" ? { stack: error.stack } : undefined;
 };
-
 export const errorHandler = {
   appError,
   zodError,
   generalError,
-};
+}

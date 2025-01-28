@@ -1,8 +1,10 @@
 import { cartData, productData } from "@/tests/utils/test-data";
 import { generateSessionId } from "@/utils/generate";
+import { cartModels } from "../models/cart.model";
 import { cartService } from "./cart.service";
 import prisma from "@/config/db.config";
 
+jest.mock("../models/cart.model");
 jest.mock("@/utils/generate", () => ({
   generateSessionId: jest.fn(),
 }));
@@ -19,25 +21,23 @@ jest.mock("@/config/db.config", () => ({
 describe("Cart Service", () => {
   describe("Add Product to Cart", () => {
     it("should create cart and add a product to cart", async () => {
-      const { id, ...cart } = cartData;
+      const { customerId: _, ...cartResult } = cartData;
 
       const mockSessionId = cartData.sessionId;
 
       (generateSessionId as jest.Mock).mockReturnValue(mockSessionId);
-      (prisma.shoppingCart.create as jest.Mock).mockResolvedValue(cart);
+      (cartModels.create as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.add({
         productId: productData.id,
         quantity: 2,
       });
 
-      expect(result).toEqual(cartData);
-      expect(prisma.shoppingCart.create).toHaveBeenCalledWith({
-        data: {
-          sessionId: mockSessionId,
-          productId: productData.id,
-          quantity: 2,
-        },
+      expect(result).toEqual(cartResult);
+      expect(cartModels.create).toHaveBeenCalledWith({
+        sessionId: mockSessionId,
+        productId: productData.id,
+        quantity: 2,
       });
     });
 
