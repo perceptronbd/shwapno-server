@@ -1,5 +1,6 @@
 model Company {
     id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    imgURL   String?
     name     String   @unique
     location String?
     branches Branch[]
@@ -13,7 +14,6 @@ model Branch {
     companyId     String           @db.Uuid
     qrURL         String?
     company       Company          @relation(fields: [companyId], references: [id])
-    products      BranchProduct[]
     categories    BranchCategory[]
     userRoles     UserRole[]
     orders        Order[]

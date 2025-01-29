@@ -1,6 +1,5 @@
 model Audit {
     id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    logId      String
     action     AuditAction
     date       DateTime
     userId     String      @db.Uuid
@@ -19,7 +18,6 @@ model Audit {
     invoiceId  String?     @db.Uuid
     Stock      Stock?      @relation(fields: [stockId], references: [id], name: "StockAudits")
     stockId    String?     @db.Uuid
-    Category   Category?   @relation(fields: [categoryId], references: [id], name: "CategoryAudits")
     categoryId String?     @db.Uuid
 
     @@index([entityId, entityType])
