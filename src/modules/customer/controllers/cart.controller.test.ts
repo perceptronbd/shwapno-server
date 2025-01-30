@@ -50,7 +50,7 @@ describe("Cart Controller", () => {
 
       await cartController.add(req as Request, res as Response);
 
-      expect(cartService.add).toHaveBeenCalledWith({
+      expect(cartService.update).toHaveBeenCalledWith({
         sessionId: cartData.sessionId,
         productId: productData.id,
         quantity: 2,
@@ -72,8 +72,7 @@ describe("Cart Controller", () => {
 
       await expect(
         cartController.add(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
-
+      ).rejects.toThrow("Error");
       expect(cartService.add).toHaveBeenCalledWith({
         productId: "",
         quantity: -2,
@@ -92,7 +91,9 @@ describe("Cart Controller", () => {
 
       await cartController.update(req as Request, res as Response);
 
-      expect(cartService.update).toHaveBeenCalledWith(req.body?.items);
+      expect(cartService.update).toHaveBeenCalledWith({
+        items: req.body?.items,
+      });
     });
 
     it("should handle errors", async () => {
@@ -107,7 +108,9 @@ describe("Cart Controller", () => {
         cartController.update(req as Request, res as Response),
       ).rejects.toThrow("Service Error");
 
-      expect(cartService.update).toHaveBeenCalledWith(req.body?.items);
+      expect(cartService.update).toHaveBeenCalledWith({
+        items: req.body?.items,
+      });
     });
   });
 

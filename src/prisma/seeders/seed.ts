@@ -32,6 +32,24 @@ async function main() {
     },
   });
 
+  // create product
+  const product = await prisma.product.create({
+    data: {
+      name: "Product 1",
+      price: 10,
+      description: "Product 1 description",
+    },
+  });
+
+  // create stock
+  await prisma.stock.create({
+    data: {
+      quantity: 10,
+      productId: product.id,
+      branchId: branch.id,
+    },
+  });
+
   // Create a role
   const role = await prisma.role.create({
     data: {
@@ -177,6 +195,8 @@ async function main() {
 
   console.log("Seed data created successfully");
 }
+
+//
 
 main()
   .catch((e) => {

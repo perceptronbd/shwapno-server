@@ -1,1 +1,3 @@
-export const generateSessionId = () => {};
+export const generateSessionId = () => {
+  return crypto.randomUUID();
+};

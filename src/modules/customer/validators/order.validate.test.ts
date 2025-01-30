@@ -2,14 +2,14 @@ import { cartData, customerData } from "@/tests/utils/test-data";
 import { validateOrder } from "./order.validate";
 
 const { id: custId, ...customer } = customerData;
-const { id: cartId, ..._cart } = cartData;
+const { sessionId, ..._cart } = cartData;
 
 describe("Order Validation", () => {
   describe("Create Order", () => {
     it("should validate a valid request", () => {
       const request = {
         body: {
-          cartId,
+          sessionId,
           ...customer,
         },
       };
