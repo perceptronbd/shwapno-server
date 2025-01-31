@@ -1,33 +1,36 @@
-import { TAddCartRequest } from "../validators/cart.validate";
-import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
+import {
+  TAddCartRequest,
+  TUpdateManyCartRequest,
+} from "../validators/cart.validate";
 import { generateSessionId } from "@/utils/generate";
-import { cartModels } from "../models/cart.model";
-import { AppError } from "@/types/error.type";
+import { cartModel } from "../models/cart.model";
 
-const add = async ({ productId, quantity }: TAddCartRequest) => {
-  const sessionId = generateSessionId();
+const add = async ({ productId, quantity, sessionId }: TAddCartRequest) => {
+  if (sessionId) {
+    const cart = await cartModel.update({
+      sessionId,
+      productId,
+      quantity,
+    });
+    return cart;
+  }
 
-  const cart = await cartModels.create({
-    sessionId,
+  const genSessionId = generateSessionId();
+  const cart = await cartModel.create({
+    sessionId: genSessionId,
     productId,
     quantity,
   });
-  console.log("🚀 > add > cart:", cart);
-
-  if (!cart) {
-    throw new AppError(
-      HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
-      "Failed to add product to cart",
-    );
-  }
 
   return cart;
 };
 
-const update = async (_data: { productId: string; quantity: number }[]) => {};
+const update = async ({ items }: TUpdateManyCartRequest) => {
+  console.log(items);
+};
 
 const get = async (id: string) => {
-  return await cartModels.findAll(id);
+  return await cartModel.findOne(id);
 };
 
 export const cartService = {

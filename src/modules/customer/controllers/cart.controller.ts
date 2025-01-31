@@ -4,9 +4,9 @@ import { cartService } from "../services/cart.service";
 import { Request, Response } from "express";
 
 const add = async (req: Request, res: Response) => {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, sessionId } = req.body;
 
-  const cart = await cartService.add({ productId, quantity });
+  const cart = await cartService.add({ productId, quantity, sessionId });
 
   sendResponse(
     res,
@@ -16,7 +16,18 @@ const add = async (req: Request, res: Response) => {
   );
 };
 
-const update = async (_req: Request, _res: Response) => {};
+const update = async (req: Request, res: Response) => {
+  const cartData = await cartService.update({
+    items: req.body?.items,
+  });
+
+  sendResponse(
+    res,
+    cartData,
+    HTTP_STATUS_CODES.CREATED,
+    "Product added to cart successfully",
+  );
+};
 
 const get = async (_req: Request, _res: Response) => {};
 

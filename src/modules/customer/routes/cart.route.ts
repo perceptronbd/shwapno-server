@@ -5,9 +5,9 @@ import { asyncHandler } from "@/handlers/async.handler";
 import { Router } from "express";
 const router = Router();
 
-router.post(
+router.put(
   "/add",
-  validate(validateCart.add),
+  validate(validateCart.create),
   asyncHandler(cartController.add),
 );
 
