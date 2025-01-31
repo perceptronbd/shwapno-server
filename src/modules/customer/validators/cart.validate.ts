@@ -22,7 +22,6 @@ const cartItemSchema = z.object({
   quantity,
 });
 
-
 const cartUpdateSchema = z.object({
   ...cartSchema,
   sessionId: z.string().min(1, "Session ID is required"),

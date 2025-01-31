@@ -4,7 +4,7 @@ describe("Stock Validator", () => {
   describe("Create Stock", () => {
     it("should validate a valid stock", () => {
       const request = {
-        body: { quantity: 10, productId: "1" },
+        body: { quantity: 10, productId: "1", branchId: "1" },
       };
 
       expect(() => validateStock.create.parse(request)).not.toThrow();

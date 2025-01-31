@@ -25,6 +25,7 @@ const update = async ({
   });
   return result;
 };
+
 const remove = async ({ id }: { id: string }) => {
   return await prisma.category.delete({
     where: { id },

@@ -4,11 +4,14 @@ const id = z.string({ invalid_type_error: "Invalid ID format" });
 const branchId = z.string({ invalid_type_error: "Invalid ID format" });
 
 const product = z.object({
+  id: id,
   name: z.string().min(1, "Product name is required"),
   price: z.number().positive("Price must be a positive number"),
   barcode: z.string().min(1, "Barcode is required"),
   qrCode: z.string().optional(),
   description: z.string().optional(),
+  categoryId: z.string().optional(),
+  branchId: id,
 });
 
 // Validation for creating a product
@@ -18,6 +21,7 @@ const create = z.object({
     price: product.shape.price,
     barcode: product.shape.barcode,
     description: product.shape.description,
+    categoryId: product.shape.categoryId,
   }),
 });
 

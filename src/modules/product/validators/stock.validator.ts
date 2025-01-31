@@ -12,6 +12,7 @@ const create = z.object({
   body: z.object({
     quantity,
     productId,
+    branchId: id,
   }),
 });
 
