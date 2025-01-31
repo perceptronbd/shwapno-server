@@ -48,6 +48,7 @@ describe("Cart Service", () => {
         productId: productData.id,
         quantity: 2,
       });
+
       expect(generateSessionId).not.toHaveBeenCalled();
     });
   });
@@ -57,7 +58,7 @@ describe("Cart Service", () => {
       const { customerId: _, ...cartResult } = cartData;
 
       (cartModel.update as jest.Mock).mockResolvedValue(cartResult);
-
+      
       const result = await cartService.update([
         { productId: productData.id, quantity: 2 },
       ]);

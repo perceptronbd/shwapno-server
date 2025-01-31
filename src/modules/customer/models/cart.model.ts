@@ -1,13 +1,14 @@
+import { TUpdateOneCartRequest } from "../validators/cart.validate";
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { ICartCreatePayload } from "../types/cart";
 import { AppError } from "@/types/error.type";
 import prisma from "@/config/db.config";
 
-// Get all cart items
-const findOne = async (cartId: string) => {
-  return await prisma.shoppingCartItem.findMany({
+// Get  cart items
+const findOne = async (id: string) => {
+  return await prisma.shoppingCartItem.findUnique({
     where: {
-      cartId,
+      id,
     },
     include: {
       product: true,
@@ -42,7 +43,7 @@ const create = async ({
       },
     });
     // Step 3: Add the item to the shopping cart
-    await prisma.shoppingCartItem.create({
+    const items = await prisma.shoppingCartItem.create({
       data: {
         cartId: cart.id,
         productId,
@@ -55,11 +56,66 @@ const create = async ({
     });
 
     // Return the created cart
-    return { ...cart };
+    return { ...cart, items: [items] };
   });
 };
 
-const update = async () => {};
+const update = async ({
+  sessionId,
+  productId,
+  quantity,
+}: TUpdateOneCartRequest) => {
+  return await prisma.$transaction(async (prisma) => {
+    // Step 1: Check if the cart exists for the given `sessionId`.
+    const cart = await prisma.shoppingCart.findUnique({
+      where: { sessionId },
+    });
+
+    if (!cart) return;
+
+    // Step 2: Check if the product exists in the cart
+    const cartItem = await prisma.shoppingCartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        productId,
+      },
+    });
+
+    if (!cartItem) {
+      return;
+    }
+
+    // Step 3: If the product exists, update its quantity
+
+    // If quantity is 0 or less, remove the item from the cart
+    if (quantity <= 0) {
+      await prisma.shoppingCartItem.delete({
+        where: {
+          id: cartItem.id,
+        },
+      });
+    } else {
+      // Otherwise, update the quantity
+      const items = await prisma.shoppingCartItem.update({
+        where: {
+          id: cartItem.id,
+        },
+        data: {
+          quantity,
+        },
+        include: {
+          product: true,
+        },
+      });
+
+      // Step 4: Return the updated cart
+      return {
+        ...cart,
+        items: [items],
+      };
+    }
+  });
+};
 
 export const cartModel = {
   findOne,

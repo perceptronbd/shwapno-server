@@ -50,7 +50,7 @@ describe("Cart Controller", () => {
 
       await cartController.add(req as Request, res as Response);
 
-      expect(cartService.update).toHaveBeenCalledWith({
+      expect(cartService.add).toHaveBeenCalledWith({
         sessionId: cartData.sessionId,
         productId: productData.id,
         quantity: 2,
