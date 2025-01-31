@@ -1,15 +1,42 @@
-import { TUpdateOneCartRequest } from "../validators/cart.validate";
+import {
+  TUpdateManyCartRequest,
+  TUpdateOneCartRequest,
+} from "../validators/cart.validate";
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { ICartCreatePayload } from "../types/cart";
 import { AppError } from "@/types/error.type";
 import prisma from "@/config/db.config";
+import { Prisma } from "@prisma/client";
 
-// Get  cart items
-const findOne = async (id: string) => {
+// Get  cart item
+const findOne = async (
+  id: string,
+  omit?: Prisma.ShoppingCartFindUniqueArgs["omit"],
+) => {
   return await prisma.shoppingCart.findUnique({
     where: {
       id,
     },
+    omit,
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
+};
+// Get  cart item
+const findBySessionId = async (
+  sessionId: string,
+  omit?: Prisma.ShoppingCartFindUniqueArgs["omit"],
+) => {
+  return await prisma.shoppingCart.findUnique({
+    where: {
+      sessionId,
+    },
+    omit,
     include: {
       items: {
         include: {
@@ -41,9 +68,8 @@ const create = async ({
       data: {
         sessionId,
       },
-      select: {
-        id: true,
-        sessionId: true,
+      omit: {
+        customerId: true,
       },
     });
     // Step 3: Add the item to the shopping cart
@@ -73,6 +99,7 @@ const update = async ({
     // Step 1: Check if the cart exists for the given `sessionId`.
     const cart = await prisma.shoppingCart.findUnique({
       where: { sessionId },
+      omit: { customerId: true },
     });
 
     if (!cart) return;
@@ -121,8 +148,34 @@ const update = async ({
   });
 };
 
+const updateMany = async ({
+  items,
+  cartId,
+}: Omit<TUpdateManyCartRequest, "sessionId"> & { cartId: string }) => {
+  return await prisma.$transaction(
+    items.map((item) =>
+      prisma.shoppingCartItem.update({
+        where: {
+          cartId_productId: {
+            cartId,
+            productId: item.productId,
+          },
+        },
+        data: {
+          quantity: item.quantity, // Update the quantity for the specific product
+        },
+        include: {
+          product: true,
+        },
+      }),
+    ),
+  );
+};
+
 export const cartModel = {
   findOne,
   create,
   update,
+  updateMany,
+  findBySessionId,
 };

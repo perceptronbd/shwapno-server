@@ -12,4 +12,10 @@ router.put(
 );
 router.get("/:id", asyncHandler(cartController.get));
 
+router.patch(
+  "/update/:id",
+  validate(validateCart.updateMany),
+  asyncHandler(cartController.update),
+);
+
 export const CartRoutes = router;

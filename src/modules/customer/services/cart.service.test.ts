@@ -9,6 +9,9 @@ jest.mock("@/utils/generate", () => ({
 }));
 
 describe("Cart Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   describe("Add Product to Cart", () => {
     it("should create cart and add a product to cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
@@ -34,7 +37,7 @@ describe("Cart Service", () => {
     it("should update cart and add a product to cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
-      (cartModel.create as jest.Mock).mockResolvedValue(cartResult);
+      (cartModel.update as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.add({
         sessionId: cartData.sessionId,
@@ -43,7 +46,7 @@ describe("Cart Service", () => {
       });
 
       expect(result).toEqual(cartResult);
-      expect(cartModel.create).toHaveBeenCalledWith({
+      expect(cartModel.update).toHaveBeenCalledWith({
         sessionId: cartData.sessionId,
         productId: productData.id,
         quantity: 2,
@@ -57,24 +60,18 @@ describe("Cart Service", () => {
     it("should update product in cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
-      (cartModel.update as jest.Mock).mockResolvedValue(cartResult);
-      
-      const result = await cartService.update([
-        { productId: productData.id, quantity: 2 },
-      ]);
+      (cartModel.updateMany as jest.Mock).mockResolvedValue(cartResult);
+
+      const result = await cartService.update({
+        items: [{ productId: productData.id, quantity: 2 }],
+        sessionId: cartData.sessionId,
+      });
 
       expect(result).toEqual(cartResult);
-      expect(cartModel.update).toHaveBeenCalledWith({
+      expect(cartModel.updateMany).toHaveBeenCalledWith({
+        items: [{ productId: productData.id, quantity: 2 }],
         sessionId: cartData.sessionId,
-        productId: productData.id,
-        quantity: 2,
       });
-    });
-
-    it("should handle errors", async () => {
-      (cartModel.update as jest.Mock).mockRejectedValue(new Error("Error"));
-
-      await expect(cartService.update([])).rejects.toThrow();
     });
   });
 

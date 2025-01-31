@@ -17,15 +17,17 @@ const add = async (req: Request, res: Response) => {
 };
 
 const update = async (req: Request, res: Response) => {
-  const cartData = await cartService.update({
+  // Call the cart service to update the cart
+  const updatedCart = await cartService.update({
     items: req.body?.items,
+    sessionId: req.params?.id,
   });
-
+  // Send a successful response with the updated cart data
   sendResponse(
     res,
-    cartData,
-    HTTP_STATUS_CODES.CREATED,
-    "Product added to cart successfully",
+    updatedCart,
+    HTTP_STATUS_CODES.OK,
+    "Cart updated successfully",
   );
 };
 

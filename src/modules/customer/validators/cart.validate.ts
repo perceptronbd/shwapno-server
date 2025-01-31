@@ -52,7 +52,9 @@ const get = z.object({
 // export types
 export type TAddCartRequest = z.infer<typeof create>["body"];
 export type TUpdateOneCartRequest = z.infer<typeof updateOne>["body"];
-export type TUpdateManyCartRequest = z.infer<typeof updateMany>["body"];
+export type TUpdateManyCartRequest = z.infer<typeof updateMany>["body"] & {
+  sessionId: string;
+};
 
 export const validateCart = {
   create,
