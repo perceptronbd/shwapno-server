@@ -6,7 +6,7 @@ import { Router } from "express";
 
 const router = Router();
 router.post(
-  "/create",
+  "/",
   validate(validateCategory.create),
   asyncHandler(categoryController.create),
 );

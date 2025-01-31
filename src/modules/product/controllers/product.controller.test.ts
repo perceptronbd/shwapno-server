@@ -58,7 +58,10 @@ describe("Product Controller", () => {
         productController.create(req as Request, res as Response),
       ).rejects.toThrow();
 
-      expect(productService.create).toHaveBeenCalledWith(req.body);
+      expect(productService.create).toHaveBeenCalledWith({
+        product: req.body,
+        branchId: req.params?.branchId,
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
