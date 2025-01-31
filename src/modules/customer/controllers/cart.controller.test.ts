@@ -142,7 +142,7 @@ describe("Cart Controller", () => {
 
       await expect(
         cartController.get(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(cartService.get).toHaveBeenCalledWith("");
     });

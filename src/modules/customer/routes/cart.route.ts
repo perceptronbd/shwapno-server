@@ -10,5 +10,6 @@ router.put(
   validate(validateCart.create),
   asyncHandler(cartController.add),
 );
+router.get("/:id", asyncHandler(cartController.get));
 
 export const CartRoutes = router;

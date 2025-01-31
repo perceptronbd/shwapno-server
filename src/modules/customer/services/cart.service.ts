@@ -30,7 +30,9 @@ const update = async ({ items }: TUpdateManyCartRequest) => {
 };
 
 const get = async (id: string) => {
-  return await cartModel.findOne(id);
+  const cart = await cartModel.findOne(id);
+  if (!cart) throw new Error("Cart not found");
+  return cart;
 };
 
 export const cartService = {

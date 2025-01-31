@@ -6,12 +6,16 @@ import prisma from "@/config/db.config";
 
 // Get  cart items
 const findOne = async (id: string) => {
-  return await prisma.shoppingCartItem.findUnique({
+  return await prisma.shoppingCart.findUnique({
     where: {
       id,
     },
     include: {
-      product: true,
+      items: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 };

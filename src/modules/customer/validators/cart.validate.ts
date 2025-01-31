@@ -22,7 +22,6 @@ const cartItemSchema = z.object({
   quantity,
 });
 
-
 const cartUpdateSchema = z.object({
   ...cartSchema,
   sessionId: z.string().min(1, "Session ID is required"),
@@ -46,7 +45,9 @@ export const updateMany = z.object({
 
 const remove = {};
 
-const get = {};
+const get = z.object({
+  params: cartId,
+});
 
 // export types
 export type TAddCartRequest = z.infer<typeof create>["body"];

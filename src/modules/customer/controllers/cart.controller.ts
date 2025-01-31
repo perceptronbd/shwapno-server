@@ -29,7 +29,16 @@ const update = async (req: Request, res: Response) => {
   );
 };
 
-const get = async (_req: Request, _res: Response) => {};
+const get = async (req: Request, res: Response) => {
+  const cartData = await cartService.get(req.params.id);
+
+  sendResponse(
+    res,
+    cartData,
+    HTTP_STATUS_CODES.OK,
+    "Cart retrieved successfully",
+  );
+};
 
 export const cartController = {
   add,
