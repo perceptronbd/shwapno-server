@@ -12,12 +12,12 @@ describe("Cart Service", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   describe("Add Product to Cart", () => {
     it("should create cart and add a product to cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
       const mockSessionId = cartData.sessionId;
-
       (generateSessionId as jest.Mock).mockReturnValue(mockSessionId);
       (cartModel.create as jest.Mock).mockResolvedValue(cartResult);
 
@@ -36,7 +36,6 @@ describe("Cart Service", () => {
 
     it("should update cart and add a product to cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
-
       (cartModel.update as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.add({
@@ -60,6 +59,11 @@ describe("Cart Service", () => {
     it("should update product in cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
+      (cartModel.findBySessionId as jest.Mock).mockResolvedValue({
+        ...cartResult,
+        id: cartData.id,
+      });
+
       (cartModel.updateMany as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.update({
@@ -67,10 +71,16 @@ describe("Cart Service", () => {
         sessionId: cartData.sessionId,
       });
 
-      expect(result).toEqual(cartResult);
+      expect(result).toEqual({
+        ...cartResult,
+        items: cartResult,
+      });
+      expect(cartModel.findBySessionId).toHaveBeenCalledWith(
+        cartData.sessionId,
+      );
       expect(cartModel.updateMany).toHaveBeenCalledWith({
         items: [{ productId: productData.id, quantity: 2 }],
-        sessionId: cartData.sessionId,
+        cartId: cartData.id,
       });
     });
   });
