@@ -20,6 +20,7 @@ model ShoppingCart {
     customer   Customer?          @relation(fields: [customerId], references: [id])
 
     @@index([customerId])
+    @@index([sessionId])
 }
 
 model ShoppingCartItem {
