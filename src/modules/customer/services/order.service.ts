@@ -1,8 +1,7 @@
-
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { orderModel } from "../models/order.model";
-import { AppError } from "@/types/error.type";
 import { TOrderPayload } from "../types/order";
+import { AppError } from "@/types/error.type";
 
 const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
   const result = await orderModel.create({ customer, sessionId, branchId });
@@ -12,7 +11,9 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
   return result;
 };
 
-const track = ({ id: _ }: { id: string }) => {};
+const track = async ({ id }: { id: string }) => {
+  return await orderModel.findOne(id);
+};
 
 export const orderService = {
   create,

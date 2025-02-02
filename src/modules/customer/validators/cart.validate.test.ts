@@ -69,7 +69,7 @@ describe("Cart Validation with Zod", () => {
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        params: { id: "invalid" },
+        params: { id: null },
       };
 
       expect(() => validateCart.remove.parse(request)).toThrow();

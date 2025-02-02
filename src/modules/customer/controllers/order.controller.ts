@@ -21,7 +21,15 @@ export const create = async (req: Request, res: Response): Promise<void> => {
   );
 };
 
-const track = async (_req: Request, _res: Response) => {};
+const track = async (req: Request, res: Response) => {
+  const orderData = await orderService.track({ id: req?.params?.id });
+  sendResponse(
+    res,
+    orderData,
+    HTTP_STATUS_CODES.OK,
+    "Order tracked successfully",
+  );
+};
 
 export const orderController = {
   create,

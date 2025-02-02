@@ -1,5 +1,7 @@
+import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { Decimal } from "@prisma/client/runtime/library";
 import { TOrderPayload } from "../types/order";
+import { AppError } from "@/types/error.type";
 import { cartModel } from "./cart.model";
 import prisma from "@/config/db.config";
 const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
@@ -62,7 +64,16 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
 
 const update = async () => {};
 
-const findOne = async () => {};
+const findOne = async (customerId: string) => {
+  const order = await prisma.order.findFirst({
+    where: {
+      customerId,
+    },
+  });
+  if (!order)
+    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Order not found");
+  return order;
+};
 
 export const orderModel = {
   create,

@@ -10,5 +10,10 @@ router.post(
   validate(validateOrder.create),
   asyncHandler(orderController.create),
 );
+router.get(
+  "/track/:id",
+  validate(validateOrder.track),
+  asyncHandler(orderController.track),
+);
 
 export const OrderRoutes = router;

@@ -28,7 +28,8 @@ const findBySessionId = async (
   });
 
   if (!cart) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
-  if (!cart.items.length) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "The cart is empty"); 
+  if (!cart.items.length)
+    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "The cart is empty");
   return cart;
 };
 
