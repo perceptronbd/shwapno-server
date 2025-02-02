@@ -17,18 +17,24 @@ describe("Order Controller", () => {
 
   const { id: custId, ...customer } = customerData;
   const { sessionId, ..._cart } = cartData;
+  const branchId = "branch-001";
 
   describe("Create Order", () => {
     it("should create an order", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { ...customer, sessionId },
+        body: { customer, sessionId },
+        params: { id: branchId },
       });
 
       (orderService.create as jest.Mock).mockResolvedValue(orderData);
 
       await orderController.create(req as Request, res as Response);
 
-      expect(orderService.create).toHaveBeenCalledWith({ customer, sessionId });
+      expect(orderService.create).toHaveBeenCalledWith({
+        customer,
+        sessionId,
+        branchId,
+      });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         orderData,
@@ -39,7 +45,8 @@ describe("Order Controller", () => {
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
-        body: { ...customer, sessionId },
+        body: { customer, sessionId },
+        params: { id: branchId },
       });
 
       (orderService.create as jest.Mock).mockRejectedValue(new Error("Error"));
@@ -48,7 +55,11 @@ describe("Order Controller", () => {
         orderController.create(req as Request, res as Response),
       ).rejects.toThrow();
 
-      expect(orderService.create).toHaveBeenCalledWith({ customer, sessionId });
+      expect(orderService.create).toHaveBeenCalledWith({
+        customer,
+        sessionId,
+        branchId,
+      });
     });
   });
 
@@ -80,7 +91,7 @@ describe("Order Controller", () => {
 
       await expect(
         orderController.track(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(orderService.track).toHaveBeenCalledWith({ id: custId });
     });

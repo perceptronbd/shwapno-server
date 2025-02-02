@@ -13,7 +13,7 @@ const findBySessionId = async (
   sessionId: string,
   omit?: Prisma.ShoppingCartFindUniqueArgs["omit"],
 ) => {
-  return await prisma.shoppingCart.findUnique({
+  const cart = await prisma.shoppingCart.findUnique({
     where: {
       sessionId,
     },
@@ -26,6 +26,11 @@ const findBySessionId = async (
       },
     },
   });
+
+  if (!cart) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
+  if (!cart.items.length)
+    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "The cart is empty");
+  return cart;
 };
 
 // Create a new cart

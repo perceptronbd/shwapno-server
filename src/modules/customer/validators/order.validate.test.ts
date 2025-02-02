@@ -10,7 +10,10 @@ describe("Order Validation", () => {
       const request = {
         body: {
           sessionId,
-          ...customer,
+          customer,
+        },
+        params: {
+          id: "branch-001",
         },
       };
 
