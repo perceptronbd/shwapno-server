@@ -11,7 +11,6 @@ export const userData = {
 
 export const customerData = {
   id: "customer-001",
-  phone: "1234567890",
   firstName: "Customer",
   lastName: "One",
   email: "customer@gmail.com",
