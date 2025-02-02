@@ -19,11 +19,11 @@ describe("Stock Service", () => {
 
       (prisma.stock.create as jest.Mock).mockResolvedValue(stockData);
 
-      const result = await stockService.create({ stock });
+      const result = await stockService.create(stock);
 
       expect(result).toEqual(stockData);
       expect(prisma.stock.create).toHaveBeenCalledWith({
-        data: stockData,
+        data: stock,
       });
     });
   });
@@ -39,7 +39,7 @@ describe("Stock Service", () => {
       expect(result).toEqual(stockData);
       expect(prisma.stock.update).toHaveBeenCalledWith({
         where: { id: stockData.id },
-        data: stockData,
+        data: stock,
       });
     });
   });
@@ -66,7 +66,7 @@ describe("Stock Service", () => {
 
       (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockResult);
 
-      const result = await stockService.getAll();
+      const result = await stockService.getAll({ id: stockData.branchId });
 
       expect(result).toEqual(mockResult);
       expect(prisma.stock.findMany).toHaveBeenCalled();
@@ -77,7 +77,7 @@ describe("Stock Service", () => {
     it("should get a stock by id", async () => {
       (prisma.stock.findUnique as jest.Mock).mockResolvedValue(stockData);
 
-      const result = await stockService.getById(stockData.id);
+      const result = await stockService.getById({ id: stockData.id });
 
       expect(result).toEqual(stockData);
       expect(prisma.stock.findUnique).toHaveBeenCalledWith({
@@ -92,7 +92,9 @@ describe("Stock Service", () => {
 
       (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockResult);
 
-      const result = await stockService.getByBranch(stockData.branchId);
+      const result = await stockService.getByBranch({
+        branchId: stockData.branchId,
+      });
 
       expect(result).toEqual(mockResult);
       expect(prisma.stock.findMany).toHaveBeenCalledWith({

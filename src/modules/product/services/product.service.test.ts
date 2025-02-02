@@ -3,12 +3,16 @@ import { productService } from "./product.service";
 import prisma from "@/config/db.config";
 
 jest.mock("@/config/db.config", () => ({
+  $transaction: jest.fn().mockImplementation(async (cb) => await cb()),
   product: {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
     findMany: jest.fn(),
     findUnique: jest.fn(),
+  },
+  stock: {
+    create: jest.fn(),
   },
 }));
 
@@ -27,8 +31,8 @@ describe("Product Service", () => {
       );
 
       (prisma.product.create as jest.Mock).mockResolvedValue(productData);
-      //get the branchId and add the product to the branchProduct table and reference the branchId and productId
-      (prisma.branchProduct.create as jest.Mock).mockResolvedValue({
+      //get the branchId and add the product to the stock table and reference the branchId and productId
+      (prisma.stock.create as jest.Mock).mockResolvedValue({
         branchId,
         productId: productData.id,
       });
@@ -37,9 +41,9 @@ describe("Product Service", () => {
 
       expect(result).toEqual(productData);
       expect(prisma.$transaction).toHaveBeenCalled();
-      expect(prisma.product.create).toHaveBeenCalledWith({ data: productData });
-      expect(prisma.branchProduct.create).toHaveBeenCalledWith({
-        data: { branchId, productId: productData.id },
+      expect(prisma.product.create).toHaveBeenCalledWith({ data: product });
+      expect(prisma.stock.create).toHaveBeenCalledWith({
+        data: { branchId, productId: productData.id, quantity: 0 },
       });
     });
   });
@@ -50,19 +54,22 @@ describe("Product Service", () => {
 
       (prisma.product.update as jest.Mock).mockResolvedValue(productData);
 
-      const result = await productService.update({ id, productData: product });
+      const result = await productService.update({
+        id,
+        productData: product,
+      });
 
       expect(result).toEqual(productData);
       expect(prisma.product.update).toHaveBeenCalledWith({
-        where: { id: productData.id },
-        data: productData,
+        where: { id },
+        data: product,
       });
     });
   });
 
   describe("Delete Product", () => {
     it("should create a product", async () => {
-      (prisma.product.delete as jest.Mock).mockResolvedValue(null);
+      (prisma.product.delete as jest.Mock).mockResolvedValue(productData);
 
       const result = await productService.remove({ id: productData.id });
 
@@ -108,7 +115,11 @@ describe("Product Service", () => {
 
       expect(result).toEqual([productData]);
       expect(prisma.product.findMany).toHaveBeenCalledWith({
-        where: { category: productData.category },
+        where: {
+          category: {
+            name: productData.category,
+          },
+        },
       });
     });
   });
@@ -118,7 +129,7 @@ describe("Product Service", () => {
       const page = 1;
 
       const mockFilteredProducts = [productData].map((product) => ({
-        imageURL: product.imgURL,
+        imgURL: product.imgURL,
         name: product.name,
         price: product.price,
         category: product.category,
@@ -136,11 +147,11 @@ describe("Product Service", () => {
 
       expect(result).toEqual(mockFilteredProducts);
       expect(prisma.product.findMany).toHaveBeenCalledWith({
-        where: { branchProducts: { some: { branchId: branchData.id } } },
+        where: { stock: { some: { branchId: branchData.id } } },
         take: 10,
         skip: 10 * (page - 1),
         select: {
-          imageURL: true,
+          imgURL: true,
           name: true,
           price: true,
           category: {

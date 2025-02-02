@@ -1,3 +1,4 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HTTP_STATUS_CODES } from "../utils/http-status-codes";
 import { AppError, ErrorResponse } from "../types/error.type";
 import { NextFunction, Request, Response } from "express";
@@ -25,6 +26,8 @@ export const errorMiddleware = (
     errorHandler.appError(error, response);
   } else if (error instanceof ZodError) {
     errorHandler.zodError(error, response);
+  } else if (error instanceof PrismaClientKnownRequestError) {
+    errorHandler.prismaError(error, response);
   } else if (error instanceof Error) {
     errorHandler.generalError(error, response);
   }

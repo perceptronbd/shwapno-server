@@ -1,4 +1,4 @@
-import { categoryController } from "../services/category.service";
+import { categoryController } from "../controllers/category.controller";
 import { categoryService } from "../services/category.service";
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
 import { sendResponse } from "@handlers/response.handler";
@@ -8,7 +8,7 @@ import { Request, Response } from "express";
 
 // Mock dependencies
 jest.mock("@handlers/response.handler");
-jest.mock("../services/product.service");
+jest.mock("../services/category.service");
 
 describe("Category Controller", () => {
   afterEach(() => {
@@ -48,7 +48,7 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.create(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(categoryService.create).toHaveBeenCalledWith(req.body);
     });
@@ -61,7 +61,7 @@ describe("Category Controller", () => {
         params: { id: "1" },
       });
 
-      const mockResult = { id: 1, ...req.body };
+      const mockResult = { id: "1", ...req.body };
 
       (categoryService.update as jest.Mock).mockResolvedValue(mockResult);
 
@@ -69,7 +69,7 @@ describe("Category Controller", () => {
 
       expect(categoryService.update).toHaveBeenCalledWith({
         id: req.params?.id,
-        categoryData: req.body,
+        category: req.body,
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
@@ -90,11 +90,11 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.update(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(categoryService.update).toHaveBeenCalledWith({
         id: req.params?.id,
-        categoryData: req.body,
+        category: req.body,
       });
     });
   });
@@ -129,7 +129,7 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.remove(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(categoryService.remove).toHaveBeenCalledWith({ id: "1" });
     });
@@ -161,7 +161,7 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.getAll(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(categoryService.getAll).toHaveBeenCalled();
     });
@@ -197,7 +197,7 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.getById(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
       expect(categoryService.getById).toHaveBeenCalledWith("1");
     });
@@ -215,7 +215,9 @@ describe("Category Controller", () => {
 
       await categoryController.getByBranch(req as Request, res as Response);
 
-      expect(categoryService.getByBranch).toHaveBeenCalledWith("1");
+      expect(categoryService.getByBranch).toHaveBeenCalledWith({
+        branchId: req.params?.id,
+      });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         [productData],
@@ -235,9 +237,11 @@ describe("Category Controller", () => {
 
       await expect(
         categoryController.getByBranch(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow("Error");
 
-      expect(categoryService.getByBranch).toHaveBeenCalledWith("1");
+      expect(categoryService.getByBranch).toHaveBeenCalledWith({
+        branchId: req.params?.id,
+      });
     });
   });
 });
