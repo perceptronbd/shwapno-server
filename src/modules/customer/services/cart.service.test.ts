@@ -1,48 +1,42 @@
 import { cartData, productData } from "@/tests/utils/test-data";
 import { generateSessionId } from "@/utils/generate";
+import { cartModel } from "../models/cart.model";
 import { cartService } from "./cart.service";
-import prisma from "@/config/db.config";
 
+jest.mock("../models/cart.model");
 jest.mock("@/utils/generate", () => ({
   generateSessionId: jest.fn(),
 }));
-jest.mock("@/config/db.config", () => ({
-  shoppingCart: {
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-  },
-}));
 
 describe("Cart Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("Add Product to Cart", () => {
     it("should create cart and add a product to cart", async () => {
-      const { id, ...cart } = cartData;
+      const { customerId: _, ...cartResult } = cartData;
 
       const mockSessionId = cartData.sessionId;
-
       (generateSessionId as jest.Mock).mockReturnValue(mockSessionId);
-      (prisma.shoppingCart.create as jest.Mock).mockResolvedValue(cart);
+      (cartModel.create as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.add({
         productId: productData.id,
         quantity: 2,
       });
 
-      expect(result).toEqual(cartData);
-      expect(prisma.shoppingCart.create).toHaveBeenCalledWith({
-        data: {
-          sessionId: mockSessionId,
-          productId: productData.id,
-          quantity: 2,
-        },
+      expect(result).toEqual(cartResult);
+      expect(cartModel.create).toHaveBeenCalledWith({
+        sessionId: mockSessionId,
+        productId: productData.id,
+        quantity: 2,
       });
     });
 
     it("should update cart and add a product to cart", async () => {
-      (prisma.shoppingCart.update as jest.Mock).mockResolvedValue(cartData);
+      const { customerId: _, ...cartResult } = cartData;
+      (cartModel.update as jest.Mock).mockResolvedValue(cartResult);
 
       const result = await cartService.add({
         sessionId: cartData.sessionId,
@@ -50,60 +44,60 @@ describe("Cart Service", () => {
         quantity: 2,
       });
 
-      expect(result).toEqual(cartData);
-      expect(prisma.shoppingCart.update).toHaveBeenCalledWith({
-        where: { sessionId: cartData.sessionId },
-        data: {
-          productId: productData.id,
-          quantity: 2,
-        },
+      expect(result).toEqual(cartResult);
+      expect(cartModel.update).toHaveBeenCalledWith({
+        sessionId: cartData.sessionId,
+        productId: productData.id,
+        quantity: 2,
       });
+
+      expect(generateSessionId).not.toHaveBeenCalled();
     });
   });
 
   describe("Update Product in Cart", () => {
     it("should update product in cart", async () => {
-      (prisma.shoppingCart.update as jest.Mock).mockResolvedValue(cartData);
+      const { customerId: _, ...cartResult } = cartData;
 
-      const result = await cartService.update([
-        { productId: productData.id, quantity: 2 },
-      ]);
-
-      expect(result).toEqual(cartData);
-      expect(prisma.shoppingCart.update).toHaveBeenCalledWith({
-        where: { id: cartData.id },
-        data: {
-          items: {
-            updateMany: [
-              {
-                where: { productId: productData.id },
-                data: { quantity: 2 },
-              },
-            ],
-          },
-        },
+      (cartModel.findBySessionId as jest.Mock).mockResolvedValue({
+        ...cartResult,
+        id: cartData.id,
       });
-    });
 
-    it("should handle errors", async () => {
-      (prisma.shoppingCart.update as jest.Mock).mockRejectedValue(
-        new Error("Error"),
+      (cartModel.updateMany as jest.Mock).mockResolvedValue(cartResult);
+
+      const result = await cartService.update({
+        items: [{ productId: productData.id, quantity: 2 }],
+        sessionId: cartData.sessionId,
+      });
+
+      expect(result).toEqual({
+        ...cartResult,
+        items: cartResult,
+      });
+      expect(cartModel.findBySessionId).toHaveBeenCalledWith(
+        cartData.sessionId,
+        { customerId: true },
       );
-
-      await expect(cartService.update([])).rejects.toThrow("Service Error");
+      expect(cartModel.updateMany).toHaveBeenCalledWith({
+        items: [{ productId: productData.id, quantity: 2 }],
+        cartId: cartData.id,
+      });
     });
   });
 
   describe("Get Cart", () => {
     it("should get cart", async () => {
-      (prisma.shoppingCart.findUnique as jest.Mock).mockResolvedValue(cartData);
+      const { customerId: _, ...cartResult } = cartData;
 
-      const result = await cartService.get(cartData.id);
+      (cartModel.findBySessionId as jest.Mock).mockResolvedValue(cartResult);
 
-      expect(result).toEqual(cartData);
-      expect(prisma.shoppingCart.findUnique).toHaveBeenCalledWith({
-        where: { id: cartData.id },
-      });
+      const result = await cartService.get(cartData.sessionId);
+
+      expect(result).toEqual(cartResult);
+      expect(cartModel.findBySessionId).toHaveBeenCalledWith(
+        cartData.sessionId,
+      );
     });
   });
 });

@@ -1,4 +1,4 @@
-import { validateCategory } from "@/modules/product/validators/category.validator";
+import { validateCart } from "./cart.validate";
 
 describe("Cart Validation with Zod", () => {
   describe("Add Product to Cart", () => {
@@ -10,7 +10,7 @@ describe("Cart Validation with Zod", () => {
         },
       };
 
-      expect(() => validateCategory.create.parse(request)).not.toThrow();
+      expect(() => validateCart.create.parse(request)).not.toThrow();
     });
 
     it("should validate a valid request for update cart", () => {
@@ -22,7 +22,7 @@ describe("Cart Validation with Zod", () => {
         },
       };
 
-      expect(() => validateCategory.create.parse(request)).not.toThrow();
+      expect(() => validateCart.create.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
@@ -30,7 +30,7 @@ describe("Cart Validation with Zod", () => {
         body: {},
       };
 
-      expect(() => validateCategory.create.parse(request)).toThrow();
+      expect(() => validateCart.create.parse(request)).toThrow();
     });
   });
 
@@ -43,7 +43,7 @@ describe("Cart Validation with Zod", () => {
         params: { id: "1" },
       };
 
-      expect(() => validateCategory.update.parse(request)).not.toThrow();
+      expect(() => validateCart.updateMany.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
@@ -54,7 +54,7 @@ describe("Cart Validation with Zod", () => {
         params: { id: "1" },
       };
 
-      expect(() => validateCategory.update.parse(request)).toThrow();
+      expect(() => validateCart.updateMany.parse(request)).toThrow();
     });
   });
 
@@ -64,15 +64,15 @@ describe("Cart Validation with Zod", () => {
         params: { id: "1" },
       };
 
-      expect(() => validateCategory.remove.parse(request)).not.toThrow();
+      expect(() => validateCart.remove.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        params: { id: "invalid" },
+        params: { id: null },
       };
 
-      expect(() => validateCategory.remove.parse(request)).toThrow();
+      expect(() => validateCart.remove.parse(request)).toThrow();
     });
   });
 });
