@@ -6,7 +6,7 @@ import { Router } from "express";
 const router = Router();
 
 router.put(
-  "/add",
+  "/",
   validate(validateCart.create),
   asyncHandler(cartController.add),
 );
@@ -24,7 +24,7 @@ router.delete(
 );
 
 router.patch(
-  "/update/:id",
+  "/:id",
   validate(validateCart.updateMany),
   asyncHandler(cartController.update),
 );

@@ -4,6 +4,7 @@ import { TOrderPayload } from "../types/order";
 import { AppError } from "@/types/error.type";
 import { cartModel } from "./cart.model";
 import prisma from "@/config/db.config";
+
 const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
   return await prisma.$transaction(async (trx) => {
     // Create customer and get the customer ID

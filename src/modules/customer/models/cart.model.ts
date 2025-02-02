@@ -1,9 +1,9 @@
 import {
+  TAddCartRequest,
   TUpdateManyCartRequest,
   TUpdateOneCartRequest,
 } from "../validators/cart.validate";
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
-import { ICartCreatePayload } from "../types/cart";
 import { AppError } from "@/types/error.type";
 import prisma from "@/config/db.config";
 import { Prisma } from "@prisma/client";
@@ -38,7 +38,7 @@ const create = async ({
   productId,
   quantity,
   sessionId,
-}: ICartCreatePayload) => {
+}: Required<TAddCartRequest>) => {
   return await prisma.$transaction(async (prisma) => {
     // Step 1 : Check if the product exists
     const product = await prisma.product.findUnique({

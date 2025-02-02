@@ -11,7 +11,7 @@ router.post(
   asyncHandler(orderController.create),
 );
 router.get(
-  "/track/:id",
+  "/:id",
   validate(validateOrder.track),
   asyncHandler(orderController.track),
 );
