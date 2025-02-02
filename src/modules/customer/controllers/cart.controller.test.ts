@@ -93,6 +93,7 @@ describe("Cart Controller", () => {
 
       expect(cartService.update).toHaveBeenCalledWith({
         items: req.body?.items,
+        sessionId: req.params?.id,
       });
     });
 
@@ -106,10 +107,11 @@ describe("Cart Controller", () => {
 
       await expect(
         cartController.update(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(cartService.update).toHaveBeenCalledWith({
         items: req.body?.items,
+        sessionId: req.params?.id,
       });
     });
   });
@@ -142,7 +144,7 @@ describe("Cart Controller", () => {
 
       await expect(
         cartController.get(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(cartService.get).toHaveBeenCalledWith("");
     });

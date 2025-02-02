@@ -43,14 +43,20 @@ export const updateMany = z.object({
   params: cartId,
 });
 
-const remove = {};
+const remove = z.object({
+  params: cartId,
+});
 
-const get = {};
+const get = z.object({
+  params: cartId,
+});
 
 // export types
 export type TAddCartRequest = z.infer<typeof create>["body"];
 export type TUpdateOneCartRequest = z.infer<typeof updateOne>["body"];
-export type TUpdateManyCartRequest = z.infer<typeof updateMany>["body"];
+export type TUpdateManyCartRequest = z.infer<typeof updateMany>["body"] & {
+  sessionId: string;
+};
 
 export const validateCart = {
   create,

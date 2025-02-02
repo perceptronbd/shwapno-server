@@ -6,9 +6,27 @@ import { Router } from "express";
 const router = Router();
 
 router.put(
-  "/add",
+  "/",
   validate(validateCart.create),
   asyncHandler(cartController.add),
+);
+
+router.get(
+  "/:id",
+  validate(validateCart.get),
+  asyncHandler(cartController.get),
+);
+
+router.delete(
+  "/:id",
+  validate(validateCart.remove),
+  asyncHandler(cartController.get),
+);
+
+router.patch(
+  "/:id",
+  validate(validateCart.updateMany),
+  asyncHandler(cartController.update),
 );
 
 export const CartRoutes = router;
