@@ -4,7 +4,12 @@ describe("Product Validator", () => {
   describe("Create Product", () => {
     it("should validate a valid product", () => {
       const request = {
-        body: { name: "Test Product", price: 100.0, barcode: "1234567890" },
+        body: {
+          name: "Test Product",
+          price: 100.0,
+          barcode: "1234567890",
+          description: "",
+        },
       };
 
       expect(() => validateProduct.create.parse(request)).not.toThrow();
@@ -22,8 +27,13 @@ describe("Product Validator", () => {
   describe("Update Product", () => {
     it("should validate a valid product", () => {
       const request = {
-        body: { name: "Test Product", price: 100.0, barcode: "1234567890" },
-        params: { id: 1 },
+        body: {
+          name: "Test Product",
+          price: 100.0,
+          barcode: "1234567890",
+          description: "",
+        },
+        params: { id: "1" },
       };
 
       expect(() => validateProduct.update.parse(request)).not.toThrow();
@@ -32,7 +42,7 @@ describe("Product Validator", () => {
     it("should throw an error for an invalid product", () => {
       const request = {
         body: { name: "", price: -100, barcode: "" },
-        params: { id: 1 },
+        params: { id: "1" },
       };
 
       expect(() => validateProduct.update.parse(request)).toThrow();
@@ -42,7 +52,7 @@ describe("Product Validator", () => {
   describe("Delete Product", () => {
     it("should validate a valid product", () => {
       const request = {
-        params: { id: 1 },
+        params: { id: "1" },
       };
 
       expect(() => validateProduct.remove.parse(request)).not.toThrow();
@@ -50,7 +60,7 @@ describe("Product Validator", () => {
 
     it("should throw an error for an invalid product", () => {
       const request = {
-        params: { id: "invalid" },
+        params: { id: null },
       };
 
       expect(() => validateProduct.remove.parse(request)).toThrow();
@@ -78,7 +88,7 @@ describe("Product Validator", () => {
   describe("Get Product By Id", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { id: 1 },
+        params: { id: "1" },
       };
 
       expect(() => validateProduct.getById.parse(request)).not.toThrow();
@@ -86,7 +96,7 @@ describe("Product Validator", () => {
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        params: { id: "invalid" },
+        params: { id: null },
       };
 
       expect(() => validateProduct.getById.parse(request)).toThrow();
@@ -124,7 +134,7 @@ describe("Product Validator", () => {
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        params: { branchId: "invalid" },
+        params: { branchId: null },
       };
 
       expect(() => validateProduct.getByBranch.parse(request)).toThrow();

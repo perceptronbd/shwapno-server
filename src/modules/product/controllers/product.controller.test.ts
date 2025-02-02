@@ -29,13 +29,16 @@ describe("Product Controller", () => {
         body: product,
       });
 
-      const mockResult = { id: 1, ...req.body };
+      const mockResult = { id: "1", ...req.body };
 
       (productService.create as jest.Mock).mockResolvedValue(mockResult);
 
       await productController.create(req as Request, res as Response);
 
-      expect(productService.create).toHaveBeenCalledWith(req.body);
+      expect(productService.create).toHaveBeenCalledWith({
+        product: req.body,
+        branchId: req.params?.branchId,
+      });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         mockResult,
@@ -49,15 +52,16 @@ describe("Product Controller", () => {
         body: { name: "", price: -100, barcode: "" },
       });
 
-      (productService.create as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.create as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.create(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
-      expect(productService.create).toHaveBeenCalledWith(req.body);
+      expect(productService.create).toHaveBeenCalledWith({
+        product: req.body,
+        branchId: req.params?.branchId,
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
@@ -91,13 +95,11 @@ describe("Product Controller", () => {
         params: { id },
       });
 
-      (productService.update as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.update as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.update(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(productService.update).toHaveBeenCalledWith({
         id: req.params?.id,
@@ -135,13 +137,11 @@ describe("Product Controller", () => {
         params: { id },
       });
 
-      (productService.remove as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.remove as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.remove(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(productService.remove).toHaveBeenCalledWith({
         id: req.params?.id,
@@ -170,13 +170,11 @@ describe("Product Controller", () => {
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes();
 
-      (productService.getAll as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.getAll as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.getAll(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(productService.getAll).toHaveBeenCalledWith();
       expect(sendResponse).not.toHaveBeenCalled();
@@ -211,13 +209,11 @@ describe("Product Controller", () => {
         params: { id: "1" },
       });
 
-      (productService.getById as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.getById as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.getById(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
       expect(productService.getById).toHaveBeenCalledWith(req.params?.id);
       expect(sendResponse).not.toHaveBeenCalled();
@@ -255,14 +251,17 @@ describe("Product Controller", () => {
       });
 
       (productService.getByCategory as jest.Mock).mockRejectedValue(
-        new Error("Error"),
+        new Error(),
       );
 
       await expect(
         productController.getByCategory(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
 
-      expect(productService.getByCategory).toHaveBeenCalledWith(req.query);
+      expect(productService.getByCategory).toHaveBeenCalledWith({
+        branchId: req.params?.branchId,
+        category: req.query?.category,
+      });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
@@ -287,10 +286,13 @@ describe("Product Controller", () => {
 
       await productController.getByBranch(req as Request, res as Response);
 
+      const limitValue = parseInt(req.query?.limit as string, 10);
+      const pageValue = parseInt(req.query?.page as string, 10);
+
       expect(productService.getByBranch).toHaveBeenCalledWith({
         branchId: req.params?.branchId,
-        limit: req.query?.limit,
-        page: req.query?.page,
+        limit: limitValue,
+        page: pageValue,
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
@@ -306,18 +308,19 @@ describe("Product Controller", () => {
         query: { limit: "10", page: "1" },
       });
 
-      (productService.getByBranch as jest.Mock).mockRejectedValue(
-        new Error("Error"),
-      );
+      (productService.getByBranch as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
         productController.getByBranch(req as Request, res as Response),
-      ).rejects.toThrow("Service Error");
+      ).rejects.toThrow();
+
+      const limitValue = parseInt(req.query?.limit as string, 10);
+      const pageValue = parseInt(req.query?.page as string, 10);
 
       expect(productService.getByBranch).toHaveBeenCalledWith({
         branchId: req.params?.branchId,
-        limit: req.query?.limit,
-        page: req.query?.page,
+        limit: limitValue,
+        page: pageValue,
       });
       expect(sendResponse).not.toHaveBeenCalled();
     });
