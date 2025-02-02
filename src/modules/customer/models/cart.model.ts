@@ -9,25 +9,6 @@ import prisma from "@/config/db.config";
 import { Prisma } from "@prisma/client";
 
 // Get  cart item
-const findOne = async (
-  id: string,
-  omit?: Prisma.ShoppingCartFindUniqueArgs["omit"],
-) => {
-  return await prisma.shoppingCart.findUnique({
-    where: {
-      id,
-    },
-    omit,
-    include: {
-      items: {
-        include: {
-          product: true,
-        },
-      },
-    },
-  });
-};
-// Get  cart item
 const findBySessionId = async (
   sessionId: string,
   omit?: Prisma.ShoppingCartFindUniqueArgs["omit"],
@@ -152,9 +133,9 @@ const updateMany = async ({
   items,
   cartId,
 }: Omit<TUpdateManyCartRequest, "sessionId"> & { cartId: string }) => {
-  return await prisma.$transaction(
-    items.map((item) =>
-      prisma.shoppingCartItem.update({
+  return items.map(
+    async (item) =>
+      await prisma.shoppingCartItem.update({
         where: {
           cartId_productId: {
             cartId,
@@ -168,12 +149,9 @@ const updateMany = async ({
           product: true,
         },
       }),
-    ),
   );
 };
-
 export const cartModel = {
-  findOne,
   create,
   update,
   updateMany,

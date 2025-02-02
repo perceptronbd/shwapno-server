@@ -77,6 +77,7 @@ describe("Cart Service", () => {
       });
       expect(cartModel.findBySessionId).toHaveBeenCalledWith(
         cartData.sessionId,
+        { customerId: true },
       );
       expect(cartModel.updateMany).toHaveBeenCalledWith({
         items: [{ productId: productData.id, quantity: 2 }],
@@ -89,12 +90,14 @@ describe("Cart Service", () => {
     it("should get cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
-      (cartModel.findOne as jest.Mock).mockResolvedValue(cartResult);
+      (cartModel.findBySessionId as jest.Mock).mockResolvedValue(cartResult);
 
-      const result = await cartService.get(cartData.id);
+      const result = await cartService.get(cartData.sessionId);
 
       expect(result).toEqual(cartResult);
-      expect(cartModel.findOne).toHaveBeenCalledWith(cartData.id);
+      expect(cartModel.findBySessionId).toHaveBeenCalledWith(
+        cartData.sessionId,
+      );
     });
   });
 });

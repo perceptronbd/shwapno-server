@@ -42,8 +42,14 @@ const get = async (req: Request, res: Response) => {
   );
 };
 
+const remove = async (req: Request, res: Response) => {
+  await cartService.remove(req.params.id);
+  sendResponse(res, null, HTTP_STATUS_CODES.OK, "Cart removed successfully");
+};
+
 export const cartController = {
   add,
   update,
   get,
+  remove,
 };

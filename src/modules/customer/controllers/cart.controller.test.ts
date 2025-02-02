@@ -93,7 +93,7 @@ describe("Cart Controller", () => {
 
       expect(cartService.update).toHaveBeenCalledWith({
         items: req.body?.items,
-        cartId: req.params?.id,
+        sessionId: req.params?.id,
       });
     });
 
@@ -111,7 +111,7 @@ describe("Cart Controller", () => {
 
       expect(cartService.update).toHaveBeenCalledWith({
         items: req.body?.items,
-        cartId: req.params?.id,
+        sessionId: req.params?.id,
       });
     });
   });

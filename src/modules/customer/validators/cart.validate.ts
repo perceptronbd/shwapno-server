@@ -43,7 +43,9 @@ export const updateMany = z.object({
   params: cartId,
 });
 
-const remove = {};
+const remove = z.object({
+  params: cartId,
+});
 
 const get = z.object({
   params: cartId,

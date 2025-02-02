@@ -10,7 +10,18 @@ router.put(
   validate(validateCart.create),
   asyncHandler(cartController.add),
 );
-router.get("/:id", asyncHandler(cartController.get));
+
+router.get(
+  "/:id",
+  validate(validateCart.get),
+  asyncHandler(cartController.get),
+);
+
+router.delete(
+  "/:id",
+  validate(validateCart.remove),
+  asyncHandler(cartController.get),
+);
 
 router.patch(
   "/update/:id",
