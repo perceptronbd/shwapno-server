@@ -1,32 +1,42 @@
+import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { productService } from "../services/product.service";
-import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
-import { sendResponse } from "@handlers/response.handler";
+import { sendResponse } from "@/handlers/response.handler";
 import { productController } from "./product.controller";
 import { productData } from "@/tests/utils/test-data";
 import { mocks } from "@/tests/utils/mocks";
 import { Request, Response } from "express";
 
 // Mock dependencies
-jest.mock("@handlers/response.handler");
+jest.mock("@/handlers/response.handler");
 jest.mock("../services/product.service");
+
+const { id, ...product } = productData;
+
+const mockProducts = [
+  {
+    ...productData,
+  },
+];
+
+const mockFile = {
+  fieldname: "file",
+  originalname: "image.png",
+  encoding: "7bit",
+  mimetype: "image/png",
+  buffer: Buffer.from(""),
+  size: 1024,
+} as Express.Multer.File;
 
 describe("Product Controller", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  const { id, ...product } = productData;
-
-  const mockProducts = [
-    {
-      ...productData,
-    },
-  ];
-
   describe("Create Product", () => {
-    it("should create a product", async () => {
+    it("should create a product without an image", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: product,
+        params: { branchId: "1" },
       });
 
       const mockResult = { id: "1", ...req.body };
@@ -36,8 +46,39 @@ describe("Product Controller", () => {
       await productController.create(req as Request, res as Response);
 
       expect(productService.create).toHaveBeenCalledWith({
-        product: req.body,
+        productData: req.body,
         branchId: req.params?.branchId,
+      });
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        mockResult,
+        HTTP_STATUS_CODES.CREATED,
+        "Product created successfully",
+      );
+    });
+
+    it("should create a product with an image", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        body: product,
+        params: { branchId: "1" },
+        file: mockFile,
+      });
+
+      const mockResult = {
+        id: "1",
+        ...req.body,
+        imgURL: "http://example.com/image.png",
+      };
+
+      (productService.create as jest.Mock).mockResolvedValue(mockResult);
+
+      await productController.create(req as Request, res as Response);
+
+      expect(productService.create).toHaveBeenCalledWith({
+        productData: req.body,
+        branchId: req.params?.branchId,
+        imageBuffer: req.file?.buffer,
+        mimetype: req.file?.mimetype,
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
@@ -50,6 +91,7 @@ describe("Product Controller", () => {
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: { name: "", price: -100, barcode: "" },
+        params: { branchId: "1" },
       });
 
       (productService.create as jest.Mock).mockRejectedValue(new Error());
@@ -59,7 +101,7 @@ describe("Product Controller", () => {
       ).rejects.toThrow();
 
       expect(productService.create).toHaveBeenCalledWith({
-        product: req.body,
+        productData: req.body,
         branchId: req.params?.branchId,
       });
       expect(sendResponse).not.toHaveBeenCalled();
@@ -67,7 +109,7 @@ describe("Product Controller", () => {
   });
 
   describe("Update Product", () => {
-    it("should update a product", async () => {
+    it("should update a product without an image", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: product,
         params: { id },
@@ -84,6 +126,36 @@ describe("Product Controller", () => {
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         productData,
+        HTTP_STATUS_CODES.OK,
+        "Product updated successfully",
+      );
+    });
+
+    it("should update a product with an image", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        body: product,
+        params: { id },
+        file: mockFile,
+      });
+
+      const mockResult = {
+        ...productData,
+        imgURL: "http://example.com/image.png",
+      };
+
+      (productService.update as jest.Mock).mockResolvedValue(mockResult);
+
+      await productController.update(req as Request, res as Response);
+
+      expect(productService.update).toHaveBeenCalledWith({
+        id: req.params?.id,
+        productData: req.body,
+        imageBuffer: req.file?.buffer,
+        mimetype: req.file?.mimetype,
+      });
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        mockResult,
         HTTP_STATUS_CODES.OK,
         "Product updated successfully",
       );

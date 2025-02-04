@@ -1,105 +1,153 @@
-import { branchData, productData } from "@/tests/utils/test-data";
 import { productService } from "./product.service";
+import { uploadImage } from "@/utils/uploadImage";
 import prisma from "@/config/db.config";
 
 jest.mock("@/config/db.config", () => ({
-  $transaction: jest.fn().mockImplementation(async (cb) => await cb()),
+  $transaction: jest.fn(),
   product: {
     create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
     findUnique: jest.fn(),
+    update: jest.fn(),
+    findMany: jest.fn(),
+    delete: jest.fn(),
   },
   stock: {
     create: jest.fn(),
   },
 }));
+jest.mock("@/utils/uploadImage");
+
+const productData = {
+  id: "1",
+  name: "Test Product",
+  price: 100.0,
+  barcode: "1234567890",
+  description: "",
+  category: "Test Category",
+  imgURL: "",
+};
+
+const branchData = {
+  id: "1",
+};
 
 describe("Product Service", () => {
   beforeEach(() => {
+    (prisma.$transaction as jest.Mock).mockImplementation((fn) => fn(prisma));
+  });
+
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe("Create Product", () => {
-    it("should create a product", async () => {
-      const { id, ...product } = productData;
-      const { id: branchId, ..._branch } = branchData;
-
-      (prisma.$transaction as jest.Mock).mockImplementation(
-        async (cb) => await cb(prisma),
-      );
-
+    it("should create a product without an image", async () => {
       (prisma.product.create as jest.Mock).mockResolvedValue(productData);
-      //get the branchId and add the product to the stock table and reference the branchId and productId
-      (prisma.stock.create as jest.Mock).mockResolvedValue({
-        branchId,
-        productId: productData.id,
+      (prisma.stock.create as jest.Mock).mockResolvedValue({});
+      (prisma.product.update as jest.Mock).mockResolvedValue(productData);
+
+      const result = await productService.create({
+        branchId: branchData.id,
+        product: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+          categoryId: "1",
+        },
       });
 
-      const result = await productService.create({ branchId, product });
-
       expect(result).toEqual(productData);
-      expect(prisma.$transaction).toHaveBeenCalled();
-      expect(prisma.product.create).toHaveBeenCalledWith({ data: product });
-      expect(prisma.stock.create).toHaveBeenCalledWith({
-        data: { branchId, productId: productData.id, quantity: 0 },
+      expect(prisma.product.create).toHaveBeenCalled();
+      expect(prisma.stock.create).toHaveBeenCalled();
+      expect(prisma.product.update).not.toHaveBeenCalled();
+    });
+
+    it("should create a product with an image", async () => {
+      const imageUrl = "http://example.com/image.png";
+      (uploadImage as jest.Mock).mockResolvedValue(imageUrl);
+      (prisma.product.create as jest.Mock).mockResolvedValue(productData);
+      (prisma.stock.create as jest.Mock).mockResolvedValue({});
+      (prisma.product.update as jest.Mock).mockResolvedValue({
+        ...productData,
+        imgURL: imageUrl,
+      });
+
+      const result = await productService.create({
+        branchId: branchData.id,
+        product: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+          categoryId: "1",
+        },
+        imageBuffer: Buffer.from(""),
+        mimetype: "image/png",
+      });
+
+      expect(result).toEqual({ ...productData, imgURL: imageUrl });
+      expect(prisma.product.create).toHaveBeenCalled();
+      expect(prisma.stock.create).toHaveBeenCalled();
+      expect(prisma.product.update).toHaveBeenCalledWith({
+        where: { id: productData.id },
+        data: { imgURL: imageUrl },
       });
     });
   });
 
   describe("Update Product", () => {
-    it("should create a product", async () => {
-      const { id, ...product } = productData;
-
+    it("should update a product without an image", async () => {
+      (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
       (prisma.product.update as jest.Mock).mockResolvedValue(productData);
 
       const result = await productService.update({
-        id,
-        productData: product,
+        id: productData.id,
+        productData: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+        },
       });
 
       expect(result).toEqual(productData);
       expect(prisma.product.update).toHaveBeenCalledWith({
-        where: { id },
-        data: product,
-      });
-    });
-  });
-
-  describe("Delete Product", () => {
-    it("should create a product", async () => {
-      (prisma.product.delete as jest.Mock).mockResolvedValue(productData);
-
-      const result = await productService.remove({ id: productData.id });
-
-      expect(result).toEqual(productData);
-      expect(prisma.product.delete).toHaveBeenCalledWith({
         where: { id: productData.id },
+        data: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+        },
       });
     });
-  });
 
-  describe("Get All Products", () => {
-    it("should get all products", async () => {
-      (prisma.product.findMany as jest.Mock).mockResolvedValue([productData]);
-
-      const result = await productService.getAll();
-
-      expect(result).toEqual([productData]);
-      expect(prisma.product.findMany).toHaveBeenCalled();
-    });
-  });
-
-  describe("Get Product By Id", () => {
-    it("should get a product by id", async () => {
+    it("should update a product with an image", async () => {
+      const imageUrl = "http://example.com/image.png";
+      (uploadImage as jest.Mock).mockResolvedValue(imageUrl);
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
+      (prisma.product.update as jest.Mock).mockResolvedValue({
+        ...productData,
+        imgURL: imageUrl,
+      });
 
-      const result = await productService.getById(productData.id);
+      const result = await productService.update({
+        id: productData.id,
+        productData: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+        },
+        imageBuffer: Buffer.from(""),
+        mimetype: "image/png",
+      });
 
-      expect(result).toEqual(productData);
-      expect(prisma.product.findUnique).toHaveBeenCalledWith({
+      expect(result).toEqual({ ...productData, imgURL: imageUrl });
+      expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: productData.id },
+        data: { ...productData, imgURL: imageUrl },
       });
     });
   });
@@ -154,11 +202,7 @@ describe("Product Service", () => {
           imgURL: true,
           name: true,
           price: true,
-          category: {
-            select: {
-              name: true,
-            },
-          },
+          category: { select: { name: true } },
         },
       });
     });

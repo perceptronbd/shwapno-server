@@ -1,8 +1,26 @@
+import { IMAGE_MIME, MAX_FILE_SIZE } from "../types/image.type";
 import { validateProduct } from "./product.validator";
 
 describe("Product Validator", () => {
   describe("Create Product", () => {
-    it("should validate a valid product", () => {
+    it("should validate a valid product with an image", () => {
+      const request = {
+        body: {
+          name: "Test Product",
+          price: 100.0,
+          barcode: "1234567890",
+          description: "",
+        },
+        file: {
+          mimetype: IMAGE_MIME.PNG,
+          size: MAX_FILE_SIZE - 1,
+        },
+      };
+
+      expect(() => validateProduct.create.parse(request)).not.toThrow();
+    });
+
+    it("should validate a valid product without an image", () => {
       const request = {
         body: {
           name: "Test Product",
@@ -17,7 +35,18 @@ describe("Product Validator", () => {
 
     it("should throw an error for an invalid product", () => {
       const request = {
-        body: { name: "", price: -100, qrCode: "" },
+        body: { name: "", price: -100, barcode: "" },
+      };
+
+      expect(() => validateProduct.create.parse(request)).toThrow();
+    });
+    it("should throw an error for an invalid product image size and type", () => {
+      const request = {
+        body: { name: "name", price: 100, barcode: "123490" },
+        file: {
+          mimetype: "invalid/type",
+          size: MAX_FILE_SIZE + 1,
+        },
       };
 
       expect(() => validateProduct.create.parse(request)).toThrow();
@@ -25,7 +54,7 @@ describe("Product Validator", () => {
   });
 
   describe("Update Product", () => {
-    it("should validate a valid product", () => {
+    it("should validate a valid product without an image", () => {
       const request = {
         body: {
           name: "Test Product",
@@ -38,11 +67,32 @@ describe("Product Validator", () => {
 
       expect(() => validateProduct.update.parse(request)).not.toThrow();
     });
+    it("should validate a valid product with an image", () => {
+      const request = {
+        body: {
+          name: "Test Product",
+          price: 100.0,
+          barcode: "1234567890",
+          description: "",
+        },
+        params: { id: "1" },
+        file: {
+          mimetype: IMAGE_MIME.JPEG,
+          size: MAX_FILE_SIZE - 1,
+        },
+      };
+
+      expect(() => validateProduct.update.parse(request)).not.toThrow();
+    });
 
     it("should throw an error for an invalid product", () => {
       const request = {
         body: { name: "", price: -100, barcode: "" },
         params: { id: "1" },
+        file: {
+          mimetype: "invalid/type",
+          size: MAX_FILE_SIZE + 1,
+        },
       };
 
       expect(() => validateProduct.update.parse(request)).toThrow();
