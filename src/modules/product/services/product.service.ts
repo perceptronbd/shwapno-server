@@ -2,20 +2,32 @@ import {
   TCreateProduct,
   TUpdateProduct,
 } from "../validators/product.validator";
+import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
+import { uploadImage } from "@/utils/uploadImage";
+import { AppError } from "@/types/error.type";
 import prisma from "@/config/db.config";
 
 const create = async ({
   branchId,
-  product: data,
+  productData,
+  imageBuffer,
+  mimetype,
 }: {
   branchId: string;
-  product: TCreateProduct;
+  productData: TCreateProduct;
+  imageBuffer?: Buffer;
+  mimetype?: string;
 }) => {
   return await prisma.$transaction(async (prisma) => {
+    // Step 1: Create the product in the database with a placeholder imgURL.
     const createdProduct = await prisma.product.create({
-      data,
+      data: {
+        ...productData,
+        imgURL: "", // Placeholder; will update after successful upload.
+      },
     });
 
+    // Step 2: Create a stock entry for the product.
     await prisma.stock.create({
       data: {
         quantity: 0,
@@ -24,6 +36,26 @@ const create = async ({
       },
     });
 
+    // Step 3: If an image is provided, upload it to Cloudinary.
+    if (imageBuffer && mimetype) {
+      try {
+        const imageUrl = await uploadImage(imageBuffer, mimetype);
+
+        // Step 4: Update the product with the uploaded image URL.
+        await prisma.product.update({
+          where: { id: createdProduct.id },
+          data: { imgURL: imageUrl },
+        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new AppError(
+            HTTP_STATUS_CODES.NOT_IMPLEMENTED,
+            "Image upload failed",
+          );
+        }
+      }
+    }
+
     return createdProduct;
   });
 };
@@ -31,15 +63,52 @@ const create = async ({
 const update = async ({
   id,
   productData,
+  imageBuffer,
+  mimetype,
 }: {
   id: string;
   productData: TUpdateProduct;
+  imageBuffer?: Buffer;
+  mimetype?: string;
 }) => {
-  const updatedProduct = await prisma.product.update({
-    where: { id },
-    data: productData,
+  return await prisma.$transaction(async (prisma) => {
+    let updatedProduct = null;
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Product not found");
+    }
+
+    // Step 1: If an image is provided, upload it to Cloudinary.
+    if (imageBuffer && mimetype) {
+      try {
+        const imageUrl = await uploadImage(imageBuffer, mimetype);
+
+        // Step 2: Update the product with the uploaded image URL.
+        updatedProduct = await prisma.product.update({
+          where: { id },
+          data: { ...productData, imgURL: imageUrl },
+        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new AppError(
+            HTTP_STATUS_CODES.NOT_IMPLEMENTED,
+            "Image upload failed",
+          );
+        }
+      }
+    } else {
+      // Step 3: Update the product with the new data.
+      updatedProduct = await prisma.product.update({
+        where: { id },
+        data: productData,
+      });
+    }
+
+    return updatedProduct;
   });
-  return updatedProduct;
 };
 
 const remove = async ({ id }: { id: string }) => {

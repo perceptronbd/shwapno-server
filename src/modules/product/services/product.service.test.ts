@@ -48,7 +48,7 @@ describe("Product Service", () => {
 
       const result = await productService.create({
         branchId: branchData.id,
-        product: {
+        productData: {
           name: productData.name,
           price: productData.price,
           barcode: productData.barcode,
@@ -75,7 +75,7 @@ describe("Product Service", () => {
 
       const result = await productService.create({
         branchId: branchData.id,
-        product: {
+        productData: {
           name: productData.name,
           price: productData.price,
           barcode: productData.barcode,

@@ -2,18 +2,21 @@ import { productController } from "../controllers/product.controller";
 import { validateProduct } from "../validators/product.validator";
 import { validate } from "@/middlewares/validate.middleware";
 import { asyncHandler } from "@/handlers/async.handler";
+import { upload } from "@/config/cloudinary.config";
 import { Router } from "express";
 
 const router = Router();
 
 router.post(
   "/",
+  upload.single("image"),
   validate(validateProduct.create),
   asyncHandler(productController.create),
 );
 
 router.patch(
   "/:id",
+  upload.single("image"),
   validate(validateProduct.update),
   asyncHandler(productController.update),
 );

@@ -5,7 +5,18 @@ import { Request, Response } from "express";
 
 const create = async (req: Request, res: Response) => {
   const { branchId } = req.params;
-  const result = await productService.create({ branchId, product: req.body });
+  const productData = req.body;
+
+  const imageBuffer = req.file?.buffer;
+  const mimetype = req.file?.mimetype;
+
+  const result = await productService.create({
+    branchId,
+    productData,
+    imageBuffer,
+    mimetype,
+  });
+
   sendResponse(
     res,
     result,
@@ -17,7 +28,17 @@ const create = async (req: Request, res: Response) => {
 const update = async (req: Request, res: Response) => {
   const { id } = req.params;
   const productData = req.body;
-  const result = await productService.update({ id, productData });
+
+  const imageBuffer = req.file?.buffer;
+  const mimetype = req.file?.mimetype;
+
+  const result = await productService.update({
+    id,
+    productData,
+    imageBuffer,
+    mimetype,
+  });
+
   sendResponse(
     res,
     result,
@@ -28,7 +49,9 @@ const update = async (req: Request, res: Response) => {
 
 const remove = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const result = await productService.remove({ id });
+
   sendResponse(
     res,
     result,
@@ -39,6 +62,7 @@ const remove = async (req: Request, res: Response) => {
 
 const getAll = async (_: Request, res: Response) => {
   const result = await productService.getAll();
+
   sendResponse(
     res,
     result,
@@ -49,7 +73,9 @@ const getAll = async (_: Request, res: Response) => {
 
 const getById = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const result = await productService.getById(id);
+
   sendResponse(
     res,
     result,
@@ -60,8 +86,11 @@ const getById = async (req: Request, res: Response) => {
 
 const getByCategory = async (req: Request, res: Response) => {
   const { branchId } = req.params;
+
   const category = req.query.category as string;
+
   const result = await productService.getByCategory({ branchId, category });
+
   sendResponse(
     res,
     result,
@@ -75,11 +104,13 @@ const getByBranch = async (req: Request, res: Response) => {
   const { limit, page } = req.query;
   const limitValue = parseInt(limit as string, 10);
   const pageValue = parseInt(page as string, 10);
+
   const products = await productService.getByBranch({
     branchId,
     limit: limitValue,
     page: pageValue,
   });
+
   sendResponse(
     res,
     products,
