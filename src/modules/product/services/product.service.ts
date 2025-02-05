@@ -20,7 +20,7 @@ const create = async ({
 }) => {
   return await prisma.$transaction(async (prisma) => {
     // Step 1: Create the product in the database with a placeholder imgURL.
-    const createdProduct = await prisma.product.create({
+    let createdProduct = await prisma.product.create({
       data: {
         ...productData,
         imgURL: "", // Placeholder; will update after successful upload.
@@ -42,7 +42,7 @@ const create = async ({
         const imageUrl = await uploadImage(imageBuffer, mimetype);
 
         // Step 4: Update the product with the uploaded image URL.
-        await prisma.product.update({
+        createdProduct = await prisma.product.update({
           where: { id: createdProduct.id },
           data: { imgURL: imageUrl },
         });

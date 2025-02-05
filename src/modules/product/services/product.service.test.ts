@@ -147,7 +147,13 @@ describe("Product Service", () => {
       expect(result).toEqual({ ...productData, imgURL: imageUrl });
       expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: productData.id },
-        data: { ...productData, imgURL: imageUrl },
+        data: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+          imgURL: imageUrl,
+        },
       });
     });
   });
