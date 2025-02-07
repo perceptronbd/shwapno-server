@@ -1,22 +1,29 @@
 import { Request, Response } from "express";
 
 const createMockReqRes = (
-  overrides?: Partial<Request>,
-  paramsOverrides?: Partial<Response>,
+  requestOverrides: Partial<Request> = {},
+  responseOverrides: Partial<Response> = {},
 ) => {
   const mockJson = jest.fn();
   const mockStatus = jest.fn().mockReturnValue({ json: mockJson });
+  const mockCookie = jest.fn();
+  const mockHeader = jest.fn();
 
   const req: Partial<Request> = {
     body: {},
     params: {},
-    ...overrides,
+    query: {},
+    file: undefined,
+    ...requestOverrides,
   };
 
+  // Default mock Response object
   const res: Partial<Response> = {
     status: mockStatus,
     json: mockJson,
-    ...paramsOverrides,
+    setHeader: mockHeader,
+    cookie: mockCookie,
+    ...responseOverrides,
   };
 
   return { req, res, mockStatus, mockJson };

@@ -6,19 +6,22 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "build": "tsc --project tsconfig.build.json",
+    "test:changed": "jest --onlyChanged",
+    "build": "tsc --project tsconfig.json && tsc-alias",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "start:dev": "cross-env NODE_ENV=development nodemon",
+    "start:dev": "cross-env NODE_ENV=development nodemon --watch src --exec ts-node -r tsconfig-paths/register src/server.ts",
     "prepare": "husky install",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed": "ts-node -r tsconfig-paths/register ./src/prisma/seeders/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "Modular Monolithic Server Side Application for Shwapno",
   "dependencies": {
+    "@prisma/client": "^6.2.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.7",
@@ -26,7 +29,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "module-alias": "^2.2.3",
+    "node-cache": "^5.1.2",
+    "ts-node-dev": "^2.0.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
@@ -36,7 +40,8 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.10.6",
+    "@types/node": "^22.10.7",
+    "@types/node-cache": "^4.2.5",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
@@ -44,7 +49,7 @@
     "esbuild": "^0.24.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-prettier": "^5.2.2",
     "glob": "^11.0.1",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
@@ -71,5 +76,8 @@
     "@types": "dist/types",
     "@handlers": "dist/handlers",
     "@tests": "dist/tests"
+  },
+  "prisma": {
+    "schema": "./src/prisma/schema/"
   }
 }

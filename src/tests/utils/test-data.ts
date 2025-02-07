@@ -1,37 +1,92 @@
-export const adminData = {
-  id: "admin_00",
-  username: "admin_00",
-  email: "admin_00@gmail.com",
-  phone: "11111111111",
-  password: "123456",
-  roles: ["admin"],
-  permission: ["all"],
+export const userData = {
+  id: "user-001",
+  phone: "1234567890",
+  email: "user_00@gmail.com",
+  password: "admin1234",
+  policy: {
+    roles: ["admin"],
+    permissions: ["CREATE:ALL"],
+  },
 };
 
-export const basicRestaurantData = {
-  name: "Test Restaurant",
-  category: "Fast Food",
-  email: "owner@example.com",
-  ownerName: "Owner Name",
-  ownerPhone: "1234567890",
-  acronym: "TRT",
+export const customerData = {
+  id: "customer-001",
+  firstName: "Customer",
+  lastName: "One",
+  email: "customer@gmail.com",
+  mobile: "1234567890",
+  address: "Address 1",
 };
 
-export const locationData = {
-  country: "Country",
-  division: "Division",
-  district: "District",
-  exactLocation: "Exact Location",
-  restaurantId: "12345",
+export const branchData = {
+  id: "branch-001",
+  name: "Branch 1",
+  address: "Address 1",
+  companyId: "company-001",
 };
 
-export const ownerData = {
-  id: "owner_00",
-  username: "owner_00",
-  email: "owner_00@gmail.com",
-  firtname: "Mr. Owner",
-  password: "123456",
-  phone: "11234567890",
-  roles: ["owner"],
-  permission: ["all"],
+export const productData = {
+  id: "product-001",
+  name: "Product 1",
+  barcode: "1234567890",
+  price: 100,
+  quantity: 10,
+  imgURL: "https://example.com",
+  categoryId: "category-001",
+  category: "Category 1",
+};
+
+export const categoryData = {
+  id: "category-001",
+  name: "Category 1",
+};
+
+export const stockData = {
+  id: "stock-001",
+  productId: "product-001",
+  branchId: "branch-001",
+  quantity: 10,
+};
+
+export const cartData = {
+  id: "cart-001",
+  sessionId: "session-001",
+  customerId: "customer-001",
+  items: [
+    {
+      id: "cart-item-001",
+      cartId: "cart-001",
+      productId: productData.id,
+      quantity: 2,
+      price: productData.price,
+      product: {
+        ...productData,
+      },
+    },
+  ],
+};
+
+export const orderData = {
+  id: "order-001",
+  customerId: "customer-001",
+  branchId: "branch-001",
+  customer: {
+    ...customerData,
+  },
+  items: [
+    {
+      id: "order-item-001",
+      orderId: "order-001",
+      productId: productData.id,
+      quantity: 2,
+      price: productData.price,
+      product: {
+        ...productData,
+      },
+    },
+  ],
+  status: "PENDING",
+  totalAmount: 200,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };

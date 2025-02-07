@@ -1,7 +1,11 @@
+import {
+  DEFAULT_PRISMA_ERROR,
+  PRISMA_ERROR_MAP,
+  TPrismaErrorCode,
+} from "@/utils/prisma.util";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HTTP_STATUS_CODES } from "../utils/http-status-codes";
 import { AppError, ErrorResponse } from "../types/error.type";
-import { MongoServerError } from "mongodb";
-import mongoose from "mongoose";
 import { ZodError } from "zod";
 
 export const appError = (error: AppError, response: ErrorResponse) => {
@@ -16,43 +20,34 @@ export const zodError = (error: ZodError, response: ErrorResponse) => {
   response.details = process.env.NODE_ENV === "development" ? error : undefined;
 };
 
-export const mongoError = (
-  error: MongoServerError,
-  response: ErrorResponse,
-) => {
-  // Handle all MongoDB/Mongoose errors
-  response.code = HTTP_STATUS_CODES.BAD_REQUEST; // Default for validation errors
-
-  if (error instanceof mongoose.Error.ValidationError) {
-    response.message = "Validation failed";
-    response.details = Object.values(error.errors).map((err) => err.message);
-  } else if (error.name === "MongoError" || error.code) {
-    // Handle MongoDB-specific errors
-
-    if (error.code === 11000) {
-      // Duplicate key error
-      const duplicateField = Object.keys(error.keyPattern || {}).join(", ");
-      response.code = HTTP_STATUS_CODES.CONFLICT; // 409 Conflict
-      response.message = `Duplicate key error on field(s): ${duplicateField}.`;
-      response.details = error.keyValue;
-    } else {
-      response.message = `MongoDB error: ${error.message}`;
-    }
-  } else {
-    // General Mongoose error
-    response.message = error.message;
-  }
-};
-
 export const generalError = (error: Error, response: ErrorResponse) => {
   response.message = error.message;
   response.details =
     process.env.NODE_ENV === "development" ? { stack: error.stack } : undefined;
 };
 
+export const prismaError = (
+  error: PrismaClientKnownRequestError,
+  response: ErrorResponse,
+) => {
+  // Look up the error code in the mapping or use the default
+  const { code, message } =
+    PRISMA_ERROR_MAP[error.code as TPrismaErrorCode] || DEFAULT_PRISMA_ERROR;
+
+  // Set the response properties
+  response.code = code;
+  response.message = message;
+
+  // Add details in development mode
+  response.details =
+    process.env.NODE_ENV === "development"
+      ? { code: error.code, meta: error.meta }
+      : undefined;
+};
+
 export const errorHandler = {
   appError,
   zodError,
-  mongoError,
   generalError,
+  prismaError,
 };

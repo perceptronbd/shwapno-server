@@ -1,22 +1,27 @@
-import { RestaurantRoutes } from "@modules/restaurant/routes/index";
 import { AuthRoutes } from "@modules/auth/routes/auth.route";
-import { AdminRoutes } from "@modules/admin/routes/index";
+import { CustomerRoutes } from "../customer/routes";
+import { Product } from "../product/routes";
+import { UserRotes } from "../user/routes";
 import { Router } from "express";
 
 const router = Router();
 
 const moduleRoutes = [
   {
-    path: "/",
+    path: "/auth",
     module: AuthRoutes,
   },
   {
-    path: "/super-admin",
-    module: AdminRoutes,
+    path: "/users",
+    module: UserRotes,
   },
   {
-    path: "/restaurant",
-    module: RestaurantRoutes,
+    path: "/products",
+    module: Product,
+  },
+  {
+    path: "/customers",
+    module: CustomerRoutes,
   },
 ];
 

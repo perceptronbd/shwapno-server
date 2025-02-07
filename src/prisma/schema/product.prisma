@@ -1,0 +1,48 @@
+model Product {
+    id          String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    barcode     String?            @unique
+    name        String
+    imgURL      String?
+    description String?
+    price       Decimal
+    categoryId  String?            @db.Uuid
+    category    Category?          @relation(fields: [categoryId], references: [id])
+    stock       Stock[]
+    orderItems  OrderItem[]
+    cartItems   ShoppingCartItem[]
+    Audits      Audit[]            @relation("ProductAudits")
+
+    @@index([name])
+    @@index([barcode])
+}
+
+model Category {
+    id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name     String    @unique
+    products Product[]
+
+    BranchCategory BranchCategory[]
+}
+
+model Stock {
+    id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    branchId      String   @db.Uuid
+    productId     String   @db.Uuid
+    quantity      Int
+    lowStockAlert Boolean?
+    branch        Branch   @relation(fields: [branchId], references: [id])
+    product       Product  @relation(fields: [productId], references: [id])
+    Audits        Audit[]  @relation("StockAudits")
+
+    @@unique([branchId, productId])
+    @@index([branchId])
+    @@index([productId])
+}
+
+model BranchCategory {
+    id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    branchId   String   @db.Uuid
+    categoryId String   @db.Uuid
+    branch     Branch   @relation(fields: [branchId], references: [id])
+    category   Category @relation(fields: [categoryId], references: [id])
+}

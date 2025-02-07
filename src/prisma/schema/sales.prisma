@@ -1,0 +1,34 @@
+model Sale {
+    id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId         String        @unique @db.Uuid
+    paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+    paymentStatus   PaymentStatus
+    salesPersonId   String        @db.Uuid
+    branchId        String        @db.Uuid
+    subtotal        Decimal
+    tax             Decimal
+    discount        Decimal?
+    totalAmount     Decimal
+    order           Order         @relation(fields: [orderId], references: [id])
+    salesPerson     User          @relation(fields: [salesPersonId], references: [id])
+    branch          Branch        @relation(fields: [branchId], references: [id])
+    paymentMethodId String        @db.Uuid
+    Audits          Audit[]       @relation("SaleAudits")
+
+    @@index([salesPersonId])
+    @@index([branchId])
+    @@index([paymentMethodId])
+    @@index([paymentStatus])
+}
+
+model PaymentMethod {
+    id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name String @unique
+    Sale Sale[]
+}
+
+enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+}

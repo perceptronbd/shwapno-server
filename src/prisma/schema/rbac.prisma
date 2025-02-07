@@ -1,0 +1,64 @@
+model Role {
+    id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name        String           @unique
+    companyId   String           @db.Uuid
+    company     Company          @relation(fields: [companyId], references: [id])
+    permissions RolePermission[]
+    userRoles   UserRole[]
+
+    @@index([companyId])
+}
+
+model Permission {
+    id       String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    action   Action
+    resource Resource
+    roles    RolePermission[]
+
+    @@unique([action, resource])
+}
+
+model RolePermission {
+    id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    roleId       String     @db.Uuid
+    permissionId String     @db.Uuid
+    role         Role       @relation(fields: [roleId], references: [id])
+    permission   Permission @relation(fields: [permissionId], references: [id])
+
+    @@unique([roleId, permissionId])
+    @@index([roleId])
+    @@index([permissionId])
+}
+
+model UserRole {
+    id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    userId   String @db.Uuid
+    roleId   String @db.Uuid
+    branchId String @db.Uuid
+    user     User   @relation(fields: [userId], references: [id])
+    role     Role   @relation(fields: [roleId], references: [id])
+    branch   Branch @relation(fields: [branchId], references: [id])
+
+    @@unique([userId, roleId, branchId])
+    @@index([userId])
+    @@index([roleId])
+    @@index([branchId])
+}
+
+enum Action {
+    READ
+    WRITE
+}
+
+enum Resource {
+    ALL
+    USER
+    COMPANY
+    BRANCH
+    PRODUCT
+    ORDER
+    STOCK
+    INVOICE
+    SALES
+    CUSTOMER
+}

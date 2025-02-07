@@ -1,5 +1,5 @@
 import { HTTPStatusCode } from "@/utils/http-status-codes";
-import { ClientSession } from "mongoose";
+// import { ClientSession } from "mongoose";
 import { Response } from "supertest";
 
 interface ResponseParams {
@@ -38,26 +38,26 @@ const expectResponse = ({
   }
 };
 
-const expectTransactionStarted = (session: ClientSession) => {
-  expect(session.startTransaction).toHaveBeenCalled();
-};
+// const expectTransactionStarted = (session: ClientSession) => {
+//   expect(session.startTransaction).toHaveBeenCalled();
+// };
 
-const expectTransactionAborted = (session: ClientSession) => {
-  expect(session.abortTransaction).toHaveBeenCalled();
-};
+// const expectTransactionAborted = (session: ClientSession) => {
+//   expect(session.abortTransaction).toHaveBeenCalled();
+// };
 
-const expectTransactionCommitted = (session: ClientSession) => {
-  expect(session.commitTransaction).toHaveBeenCalled();
-};
+// const expectTransactionCommitted = (session: ClientSession) => {
+//   expect(session.commitTransaction).toHaveBeenCalled();
+// };
 
-const expectSessionEnded = (session: ClientSession) => {
-  expect(session.endSession).toHaveBeenCalled();
-};
+// const expectSessionEnded = (session: ClientSession) => {
+//   expect(session.endSession).toHaveBeenCalled();
+// };
 
 export const assertions = {
   expectResponse,
-  expectTransactionStarted,
-  expectTransactionAborted,
-  expectTransactionCommitted,
-  expectSessionEnded,
+  // expectTransactionStarted,
+  // expectTransactionAborted,
+  // expectTransactionCommitted,
+  // expectSessionEnded,
 };

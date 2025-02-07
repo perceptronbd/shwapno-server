@@ -1,0 +1,39 @@
+model Customer {
+    id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    firstName String
+    lastName  String?
+    email     String        @unique
+    mobile    String
+    address   String
+    orders    Order[]
+    cart      ShoppingCart?
+
+    @@index([email])
+    @@index([mobile])
+}
+
+model ShoppingCart {
+    id         String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    sessionId  String             @unique
+    customerId String?            @unique @db.Uuid
+    items      ShoppingCartItem[]
+    customer   Customer?          @relation(fields: [customerId], references: [id])
+
+    @@index([customerId])
+    @@index([sessionId])
+}
+
+model ShoppingCartItem {
+    id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    cartId    String       @db.Uuid
+    productId String       @db.Uuid
+    quantity  Int
+    price     Decimal
+    cart      ShoppingCart @relation(fields: [cartId], references: [id])
+
+    product Product @relation(fields: [productId], references: [id])
+
+    @@unique([cartId, productId])
+    @@index([cartId])
+    @@index([productId])
+}

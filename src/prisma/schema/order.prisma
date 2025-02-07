@@ -1,0 +1,53 @@
+model Order {
+    id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    customerId  String      @db.Uuid
+    branchId    String      @db.Uuid
+    orderDate   DateTime
+    totalAmount Decimal
+    status      OrderStatus @default(PENDING)
+    items       OrderItem[]
+    invoice     Invoice?
+    customer    Customer    @relation(fields: [customerId], references: [id])
+    branch      Branch      @relation(fields: [branchId], references: [id])
+    sale        Sale?
+    Audits      Audit[]     @relation("OrderAudits")
+
+    @@index([customerId])
+    @@index([branchId])
+    @@index([status])
+    @@index([orderDate])
+}
+
+model OrderItem {
+    id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId   String  @db.Uuid
+    productId String  @db.Uuid
+    quantity  Int
+    price     Decimal
+    order     Order   @relation(fields: [orderId], references: [id])
+    product   Product @relation(fields: [productId], references: [id])
+
+    @@unique([orderId, productId])
+    @@index([orderId])
+    @@index([productId])
+}
+
+model Invoice {
+    id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId     String   @unique @db.Uuid
+    invoiceDate DateTime
+    totalAmount Decimal
+    order       Order    @relation(fields: [orderId], references: [id])
+    Audits      Audit[]  @relation("InvoiceAudits")
+
+    @@index([invoiceDate])
+}
+
+enum OrderStatus {
+    PENDING
+    PROCESSING
+    COMPLETED
+    CANCELLED
+    DELIVERED
+    RETURNED
+}

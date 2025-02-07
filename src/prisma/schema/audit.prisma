@@ -1,0 +1,40 @@
+model Audit {
+    id         String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    action     AuditAction
+    date       DateTime
+    userId     String      @db.Uuid
+    user       User        @relation(fields: [userId], references: [id], name: "UserAudits")
+    entityId   String?
+    entityType EntityType?
+    Branch     Branch?     @relation(fields: [branchId], references: [id], name: "BranchAudits")
+    branchId   String?     @db.Uuid
+    Product    Product?    @relation(fields: [productId], references: [id], name: "ProductAudits")
+    productId  String?     @db.Uuid
+    Order      Order?      @relation(fields: [orderId], references: [id], name: "OrderAudits")
+    orderId    String?     @db.Uuid
+    Sale       Sale?       @relation(fields: [saleId], references: [id], name: "SaleAudits")
+    saleId     String?     @db.Uuid
+    Invoice    Invoice?    @relation(fields: [invoiceId], references: [id], name: "InvoiceAudits")
+    invoiceId  String?     @db.Uuid
+    Stock      Stock?      @relation(fields: [stockId], references: [id], name: "StockAudits")
+    stockId    String?     @db.Uuid
+    categoryId String?     @db.Uuid
+
+    @@index([entityId, entityType])
+}
+
+enum AuditAction {
+    CREATE
+    UPDATE
+}
+
+enum EntityType {
+    USER
+    PRODUCT
+    ORDER
+    SALES
+    BRANCH
+    INVOICE
+    STOCK
+    CATEGORY
+}
