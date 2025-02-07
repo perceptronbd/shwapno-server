@@ -1,17 +1,31 @@
+import { IMAGE_MIME, MAX_FILE_SIZE } from "../types/image.type";
 import { z } from "zod";
 
 const id = z.string({ invalid_type_error: "Invalid ID format" });
 const branchId = z.string({ invalid_type_error: "Invalid ID format" });
 
 const product = z.object({
-  id: id,
+  id,
   name: z.string().min(1, "Product name is required"),
-  price: z.number().positive("Price must be a positive number"),
+  price: z.string().min(1, "Price must be a positive number"),
   barcode: z.string().min(1, "Barcode is required"),
+  quantity: z.string().optional(),
   qrCode: z.string().optional(),
   description: z.string().optional(),
   categoryId: z.string().optional(),
   branchId: id,
+});
+
+const imageFile = z.object({
+  mimetype: z.enum(Object.values(IMAGE_MIME) as [string, ...string[]], {
+    message: "Invalid image format",
+  }),
+  size: z
+    .number()
+    .max(
+      MAX_FILE_SIZE,
+      `Image size should not exceed ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+    ),
 });
 
 // Validation for creating a product
@@ -19,17 +33,18 @@ const create = z.object({
   body: z.object({
     name: product.shape.name,
     price: product.shape.price,
+    quantity: product.shape.quantity,
     barcode: product.shape.barcode,
     description: product.shape.description,
     categoryId: product.shape.categoryId,
   }),
+  file: imageFile.optional(),
 });
 
 // Validation for updating a product
-// Validation for updating a product
 const update = z.object({
   params: z.object({
-    id: id,
+    id,
   }),
   body: z.object({
     name: product.shape.name.optional(),
@@ -37,12 +52,13 @@ const update = z.object({
     barcode: product.shape.barcode.optional(),
     description: product.shape.description.optional(),
   }),
+  file: imageFile.optional(),
 });
 
 // Validation for deleting a product
 const remove = z.object({
   params: z.object({
-    id: id,
+    id,
   }),
 });
 
@@ -65,7 +81,7 @@ const getAll = z.object({
 // Validation for fetching a product by ID
 const getById = z.object({
   params: z.object({
-    id: id,
+    id,
   }),
 });
 

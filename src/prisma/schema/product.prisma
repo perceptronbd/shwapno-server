@@ -3,6 +3,7 @@ model Product {
     barcode     String?            @unique
     name        String
     imgURL      String?
+    imgPublicId String?
     description String?
     price       Decimal
     categoryId  String?            @db.Uuid
