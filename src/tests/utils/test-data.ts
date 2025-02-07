@@ -29,11 +29,13 @@ export const productData = {
   id: "product-001",
   name: "Product 1",
   barcode: "1234567890",
-  price: 100,
-  quantity: 10,
-  imgURL: "https://example.com",
+  description: "Description of the product",
+  price: "100",
+  quantity: "10",
   categoryId: "category-001",
   category: "Category 1",
+  imgURL: "http://existing.com/existing.png",
+  imgPublicId: "existingPublicId",
 };
 
 export const categoryData = {

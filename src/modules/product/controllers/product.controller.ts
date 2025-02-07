@@ -7,13 +7,13 @@ const create = async (req: Request, res: Response) => {
   const { branchId } = req.params;
   const productData = req.body;
 
-  const imageBuffer = req.file?.buffer;
+  const filePath = req.file?.path;
   const mimetype = req.file?.mimetype;
 
   const result = await productService.create({
     branchId,
     productData,
-    imageBuffer,
+    filePath,
     mimetype,
   });
 
@@ -29,13 +29,13 @@ const update = async (req: Request, res: Response) => {
   const { id } = req.params;
   const productData = req.body;
 
-  const imageBuffer = req.file?.buffer;
+  const filePath = req.file?.path;
   const mimetype = req.file?.mimetype;
 
   const result = await productService.update({
     id,
     productData,
-    imageBuffer,
+    filePath,
     mimetype,
   });
 

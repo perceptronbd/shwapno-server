@@ -7,8 +7,9 @@ const branchId = z.string({ invalid_type_error: "Invalid ID format" });
 const product = z.object({
   id,
   name: z.string().min(1, "Product name is required"),
-  price: z.number().positive("Price must be a positive number"),
+  price: z.string().min(1, "Price must be a positive number"),
   barcode: z.string().min(1, "Barcode is required"),
+  quantity: z.string().optional(),
   qrCode: z.string().optional(),
   description: z.string().optional(),
   categoryId: z.string().optional(),
@@ -32,6 +33,7 @@ const create = z.object({
   body: z.object({
     name: product.shape.name,
     price: product.shape.price,
+    quantity: product.shape.quantity,
     barcode: product.shape.barcode,
     description: product.shape.description,
     categoryId: product.shape.categoryId,

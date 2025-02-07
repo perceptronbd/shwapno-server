@@ -8,7 +8,7 @@ import { Router } from "express";
 const router = Router();
 
 router.post(
-  "/",
+  "/:branchId",
   upload.single("image"),
   validate(validateProduct.create),
   asyncHandler(productController.create),
