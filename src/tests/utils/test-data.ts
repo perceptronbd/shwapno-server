@@ -1,7 +1,7 @@
 export const userData = {
   id: "user-001",
   firstName: "Shohag",
-  phone: "1234567890",
+  hone: "1234567890",
   email: "user_00@gmail.com",
   password: "admin1234",
   policy: {
@@ -84,7 +84,10 @@ export const orderData = {
       quantity: 2,
       price: productData.price,
       product: {
-        ...productData,
+        name: productData.name,
+        barcode: productData.barcode,
+        category: productData.category,
+        imgURL: productData.imgURL,
       },
     },
   ],
