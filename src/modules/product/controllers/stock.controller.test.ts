@@ -51,11 +51,11 @@ describe("Stock Controller", () => {
 
   describe("Update Stock", () => {
     it("should update a stock", async () => {
-      const { id, ...stock } = stockData;
+      const { id, branchId, ...stock } = stockData;
 
       const { req, res } = mocks.createMockReqRes({
         body: stock,
-        params: { id: "1" },
+        params: { branchId },
       });
 
       const mockResult = { ...stockData };
@@ -65,21 +65,21 @@ describe("Stock Controller", () => {
       await stockController.update(req as Request, res as Response);
 
       expect(stockService.update).toHaveBeenCalledWith({
-        id: req.params?.id,
-        stock: req.body,
+        branchId,
+        data: req.body,
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         mockResult,
         HTTP_STATUS_CODES.OK,
-        "Stock updated successfully",
+        "Stock added successfully",
       );
     });
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: { quantity: -10, productId: 1 },
-        params: { id: "1" },
+        params: { branchId: "1" },
       });
 
       (stockService.update as jest.Mock).mockRejectedValue(new Error());
@@ -133,9 +133,7 @@ describe("Stock Controller", () => {
 
   describe("Get All Stock (by company)", () => {
     it("should get a stock", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
-      });
+      const { req, res } = mocks.createMockReqRes();
 
       const mockResult = { ...stockData };
 
@@ -143,9 +141,7 @@ describe("Stock Controller", () => {
 
       await stockController.getAll(req as Request, res as Response);
 
-      expect(stockService.getAll).toHaveBeenCalledWith({
-        id: req.params?.id,
-      });
+      expect(stockService.getAll).toHaveBeenCalledWith();
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         mockResult,
@@ -156,7 +152,7 @@ describe("Stock Controller", () => {
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
+        params: { companyId: "1" },
       });
 
       (stockService.getAll as jest.Mock).mockRejectedValue(new Error());

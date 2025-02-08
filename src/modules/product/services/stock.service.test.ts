@@ -1,4 +1,5 @@
 import { stockData } from "@/tests/utils/test-data";
+import { stockModel } from "../models/stock.model";
 import { stockService } from "./stock.service";
 import prisma from "@/config/db.config";
 
@@ -10,6 +11,9 @@ jest.mock("@/config/db.config", () => ({
     findMany: jest.fn(),
     findUnique: jest.fn(),
   },
+}));
+jest.mock("../models/stock.model", () => ({
+  getAll: jest.fn(),
 }));
 
 describe("Stock Service", () => {
@@ -30,11 +34,11 @@ describe("Stock Service", () => {
 
   describe("Update Stock", () => {
     it("should update a stock", async () => {
-      const { id, ...stock } = stockData;
+      const { id, branchId, ...stock } = stockData;
 
       (prisma.stock.update as jest.Mock).mockResolvedValue(stockData);
 
-      const result = await stockService.update({ id, stock });
+      const result = await stockService.update({ branchId, data: stock });
 
       expect(result).toEqual(stockData);
       expect(prisma.stock.update).toHaveBeenCalledWith({
@@ -64,12 +68,12 @@ describe("Stock Service", () => {
     it("should get all stocks by company id", async () => {
       const mockResult = [stockData];
 
-      (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockResult);
+      (stockModel.getAll as jest.Mock).mockResolvedValue(mockResult);
 
-      const result = await stockService.getAll({ id: stockData.branchId });
+      const result = await stockService.getAll();
 
       expect(result).toEqual(mockResult);
-      expect(prisma.stock.findMany).toHaveBeenCalled();
+      expect(stockModel.getAll).toHaveBeenCalled();
     });
   });
 
