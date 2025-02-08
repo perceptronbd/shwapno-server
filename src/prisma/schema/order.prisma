@@ -10,26 +10,30 @@ model Order {
     customer    Customer    @relation(fields: [customerId], references: [id])
     branch      Branch      @relation(fields: [branchId], references: [id])
     sale        Sale?
-    Audits      Audit[]     @relation("OrderAudits")
+    audits      Audit[]     @relation("OrderAudits")
 
     @@index([customerId])
     @@index([branchId])
     @@index([status])
     @@index([orderDate])
+    @@map("orders")
 }
 
 model OrderItem {
-    id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    orderId   String  @db.Uuid
-    productId String  @db.Uuid
+    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    orderId   String   @db.Uuid
+    productId String   @db.Uuid
     quantity  Int
     price     Decimal
-    order     Order   @relation(fields: [orderId], references: [id])
-    product   Product @relation(fields: [productId], references: [id])
+    order     Order    @relation(fields: [orderId], references: [id])
+    product   Product  @relation(fields: [productId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@unique([orderId, productId])
     @@index([orderId])
     @@index([productId])
+    @@map("order_items")
 }
 
 model Invoice {
@@ -38,9 +42,10 @@ model Invoice {
     invoiceDate DateTime
     totalAmount Decimal
     order       Order    @relation(fields: [orderId], references: [id])
-    Audits      Audit[]  @relation("InvoiceAudits")
+    audits      Audit[]  @relation("InvoiceAudits")
 
     @@index([invoiceDate])
+    @@map("invoices")
 }
 
 enum OrderStatus {

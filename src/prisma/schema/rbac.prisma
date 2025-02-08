@@ -4,18 +4,24 @@ model Role {
     companyId   String           @db.Uuid
     company     Company          @relation(fields: [companyId], references: [id])
     permissions RolePermission[]
-    userRoles   UserRole[]
+    userRoles   UserRole[]       @relation("RoleUsers")
+    createdAt   DateTime         @default(now())
+    updatedAt   DateTime         @updatedAt
 
     @@index([companyId])
+    @@map("roles")
 }
 
 model Permission {
-    id       String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    action   Action
-    resource Resource
-    roles    RolePermission[]
+    id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    action    Action
+    resource  Resource
+    roles     RolePermission[]
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
 
     @@unique([action, resource])
+    @@map("permissions")
 }
 
 model RolePermission {
@@ -24,25 +30,31 @@ model RolePermission {
     permissionId String     @db.Uuid
     role         Role       @relation(fields: [roleId], references: [id])
     permission   Permission @relation(fields: [permissionId], references: [id])
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
 
     @@unique([roleId, permissionId])
     @@index([roleId])
     @@index([permissionId])
+    @@map("role_permissions")
 }
 
 model UserRole {
-    id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    userId   String @db.Uuid
-    roleId   String @db.Uuid
-    branchId String @db.Uuid
-    user     User   @relation(fields: [userId], references: [id])
-    role     Role   @relation(fields: [roleId], references: [id])
-    branch   Branch @relation(fields: [branchId], references: [id])
+    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    userId    String   @db.Uuid
+    roleId    String   @db.Uuid
+    branchId  String   @db.Uuid
+    user      User     @relation("UserRoles", fields: [userId], references: [id])
+    role      Role     @relation("RoleUsers", fields: [roleId], references: [id])
+    branch    Branch   @relation(fields: [branchId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@unique([userId, roleId, branchId])
     @@index([userId])
     @@index([roleId])
     @@index([branchId])
+    @@map("user_roles")
 }
 
 enum Action {

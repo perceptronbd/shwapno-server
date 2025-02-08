@@ -10,21 +10,26 @@ model Sale {
     discount        Decimal?
     totalAmount     Decimal
     order           Order         @relation(fields: [orderId], references: [id])
-    salesPerson     User          @relation(fields: [salesPersonId], references: [id])
+    salesPerson     User          @relation("UserSales", fields: [salesPersonId], references: [id])
     branch          Branch        @relation(fields: [branchId], references: [id])
     paymentMethodId String        @db.Uuid
-    Audits          Audit[]       @relation("SaleAudits")
+    audits          Audit[]       @relation("SaleAudits")
 
     @@index([salesPersonId])
     @@index([branchId])
     @@index([paymentMethodId])
     @@index([paymentStatus])
+    @@map("sales")
 }
 
 model PaymentMethod {
-    id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    name String @unique
-    Sale Sale[]
+    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name      String   @unique
+    sale      Sale[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("payment_methods")
 }
 
 enum PaymentStatus {

@@ -33,6 +33,8 @@ const login = async ({ email, password, rememberMe }: TLoginRequest) => {
     refreshToken: tokens.refreshToken,
     user: {
       id: user.id,
+      firstName: user.firstName,
+      phone: user.phone,
       email: user.email,
       roles: user.policy.roles,
     },
