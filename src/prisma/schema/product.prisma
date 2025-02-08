@@ -11,18 +11,25 @@ model Product {
     stock       Stock[]
     orderItems  OrderItem[]
     cartItems   ShoppingCartItem[]
-    Audits      Audit[]            @relation("ProductAudits")
+    audits      Audit[]            @relation("ProductAudits")
+    createdAt   DateTime           @default(now())
+    updatedAt   DateTime           @updatedAt
 
     @@index([name])
     @@index([barcode])
+    @@map("products")
 }
 
 model Category {
-    id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    name     String    @unique
-    products Product[]
+    id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    name      String    @unique
+    products  Product[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
 
     BranchCategory BranchCategory[]
+
+    @@map("categories")
 }
 
 model Stock {
@@ -33,11 +40,14 @@ model Stock {
     lowStockAlert Boolean?
     branch        Branch   @relation(fields: [branchId], references: [id])
     product       Product  @relation(fields: [productId], references: [id])
-    Audits        Audit[]  @relation("StockAudits")
+    audits        Audit[]  @relation("StockAudits")
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
 
     @@unique([branchId, productId])
     @@index([branchId])
     @@index([productId])
+    @@map("stocks")
 }
 
 model BranchCategory {
@@ -46,4 +56,8 @@ model BranchCategory {
     categoryId String   @db.Uuid
     branch     Branch   @relation(fields: [branchId], references: [id])
     category   Category @relation(fields: [categoryId], references: [id])
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@map("branch_categories")
 }

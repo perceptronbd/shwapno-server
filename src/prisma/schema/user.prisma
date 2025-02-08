@@ -5,9 +5,12 @@ model User {
     email     String     @unique
     phone     String
     password  String
-    userRoles UserRole[]
-    Sale      Sale[]
-    Audits    Audit[]    @relation("UserAudits")
+    userRoles UserRole[] @relation("UserRoles")
+    sale      Sale[]     @relation("UserSales")
+    audits    Audit[]    @relation("UserAudits")
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 
     @@index([email])
+    @@map("users")
 }
