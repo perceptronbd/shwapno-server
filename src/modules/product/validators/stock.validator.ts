@@ -2,6 +2,7 @@ import { z } from "zod";
 
 // ID schema for  validation
 const id = z.string({ invalid_type_error: "Invalid ID format" });
+const branchId = z.string({ invalid_type_error: "Invalid ID format" });
 
 // Schema for productId
 const productId = z.string({ invalid_type_error: "Invalid ID format" });
@@ -23,7 +24,7 @@ const update = z.object({
     productId,
   }),
   params: z.object({
-    id,
+    branchId,
   }),
 });
 
@@ -51,7 +52,7 @@ const getById = z.object({
 // Validation for Get Stock By Branch
 const getByBranch = z.object({
   params: z.object({
-    id,
+    branchId,
   }),
 });
 

@@ -13,7 +13,7 @@ router.post(
 );
 
 router.patch(
-  "/:id",
+  "/:branchId",
   validate(validateStock.update),
   asyncHandler(stockController.update),
 );
@@ -37,7 +37,7 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/:branchId",
   validate(validateStock.getByBranch),
   asyncHandler(stockController.getByBranch),
 );

@@ -8,10 +8,20 @@ const create = async (data: TCreateStock) => {
   return result;
 };
 
-const update = async ({ id, stock }: { id: string; stock: TUpdateStock }) => {
+const update = async ({
+  branchId,
+  data,
+}: {
+  branchId: string;
+  data: TUpdateStock;
+}) => {
+  const stock = await prisma.stock.findUnique({
+    where: { id: branchId },
+  });
+
   const result = await prisma.stock.update({
-    where: { id },
-    data: stock,
+    where: { id: stock?.id },
+    data,
   });
   return result;
 };
@@ -23,11 +33,12 @@ const remove = async ({ id }: { id: string }) => {
   return result;
 };
 
-const getAll = async ({ id }: { id: string }) => {
-  const result = await prisma.stock.findMany({
-    where: { branchId: id },
-  });
-  return result;
+const getAll = async () => {
+  // const result = await prisma.stock.findMany({
+  //   where: { branchId: id },
+  // });
+
+  return "result";
 };
 
 const getById = async ({ id }: { id: string }) => {

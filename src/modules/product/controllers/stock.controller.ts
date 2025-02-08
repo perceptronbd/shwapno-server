@@ -14,8 +14,8 @@ const create = async (req: Request, res: Response) => {
 };
 
 const update = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const stock = await stockService.update({ id, stock: req.body });
+  const { branchId } = req.params;
+  const stock = await stockService.update({ branchId, data: req.body });
   sendResponse(res, stock, HTTP_STATUS_CODES.OK, "Stock updated successfully");
 };
 
@@ -25,9 +25,9 @@ const remove = async (req: Request, res: Response) => {
   sendResponse(res, stock, HTTP_STATUS_CODES.OK, "Stock deleted successfully");
 };
 
-const getAll = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const stocks = await stockService.getAll({ id });
+const getAll = async (_req: Request, res: Response) => {
+  const stocks = await stockService.getAll();
+
   sendResponse(
     res,
     stocks,
