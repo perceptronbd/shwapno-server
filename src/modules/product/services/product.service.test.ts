@@ -69,7 +69,7 @@ describe("Product Service", () => {
         productData: {
           name: productData.name,
           price: productData.price,
-          quantity: "0",
+          quantity: 0,
           barcode: productData.barcode,
           description: productData.description,
           categoryId: productData.categoryId,
@@ -88,7 +88,7 @@ describe("Product Service", () => {
         data: {
           name: productData.name,
           price: productData.price,
-          quantity: "0",
+          quantity: 0,
           barcode: productData.barcode,
           description: productData.description,
           categoryId: productData.categoryId,
@@ -109,7 +109,7 @@ describe("Product Service", () => {
           productData: {
             name: productData.name,
             price: productData.price,
-            quantity: "0",
+            quantity: 0,
             barcode: productData.barcode,
             description: productData.description,
             categoryId: productData.categoryId,
