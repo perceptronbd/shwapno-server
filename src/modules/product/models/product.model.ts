@@ -12,6 +12,7 @@ const createProduct = async ({
   imgUploadResult: CloudinaryUploadResult | null;
 }) => {
   const { categoryId, ...product } = data;
+  const quantity = data.quantity ?? 0;
 
   return prisma.$transaction(async (prisma) => {
     const createdProduct = await prisma.product.create({
@@ -25,7 +26,7 @@ const createProduct = async ({
 
     await prisma.stock.create({
       data: {
-        quantity: data.quantity as unknown as number,
+        quantity: quantity,
         branchId: branchId,
         productId: createdProduct.id,
       },
