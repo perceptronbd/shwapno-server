@@ -7,7 +7,7 @@ describe("Product Validator", () => {
       const request = {
         body: {
           name: "Test Product",
-          price: " 100.0",
+          price: 100.0,
           barcode: "1234567890",
           branchId: "1",
           description: "",
@@ -25,7 +25,7 @@ describe("Product Validator", () => {
       const request = {
         body: {
           name: "Test Product",
-          price: "100.0",
+          price: 100.0,
           barcode: "1234567890",
           branchId: "1",
           description: "",
@@ -60,7 +60,7 @@ describe("Product Validator", () => {
       const request = {
         body: {
           name: "Test Product",
-          price: "100.0",
+          price: 100.0,
           barcode: "1234567890",
           description: "",
         },
@@ -73,7 +73,7 @@ describe("Product Validator", () => {
       const request = {
         body: {
           name: "Test Product",
-          price: "100.0",
+          price: 100.0,
           barcode: "1234567890",
           description: "",
         },
