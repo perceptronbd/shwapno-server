@@ -15,7 +15,7 @@ const login = async (req: Request, res: Response) => {
 
   setCookie(res, "refreshToken", refreshToken);
   res.setHeader("Authorization", `Bearer ${accessToken}`);
-  sendResponse(res, user, HTTP_STATUS_CODES.OK, "Login successful!");
+  sendResponse(res, user, HTTP_STATUS_CODES.OK, "Logged in successfully!");
 };
 
 const logout = async (_: Request, res: Response) => {
