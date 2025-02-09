@@ -13,10 +13,10 @@ const create = async (req: Request, res: Response) => {
   );
 };
 
-const update = async (req: Request, res: Response) => {
+const add = async (req: Request, res: Response) => {
   const { branchId } = req.params;
-  const stock = await stockService.update({ branchId, data: req.body });
-  sendResponse(res, stock, HTTP_STATUS_CODES.OK, "Stock updated successfully");
+  const stock = await stockService.add({ branchId, data: req.body });
+  sendResponse(res, stock, HTTP_STATUS_CODES.OK, "Stock added successfully");
 };
 
 const remove = async (req: Request, res: Response) => {
@@ -60,7 +60,7 @@ const getByBranch = async (req: Request, res: Response) => {
 
 export const stockController = {
   create,
-  update,
+  add,
   remove,
   getAll,
   getById,

@@ -13,8 +13,12 @@ jest.mock("@/config/db.config", () => ({
   },
 }));
 jest.mock("../models/stock.model", () => ({
-  getAll: jest.fn(),
+  stockModel: { addStock: jest.fn(), getAll: jest.fn() },
 }));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe("Stock Service", () => {
   describe("Create Stock", () => {
@@ -32,18 +36,19 @@ describe("Stock Service", () => {
     });
   });
 
-  describe("Update Stock", () => {
-    it("should update a stock", async () => {
+  describe("Add Stock", () => {
+    it("should add a stock", async () => {
       const { id, branchId, ...stock } = stockData;
 
-      (prisma.stock.update as jest.Mock).mockResolvedValue(stockData);
+      (stockModel.addStock as jest.Mock).mockResolvedValue(stockData);
 
-      const result = await stockService.update({ branchId, data: stock });
+      const result = await stockService.add({ branchId, data: stock });
 
       expect(result).toEqual(stockData);
-      expect(prisma.stock.update).toHaveBeenCalledWith({
-        where: { id: stockData.id },
-        data: stock,
+      expect(stockModel.addStock).toHaveBeenCalledWith({
+        branchId: stockData.branchId,
+        productId: stockData.productId,
+        quantity: stockData.quantity,
       });
     });
   });

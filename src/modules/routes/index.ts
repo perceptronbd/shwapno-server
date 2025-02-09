@@ -8,14 +8,17 @@ const router = Router();
 
 const moduleRoutes = [
   {
+    protected: false,
     path: "/auth",
     module: AuthRoutes,
   },
   {
+    protected: true,
     path: "/users",
     module: UserRotes,
   },
   {
+    protected: true,
     path: "/products",
     module: Product,
   },
@@ -26,7 +29,11 @@ const moduleRoutes = [
 ];
 
 moduleRoutes.forEach((route) => {
-  router.use(route.path, route.module);
+  if (route.protected) {
+    router.use(route.path, route.module);
+  } else {
+    router.use(route.path, route.module);
+  }
 });
 
 export default router;

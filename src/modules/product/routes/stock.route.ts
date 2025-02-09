@@ -14,8 +14,8 @@ router.post(
 
 router.patch(
   "/:branchId",
-  validate(validateStock.update),
-  asyncHandler(stockController.update),
+  validate(validateStock.add),
+  asyncHandler(stockController.add),
 );
 
 router.delete(
