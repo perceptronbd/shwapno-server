@@ -1,4 +1,4 @@
-import { stockData } from "@/tests/utils/test-data";
+import { stockData, userData } from "@/tests/utils/test-data";
 import { stockModel } from "../models/stock.model";
 import { stockService } from "./stock.service";
 import prisma from "@/config/db.config";
@@ -16,11 +16,11 @@ jest.mock("../models/stock.model", () => ({
   stockModel: { addStock: jest.fn(), getAll: jest.fn() },
 }));
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
-
 describe("Stock Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("Create Stock", () => {
     it("should create a stock", async () => {
       const { id, ...stock } = stockData;
@@ -75,7 +75,11 @@ describe("Stock Service", () => {
 
       (stockModel.getAll as jest.Mock).mockResolvedValue(mockResult);
 
-      const result = await stockService.getAll();
+      const result = await stockService.getAll({
+        id: userData.id,
+        page: 1,
+        limit: 10,
+      });
 
       expect(result).toEqual(mockResult);
       expect(stockModel.getAll).toHaveBeenCalled();

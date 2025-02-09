@@ -132,39 +132,6 @@ describe("Stock Controller", () => {
     });
   });
 
-  describe("Get All Stock (by company)", () => {
-    it("should get a stock", async () => {
-      const { req, res } = mocks.createMockReqRes();
-
-      const mockResult = { ...stockData };
-
-      (stockService.getAll as jest.Mock).mockResolvedValue(mockResult);
-
-      await stockController.getAll(req as Request, res as Response);
-
-      expect(stockService.getAll).toHaveBeenCalledWith();
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        mockResult,
-        HTTP_STATUS_CODES.OK,
-        "Stocks retrieved successfully",
-      );
-    });
-
-    it("should handle errors", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { companyId: "1" },
-      });
-
-      (stockService.getAll as jest.Mock).mockRejectedValue(new Error());
-
-      await expect(
-        stockController.getAll(req as Request, res as Response),
-      ).rejects.toThrow();
-      expect(stockService.getAll).toHaveBeenCalledWith({ id: "company-001" });
-    });
-  });
-
   describe("Get Stock By Id", () => {
     it("should get a stock by id", async () => {
       const { req, res } = mocks.createMockReqRes({

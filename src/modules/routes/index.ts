@@ -1,3 +1,4 @@
+import { authenticateJWT } from "@/middlewares/auth.middleware";
 import { AuthRoutes } from "@modules/auth/routes/auth.route";
 import { CustomerRoutes } from "../customer/routes";
 import { Product } from "../product/routes";
@@ -30,7 +31,7 @@ const moduleRoutes = [
 
 moduleRoutes.forEach((route) => {
   if (route.protected) {
-    router.use(route.path, route.module);
+    router.use(route.path, authenticateJWT, route.module);
   } else {
     router.use(route.path, route.module);
   }

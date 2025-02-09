@@ -6,40 +6,46 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post(
-  "/",
-  validate(validateStock.create),
-  asyncHandler(stockController.create),
-);
-
-router.patch(
-  "/:branchId",
-  validate(validateStock.add),
-  asyncHandler(stockController.add),
-);
-
-router.delete(
-  "/:id",
-  validate(validateStock.remove),
-  asyncHandler(stockController.remove),
-);
-
+// GET all stocks
 router.get(
   "/",
   validate(validateStock.getAll),
   asyncHandler(stockController.getAll),
 );
 
+// GET stocks by branch
+router.get(
+  "/branch/:branchId",
+  validate(validateStock.getByBranch),
+  asyncHandler(stockController.getByBranch),
+);
+
+// GET stock by ID
 router.get(
   "/:id",
   validate(validateStock.getById),
   asyncHandler(stockController.getById),
 );
 
-router.get(
-  "/:branchId",
-  validate(validateStock.getByBranch),
-  asyncHandler(stockController.getByBranch),
+// POST create new stock
+router.post(
+  "/",
+  validate(validateStock.create),
+  asyncHandler(stockController.create),
+);
+
+// PATCH update stock quantity
+router.patch(
+  "/branch/:branchId",
+  validate(validateStock.add),
+  asyncHandler(stockController.add),
+);
+
+// DELETE stock
+router.delete(
+  "/:id",
+  validate(validateStock.remove),
+  asyncHandler(stockController.remove),
 );
 
 export const StockRoutes = router;

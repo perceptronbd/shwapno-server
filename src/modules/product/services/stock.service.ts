@@ -32,12 +32,18 @@ const remove = async ({ id }: { id: string }) => {
   return result;
 };
 
-const getAll = async () => {
-  // const result = await prisma.stock.findMany({
-  //   where: { branchId: id },
-  // });
+const getAll = async ({
+  id,
+  page,
+  limit,
+}: {
+  id: string;
+  page: number;
+  limit: number;
+}) => {
+  const result = await stockModel.getAll({ id, page, limit });
 
-  return "result";
+  return result;
 };
 
 const getById = async ({ id }: { id: string }) => {

@@ -1,11 +1,8 @@
 import { HTTP_STATUS_CODES } from "../utils/http-status-codes";
-import { Request, Response, NextFunction } from "express";
+import { AuthRequest, AuthUser } from "@/types/auth.types";
+import { Response, NextFunction } from "express";
 import { AppError } from "../types/error.type";
 import jwt from "jsonwebtoken";
-
-interface AuthRequest extends Request {
-  user?: string | object;
-}
 
 export const authenticateJWT = (
   req: AuthRequest,
@@ -29,7 +26,7 @@ export const authenticateJWT = (
       process.env.ACCESS_TOKEN_SECRET as string,
     );
 
-    req.user = decoded;
+    req.user = decoded as AuthUser;
 
     next();
   } catch (error: unknown) {

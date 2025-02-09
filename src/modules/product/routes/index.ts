@@ -5,8 +5,8 @@ import { Router } from "express";
 
 const router = Router();
 
+router.use("/stocks", StockRoutes);
+router.use("/categories", CategoryRoutes);
 router.use("/", ProductRoutes);
-router.use("/stock", StockRoutes);
-router.use("/category", CategoryRoutes);
 
 export const Product = router;

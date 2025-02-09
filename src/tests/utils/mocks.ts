@@ -1,3 +1,4 @@
+import { AuthRequest } from "@/types/auth.types";
 import { Request, Response } from "express";
 
 const createMockReqRes = (
@@ -14,8 +15,9 @@ const createMockReqRes = (
     params: {},
     query: {},
     file: undefined,
+    user: undefined,
     ...requestOverrides,
-  };
+  } as AuthRequest;
 
   // Default mock Response object
   const res: Partial<Response> = {
