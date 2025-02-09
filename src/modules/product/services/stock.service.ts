@@ -1,4 +1,5 @@
 import { TCreateStock, TUpdateStock } from "../validators/stock.validator";
+import { stockModel } from "../models/stock.model";
 import prisma from "@/config/db.config";
 
 const create = async (data: TCreateStock) => {
@@ -8,21 +9,19 @@ const create = async (data: TCreateStock) => {
   return result;
 };
 
-const update = async ({
+const add = async ({
   branchId,
   data,
 }: {
   branchId: string;
   data: TUpdateStock;
 }) => {
-  const stock = await prisma.stock.findUnique({
-    where: { id: branchId },
+  const result = await stockModel.addStock({
+    branchId,
+    productId: data.productId,
+    quantity: data.quantity,
   });
 
-  const result = await prisma.stock.update({
-    where: { id: stock?.id },
-    data,
-  });
   return result;
 };
 
@@ -33,12 +32,18 @@ const remove = async ({ id }: { id: string }) => {
   return result;
 };
 
-const getAll = async () => {
-  // const result = await prisma.stock.findMany({
-  //   where: { branchId: id },
-  // });
+const getAll = async ({
+  id,
+  page,
+  limit,
+}: {
+  id: string;
+  page: number;
+  limit: number;
+}) => {
+  const result = await stockModel.getAll({ id, page, limit });
 
-  return "result";
+  return result;
 };
 
 const getById = async ({ id }: { id: string }) => {
@@ -51,14 +56,13 @@ const getById = async ({ id }: { id: string }) => {
 const getByBranch = async ({ branchId }: { branchId: string }) => {
   const result = await prisma.stock.findMany({
     where: { branchId },
-    omit: { lowStockAlert: true },
   });
   return result;
 };
 
 export const stockService = {
   create,
-  update,
+  add,
   remove,
   getAll,
   getById,

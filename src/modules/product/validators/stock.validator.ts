@@ -18,7 +18,7 @@ const create = z.object({
 });
 
 // Validation for Update Stock
-const update = z.object({
+const add = z.object({
   body: z.object({
     quantity,
     productId,
@@ -37,8 +37,9 @@ const remove = z.object({
 
 // Validation for Get All Stocks (company)
 const getAll = z.object({
-  params: z.object({
-    id,
+  query: z.object({
+    page: z.coerce.number().positive().int().default(1),
+    limit: z.coerce.number().positive().int().default(10),
   }),
 });
 
@@ -57,16 +58,16 @@ const getByBranch = z.object({
 });
 
 export type TCreateStock = z.infer<typeof create>["body"];
-export type TUpdateStock = z.infer<typeof update>["body"];
+export type TUpdateStock = z.infer<typeof add>["body"];
 export type TDeleteStock = z.infer<typeof remove>["params"];
-export type TGetAllStocks = z.infer<typeof getAll>["params"];
+export type TGetAllStocks = z.infer<typeof getAll>["query"];
 export type TGetStockById = z.infer<typeof getById>["params"];
 export type TGetStockByBranch = z.infer<typeof getByBranch>["params"];
 
 // Exporting all schemas
 export const validateStock = {
   create,
-  update,
+  add,
   remove,
   getAll,
   getById,

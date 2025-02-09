@@ -26,7 +26,7 @@ describe("Stock Validator", () => {
         params: { branchId: "1" },
       };
 
-      expect(() => validateStock.update.parse(request)).not.toThrow();
+      expect(() => validateStock.add.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid stock", () => {
@@ -35,7 +35,7 @@ describe("Stock Validator", () => {
         params: { branchId: "1" },
       };
 
-      expect(() => validateStock.update.parse(request)).toThrow();
+      expect(() => validateStock.add.parse(request)).toThrow();
     });
   });
 
