@@ -59,5 +59,7 @@ model BranchCategory {
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 
+    @@index([branchId])
+    @@index([categoryId])
     @@map("branch_categories")
 }
