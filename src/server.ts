@@ -30,6 +30,11 @@ app.use("/api/v1", router);
 
 app.use(errorMiddleware);
 
+// say hello
+app.get("/", (_req, res) => {
+  res.send("<h1>Welcome to shwapno API</h1>");
+});
+
 // start the server
 
 const start = async () => {
