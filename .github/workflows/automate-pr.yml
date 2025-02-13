@@ -1,0 +1,62 @@
+name: Auto Create and Merge PRs
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+
+jobs:
+  create_and_merge_prs:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create and merge PR to pre-main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create PR from dev to pre-main
+          pr_url=$(gh pr create \
+            --base pre-main \
+            --head dev \
+            --title "Auto PR: dev to pre-main" \
+            --body "Automatically created PR from dev branch" \
+            --json url -q .url)
+
+          # Wait briefly for PR checks
+          sleep 10
+
+          # Merge the PR to pre-main
+          pr_number=$(echo $pr_url | grep -o '[0-9]*$')
+          gh pr merge $pr_number --auto --merge
+
+      - name: Create and merge PR to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Wait for pre-main branch to update
+          sleep 10
+
+          # Create PR from pre-main to main
+          pr_url=$(gh pr create \
+            --base main \
+            --head pre-main \
+            --title "Auto PR: pre-main to main" \
+            --body "Automatically created PR from pre-main branch" \
+            --json url -q .url)
+
+          # Wait briefly for PR checks
+          sleep 10
+
+          # Merge the PR to main
+          pr_number=$(echo $pr_url | grep -o '[0-9]*$')
+          gh pr merge $pr_number --auto --merge
