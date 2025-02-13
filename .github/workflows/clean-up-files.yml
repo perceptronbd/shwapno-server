@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   clean_files:
-    if: ${{ github.head_ref == 'pull-request' }}
+    if: ${{ github.head_ref == 'pre-main' }}
     runs-on: ubuntu-latest
 
     steps:
