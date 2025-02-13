@@ -16,10 +16,30 @@ export const appError = (error: AppError, response: ErrorResponse) => {
 
 export const zodError = (error: ZodError, response: ErrorResponse) => {
   response.code = HTTP_STATUS_CODES.BAD_REQUEST;
-  response.message = error.errors.map((err) => ({ message: err.message }));
-  response.details = process.env.NODE_ENV === "development" ? error : undefined;
-};
 
+  const formattedErrors = error.errors.map((err) => ({
+    field: err.path.join("."),
+    message:
+      err.path.length === 0
+        ? "Request body cannot be empty"
+        : err.code === "invalid_type" && err.received === "undefined"
+          ? `${err.path.join(".")} is required`
+          : err.message,
+    code: err.code,
+  }));
+
+  // Create a combined message from all validation errors
+  const errorMessage = formattedErrors.map((err) => err.message).join(", ");
+
+  response.message = `Validation failed: ${errorMessage}!`;
+  response.details = {
+    errors: formattedErrors,
+  };
+
+  if (process.env.NODE_ENV === "development") {
+    response.details.debug = error;
+  }
+};
 export const generalError = (error: Error, response: ErrorResponse) => {
   response.message = error.message;
   response.details =
