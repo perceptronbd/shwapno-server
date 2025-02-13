@@ -1,7 +1,7 @@
 export const userData = {
   id: "user-001",
   firstName: "Shohag",
-  phone: "1234567890",
+  hone: "1234567890",
   email: "user_00@gmail.com",
   password: "admin1234",
   policy: {
@@ -92,7 +92,7 @@ export const orderData = {
     },
   ],
   status: "PENDING",
-  totalAmount: 200,
+  totalAmount: 250,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
