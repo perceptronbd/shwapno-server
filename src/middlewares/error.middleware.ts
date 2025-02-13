@@ -20,8 +20,6 @@ export const errorMiddleware = (
       "Internal Server Error",
   };
 
-  console.log("Error handler caught error", error);
-
   if (error instanceof AppError) {
     errorHandler.appError(error, response);
   } else if (error instanceof ZodError) {

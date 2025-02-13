@@ -12,7 +12,7 @@ model Audit {
     productId  String?     @db.Uuid
     Order      Order?      @relation(fields: [orderId], references: [id], name: "OrderAudits")
     orderId    String?     @db.Uuid
-    Sale       Sale?       @relation(fields: [saleId], references: [id], name: "SaleAudits")
+    sale       Sale?       @relation(fields: [saleId], references: [id], name: "SaleAudits")
     saleId     String?     @db.Uuid
     Invoice    Invoice?    @relation(fields: [invoiceId], references: [id], name: "InvoiceAudits")
     invoiceId  String?     @db.Uuid
@@ -21,6 +21,8 @@ model Audit {
     categoryId String?     @db.Uuid
 
     @@index([entityId, entityType])
+    @@index([userId])
+    @@map("audits")
 }
 
 enum AuditAction {

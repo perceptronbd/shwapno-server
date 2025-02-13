@@ -7,9 +7,12 @@ model Customer {
     address   String
     orders    Order[]
     cart      ShoppingCart?
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
 
     @@index([email])
     @@index([mobile])
+    @@map("customers")
 }
 
 model ShoppingCart {
@@ -18,9 +21,12 @@ model ShoppingCart {
     customerId String?            @unique @db.Uuid
     items      ShoppingCartItem[]
     customer   Customer?          @relation(fields: [customerId], references: [id])
+    createdAt  DateTime           @default(now())
+    updatedAt  DateTime           @updatedAt
 
     @@index([customerId])
     @@index([sessionId])
+    @@map("shopping_carts")
 }
 
 model ShoppingCartItem {
@@ -36,4 +42,5 @@ model ShoppingCartItem {
     @@unique([cartId, productId])
     @@index([cartId])
     @@index([productId])
+    @@map("shopping_cart_items")
 }

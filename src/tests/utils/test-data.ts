@@ -1,5 +1,6 @@
 export const userData = {
   id: "user-001",
+  firstName: "Shohag",
   phone: "1234567890",
   email: "user_00@gmail.com",
   password: "admin1234",
@@ -29,11 +30,13 @@ export const productData = {
   id: "product-001",
   name: "Product 1",
   barcode: "1234567890",
+  description: "Description of the product",
   price: 100,
   quantity: 10,
-  imgURL: "https://example.com",
   categoryId: "category-001",
   category: "Category 1",
+  imgURL: "http://existing.com/existing.png",
+  imgPublicId: "existingPublicId",
 };
 
 export const categoryData = {
@@ -81,7 +84,10 @@ export const orderData = {
       quantity: 2,
       price: productData.price,
       product: {
-        ...productData,
+        name: productData.name,
+        barcode: productData.barcode,
+        category: productData.category,
+        imgURL: productData.imgURL,
       },
     },
   ],

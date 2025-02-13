@@ -7,7 +7,7 @@ import prisma from "@/config/db.config";
 
 const getUserByEmail = async (
   email: string,
-): Promise<Omit<TUser, "firstName"> | undefined> => {
+): Promise<Omit<TUser, "createdAt" | "updatedAt"> | undefined> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
@@ -44,6 +44,7 @@ const getUserByEmail = async (
 
   const userResponse = {
     id: user.id,
+    firstName: user.firstName,
     phone: user.phone,
     email: user.email,
     password: user.password,

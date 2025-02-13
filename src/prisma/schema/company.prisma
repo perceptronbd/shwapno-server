@@ -1,10 +1,16 @@
 model Company {
-    id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    imgURL   String?
-    name     String   @unique
-    location String?
-    branches Branch[]
-    roles    Role[]
+    id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    imgURL    String?
+    name      String   @unique
+    location  String?
+    branches  Branch[]
+    roles     Role[]
+    email     String?  @unique
+    phone     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("companies")
 }
 
 model Branch {
@@ -19,9 +25,14 @@ model Branch {
     orders        Order[]
     stock         Stock[]
     notifications Notification[]
-    Sale          Sale[]
-    Audits        Audit[]          @relation("BranchAudits")
+    sale          Sale[]
+    audits        Audit[]          @relation("BranchAudits")
+    email         String?          @unique
+    phone         String?
+    createdAt     DateTime         @default(now())
+    updatedAt     DateTime         @updatedAt
 
     @@index([companyId])
     @@index([name])
+    @@map("branches")
 }

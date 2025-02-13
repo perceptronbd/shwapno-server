@@ -1,45 +1,106 @@
 import {
+  CloudinaryUploadResult,
+  deleteImage,
+  uploadImage,
+} from "@/utils/cloudinary.util";
+import {
   TCreateProduct,
   TUpdateProduct,
 } from "../validators/product.validator";
+import { productModel } from "../models/product.model";
 import prisma from "@/config/db.config";
 
 const create = async ({
   branchId,
-  product: data,
+  productData,
+  filePath,
+  mimetype,
 }: {
   branchId: string;
-  product: TCreateProduct;
+  productData: TCreateProduct;
+  filePath?: string;
+  mimetype?: string;
 }) => {
-  return await prisma.$transaction(async (prisma) => {
-    const createdProduct = await prisma.product.create({
-      data,
-    });
+  let uploadResult: CloudinaryUploadResult | null = null;
 
-    await prisma.stock.create({
-      data: {
-        quantity: 0,
-        branchId: branchId,
-        productId: createdProduct.id,
-      },
+  if (filePath && mimetype) {
+    console.log("attempting to upload image...");
+    uploadResult = await uploadImage(filePath, mimetype, "product");
+  }
+
+  try {
+    const createdProduct = await productModel.createProduct({
+      data: productData,
+      branchId,
+      imgUploadResult: uploadResult,
     });
 
     return createdProduct;
-  });
+  } catch (error: unknown) {
+    if (uploadResult?.public_id) {
+      await deleteImage(uploadResult.public_id);
+    }
+    throw error;
+  }
 };
 
 const update = async ({
   id,
   productData,
+  filePath,
+  mimetype,
 }: {
   id: string;
   productData: TUpdateProduct;
+  filePath?: string;
+  mimetype?: string;
 }) => {
-  const updatedProduct = await prisma.product.update({
+  let updatedProduct = null;
+  let uploadResult: CloudinaryUploadResult | null = null;
+
+  // Fetch the existing product to check its current image details.
+  const existingProduct = await prisma.product.findUnique({
     where: { id },
-    data: productData,
   });
-  return updatedProduct;
+
+  // If a new image file is provided, upload it.
+  if (filePath && mimetype) {
+    uploadResult = await uploadImage(filePath, mimetype, "product");
+
+    // If there is an existing image, delete it.
+    if (existingProduct?.imgPublicId) {
+      await deleteImage(existingProduct.imgPublicId);
+    }
+  }
+
+  // Build the update data. Start with the product data.
+  const updateData: Partial<TUpdateProduct> & {
+    imgURL?: string;
+    imgPublicId?: string;
+  } = {
+    ...productData,
+  };
+
+  // Only update image fields if a new image was uploaded.
+  if (uploadResult) {
+    updateData.imgURL = uploadResult.secure_url;
+    updateData.imgPublicId = uploadResult.public_id;
+  }
+
+  try {
+    updatedProduct = await prisma.product.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return updatedProduct;
+  } catch (error: unknown) {
+    // If the update fails and we just uploaded a new image, delete it.
+    if (uploadResult?.public_id) {
+      await deleteImage(uploadResult.public_id);
+    }
+    throw error;
+  }
 };
 
 const remove = async ({ id }: { id: string }) => {

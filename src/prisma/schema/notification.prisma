@@ -2,11 +2,13 @@ model Notification {
     id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
     type      String
     content   String
-    createdAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
     branchId  String   @db.Uuid
     branch    Branch   @relation(fields: [branchId], references: [id])
 
     @@index([branchId])
     @@index([createdAt])
     @@index([type])
+    @@map("notifications")
 }

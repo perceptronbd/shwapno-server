@@ -13,12 +13,15 @@ const login = async ({ email, password, rememberMe }: TLoginRequest) => {
   const user = await authModels.getUserByEmail(email);
 
   if (!user) {
-    throw new AppError(HTTP_STATUS_CODES.UNAUTHORIZED, "Invalid password");
+    throw new AppError(
+      HTTP_STATUS_CODES.UNAUTHORIZED,
+      "user with this email does not exist!",
+    );
   }
 
   const isPasswordValid = await validatePassword(password, user.password);
   if (!isPasswordValid) {
-    throw new AppError(HTTP_STATUS_CODES.UNAUTHORIZED, "Invalid password");
+    throw new AppError(HTTP_STATUS_CODES.UNAUTHORIZED, "Invalid password!");
   }
 
   const tokens = generateTokens({
@@ -33,6 +36,8 @@ const login = async ({ email, password, rememberMe }: TLoginRequest) => {
     refreshToken: tokens.refreshToken,
     user: {
       id: user.id,
+      firstName: user.firstName,
+      phone: user.phone,
       email: user.email,
       roles: user.policy.roles,
     },

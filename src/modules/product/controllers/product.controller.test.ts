@@ -25,6 +25,7 @@ const mockFile = {
   mimetype: "image/png",
   buffer: Buffer.from(""),
   size: 1024,
+  path: "filePaht",
 } as Express.Multer.File;
 
 describe("Product Controller", () => {
@@ -77,8 +78,8 @@ describe("Product Controller", () => {
       expect(productService.create).toHaveBeenCalledWith({
         productData: req.body,
         branchId: req.params?.branchId,
-        imageBuffer: req.file?.buffer,
-        mimetype: req.file?.mimetype,
+        filePath: "filePaht",
+        mimetype: "image/png",
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
@@ -150,8 +151,9 @@ describe("Product Controller", () => {
       expect(productService.update).toHaveBeenCalledWith({
         id: req.params?.id,
         productData: req.body,
-        imageBuffer: req.file?.buffer,
-        mimetype: req.file?.mimetype,
+
+        filePath: "filePaht",
+        mimetype: "image/png",
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,

@@ -14,16 +14,13 @@ async function clearDatabse() {
 }
 
 async function main() {
-  // Clear the database
   await clearDatabse();
-  // Create a company
+
+  // Create company and branch
   const company = await prisma.company.create({
-    data: {
-      name: "Shwapno",
-    },
+    data: { name: "Shwapno" },
   });
 
-  // Create a branch
   const branch = await prisma.branch.create({
     data: {
       name: "Nurer Chala",
@@ -32,149 +29,97 @@ async function main() {
     },
   });
 
-  // create product
-  const product = await prisma.product.create({
-    data: {
-      name: "Product 1",
-      price: 10,
-      description: "Product 1 description",
-    },
-  });
-
-  // create stock
-  await prisma.stock.create({
-    data: {
-      quantity: 10,
-      productId: product.id,
-      branchId: branch.id,
-    },
-  });
-
-  // Create a role
-  const role = await prisma.role.create({
+  // Create roles
+  const adminRole = await prisma.role.create({
     data: {
       name: "admin",
       companyId: company.id,
     },
   });
 
-  // Create a permission for all the resources and actions combination
-  await prisma.permission.createMany({
-    data: [
-      {
-        action: Action.WRITE,
-        resource: Resource.ALL,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.ALL,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.BRANCH,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.COMPANY,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.USER,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.CUSTOMER,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.PRODUCT,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.STOCK,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.ORDER,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.INVOICE,
-      },
-      {
-        action: Action.READ,
-        resource: Resource.SALES,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.BRANCH,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.COMPANY,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.USER,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.CUSTOMER,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.PRODUCT,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.STOCK,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.ORDER,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.INVOICE,
-      },
-      {
-        action: Action.WRITE,
-        resource: Resource.SALES,
-      },
-    ],
+  const managerRole = await prisma.role.create({
+    data: {
+      name: "manager",
+      companyId: company.id,
+    },
   });
 
-  // Assign permission of action all and resource all to role
-  await prisma.$transaction(async (prisma) => {
-    const permissionWrite = await prisma.permission.findFirst({
-      where: {
-        action: Action.WRITE,
-        resource: Resource.ALL,
-      },
-    });
-    const permissionRead = await prisma.permission.findFirst({
-      where: {
-        action: Action.READ,
-        resource: Resource.ALL,
-      },
-    });
+  const salesRole = await prisma.role.create({
+    data: {
+      name: "salesperson",
+      companyId: company.id,
+    },
+  });
 
-    if (permissionRead && permissionWrite) {
-      await prisma.rolePermission.createMany({
-        data: [
-          {
-            roleId: role.id,
-            permissionId: permissionRead?.id,
-          },
-          { roleId: role.id, permissionId: permissionWrite?.id },
-        ],
-      });
+  // Create permissions
+  const permissions = await prisma.$transaction(async (tx) => {
+    // Create all possible permission combinations
+    const resources = [
+      Resource.ALL,
+      Resource.USER,
+      Resource.COMPANY,
+      Resource.BRANCH,
+      Resource.PRODUCT,
+      Resource.ORDER,
+      Resource.STOCK,
+      Resource.INVOICE,
+      Resource.SALES,
+      Resource.CUSTOMER,
+    ];
+    const actions = [Action.READ, Action.WRITE];
+
+    const permissionPromises = [];
+    for (const resource of resources) {
+      for (const action of actions) {
+        permissionPromises.push(
+          tx.permission.create({
+            data: { action, resource },
+          }),
+        );
+      }
     }
+
+    return await Promise.all(permissionPromises);
   });
 
-  // Create a user
+  // Assign permissions to roles
+  await prisma.$transaction(async (tx) => {
+    // Admin gets all permissions
+    const adminPermissions = permissions.map((perm) => ({
+      roleId: adminRole.id,
+      permissionId: perm.id,
+    }));
+    await tx.rolePermission.createMany({ data: adminPermissions });
+
+    // Manager gets everything except company-level permissions
+    const managerPermissions = permissions
+      .filter(
+        (p) => p.resource !== Resource.COMPANY && p.resource !== Resource.ALL,
+      )
+      .map((perm) => ({
+        roleId: managerRole.id,
+        permissionId: perm.id,
+      }));
+    await tx.rolePermission.createMany({ data: managerPermissions });
+
+    // Sales person gets read-all and only write for sales/orders
+    const salesPermissions = permissions
+      .filter(
+        (p) =>
+          p.action === Action.READ ||
+          (p.action === Action.WRITE &&
+            (p.resource === Resource.SALES || p.resource === Resource.ORDER)),
+      )
+      .map((perm) => ({
+        roleId: salesRole.id,
+        permissionId: perm.id,
+      }));
+    await tx.rolePermission.createMany({ data: salesPermissions });
+  });
+
+  // Create admin user
   const hashedPassword = await bcrypt.hash("password1234", 10);
-  const user = await prisma.user.create({
+  const adminUser = await prisma.user.create({
     data: {
       firstName: "MD Shohag",
       lastName: "Miya",
@@ -184,19 +129,34 @@ async function main() {
     },
   });
 
-  // Assign role to user in the branch
+  // Assign admin role to user
   await prisma.userRole.create({
     data: {
-      userId: user.id,
-      roleId: role.id,
+      userId: adminUser.id,
+      roleId: adminRole.id,
+      branchId: branch.id,
+    },
+  });
+
+  // Create test product and stock
+  const product = await prisma.product.create({
+    data: {
+      name: "Product 1",
+      price: 10,
+      description: "Product 1 description",
+    },
+  });
+
+  await prisma.stock.create({
+    data: {
+      quantity: 10,
+      productId: product.id,
       branchId: branch.id,
     },
   });
 
   console.log("Seed data created successfully");
 }
-
-//
 
 main()
   .catch((e) => {

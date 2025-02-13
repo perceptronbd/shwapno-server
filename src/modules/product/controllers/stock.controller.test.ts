@@ -11,6 +11,10 @@ jest.mock("@handlers/response.handler");
 jest.mock("../services/stock.service");
 
 describe("Stock Controller", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("Create Stock", () => {
     it("should create a stock", async () => {
       const { id, ...stock } = stockData;
@@ -49,49 +53,46 @@ describe("Stock Controller", () => {
     });
   });
 
-  describe("Update Stock", () => {
-    it("should update a stock", async () => {
-      const { id, ...stock } = stockData;
+  describe("Add Stock", () => {
+    it("should add a stock", async () => {
+      const { id, branchId, ...stock } = stockData;
 
       const { req, res } = mocks.createMockReqRes({
         body: stock,
-        params: { id: "1" },
+        params: { branchId },
       });
 
       const mockResult = { ...stockData };
 
-      (stockService.update as jest.Mock).mockResolvedValue(mockResult);
+      (stockService.add as jest.Mock).mockResolvedValue(mockResult);
 
-      await stockController.update(req as Request, res as Response);
+      await stockController.add(req as Request, res as Response);
 
-      expect(stockService.update).toHaveBeenCalledWith({
-        id: req.params?.id,
-        stock: req.body,
+      expect(stockService.add).toHaveBeenCalledWith({
+        branchId,
+        data: req.body,
       });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         mockResult,
         HTTP_STATUS_CODES.OK,
-        "Stock updated successfully",
+        "Stock added successfully",
       );
     });
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes({
         body: { quantity: -10, productId: 1 },
-        params: { id: "1" },
+        params: { branchId: "1" },
       });
 
-      (stockService.update as jest.Mock).mockRejectedValue(new Error());
+      (stockService.add as jest.Mock).mockRejectedValue(new Error());
 
       await expect(
-        stockController.update(req as Request, res as Response),
+        stockController.add(req as Request, res as Response),
       ).rejects.toThrow();
 
-      expect(stockService.update).toHaveBeenCalledWith({
-        id: req.params?.id,
-        stock: req.body,
-      });
+      expect(sendResponse).not.toHaveBeenCalled();
     });
   });
 
@@ -128,44 +129,6 @@ describe("Stock Controller", () => {
       ).rejects.toThrow();
 
       expect(stockService.remove).toHaveBeenCalledWith({ id: req.params?.id });
-    });
-  });
-
-  describe("Get All Stock (by company)", () => {
-    it("should get a stock", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
-      });
-
-      const mockResult = { ...stockData };
-
-      (stockService.getAll as jest.Mock).mockResolvedValue(mockResult);
-
-      await stockController.getAll(req as Request, res as Response);
-
-      expect(stockService.getAll).toHaveBeenCalledWith({
-        id: req.params?.id,
-      });
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        mockResult,
-        HTTP_STATUS_CODES.OK,
-        "Stocks retrieved successfully",
-      );
-    });
-
-    it("should handle errors", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: "1" },
-      });
-
-      (stockService.getAll as jest.Mock).mockRejectedValue(new Error());
-
-      await expect(
-        stockController.getAll(req as Request, res as Response),
-      ).rejects.toThrow();
-
-      expect(stockService.getAll).toHaveBeenCalledWith({ id: req.params?.id });
     });
   });
 

@@ -32,8 +32,13 @@ describe("Auth Controller", () => {
         refreshToken: "refreshToken",
         user: {
           id: 1,
+          firstName: "MD Shohag",
+          phone: "01712345678",
           email,
-          roles: ["admin"],
+          policy: {
+            roles: ["admin"],
+            permissions: ["CREATE:ALL"],
+          },
         },
       };
 
@@ -54,6 +59,12 @@ describe("Auth Controller", () => {
       expect(res.setHeader).toHaveBeenCalledWith(
         "Authorization",
         `Bearer ${mockResult.accessToken}`,
+      );
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        mockResult.user,
+        HTTP_STATUS_CODES.OK,
+        "Logged in successfully!",
       );
     });
 

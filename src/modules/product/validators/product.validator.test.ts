@@ -9,6 +9,7 @@ describe("Product Validator", () => {
           name: "Test Product",
           price: 100.0,
           barcode: "1234567890",
+          branchId: "1",
           description: "",
         },
         file: {
@@ -26,6 +27,7 @@ describe("Product Validator", () => {
           name: "Test Product",
           price: 100.0,
           barcode: "1234567890",
+          branchId: "1",
           description: "",
         },
       };
@@ -35,7 +37,7 @@ describe("Product Validator", () => {
 
     it("should throw an error for an invalid product", () => {
       const request = {
-        body: { name: "", price: -100, barcode: "" },
+        body: { name: "", price: -100, barcode: "", branchId: "" },
       };
 
       expect(() => validateProduct.create.parse(request)).toThrow();

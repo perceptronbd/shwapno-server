@@ -1,5 +1,7 @@
+import { uploadImage, deleteImage } from "@/utils/cloudinary.util";
+import { productModel } from "../models/product.model";
+import { productData } from "@/tests/utils/test-data";
 import { productService } from "./product.service";
-import { uploadImage } from "@/utils/uploadImage";
 import prisma from "@/config/db.config";
 
 jest.mock("@/config/db.config", () => ({
@@ -15,20 +17,19 @@ jest.mock("@/config/db.config", () => ({
     create: jest.fn(),
   },
 }));
-jest.mock("@/utils/uploadImage");
-
-const productData = {
-  id: "1",
-  name: "Test Product",
-  price: 100.0,
-  barcode: "1234567890",
-  description: "",
-  category: "Test Category",
-  imgURL: "",
-};
+jest.mock("@/utils/cloudinary.util", () => ({
+  uploadImage: jest.fn(),
+  deleteImage: jest.fn(),
+}));
+jest.mock("../models/product.model");
 
 const branchData = {
   id: "1",
+};
+const { imgURL, imgPublicId, ...restProducts } = productData;
+const imgUploadResult = {
+  secure_url: "http://example.com/image.png",
+  public_id: "publicId",
 };
 
 describe("Product Service", () => {
@@ -42,57 +43,84 @@ describe("Product Service", () => {
 
   describe("Create Product", () => {
     it("should create a product without an image", async () => {
-      (prisma.product.create as jest.Mock).mockResolvedValue(productData);
-      (prisma.stock.create as jest.Mock).mockResolvedValue({});
-      (prisma.product.update as jest.Mock).mockResolvedValue(productData);
+      (productModel.createProduct as jest.Mock).mockResolvedValue(restProducts);
 
       const result = await productService.create({
         branchId: branchData.id,
-        product: {
+        productData: {
           name: productData.name,
           price: productData.price,
           barcode: productData.barcode,
           description: productData.description,
-          categoryId: "1",
+          categoryId: productData.categoryId,
         },
       });
 
-      expect(result).toEqual(productData);
-      expect(prisma.product.create).toHaveBeenCalled();
-      expect(prisma.stock.create).toHaveBeenCalled();
-      expect(prisma.product.update).not.toHaveBeenCalled();
+      expect(result).toEqual({ ...restProducts });
+      expect(productModel.createProduct).toHaveBeenCalled();
     });
 
     it("should create a product with an image", async () => {
-      const imageUrl = "http://example.com/image.png";
-      (uploadImage as jest.Mock).mockResolvedValue(imageUrl);
-      (prisma.product.create as jest.Mock).mockResolvedValue(productData);
-      (prisma.stock.create as jest.Mock).mockResolvedValue({});
-      (prisma.product.update as jest.Mock).mockResolvedValue({
-        ...productData,
-        imgURL: imageUrl,
-      });
+      (productModel.createProduct as jest.Mock).mockResolvedValue(productData);
+      (uploadImage as jest.Mock).mockResolvedValue(imgUploadResult);
 
       const result = await productService.create({
         branchId: branchData.id,
-        product: {
+        productData: {
           name: productData.name,
           price: productData.price,
+          quantity: 0,
           barcode: productData.barcode,
           description: productData.description,
-          categoryId: "1",
+          categoryId: productData.categoryId,
         },
-        imageBuffer: Buffer.from(""),
+        filePath: "filePaht",
         mimetype: "image/png",
       });
 
-      expect(result).toEqual({ ...productData, imgURL: imageUrl });
-      expect(prisma.product.create).toHaveBeenCalled();
-      expect(prisma.stock.create).toHaveBeenCalled();
-      expect(prisma.product.update).toHaveBeenCalledWith({
-        where: { id: productData.id },
-        data: { imgURL: imageUrl },
+      expect(uploadImage).toHaveBeenCalledWith(
+        "filePaht",
+        "image/png",
+        "product",
+      );
+      expect(result).toEqual(productData);
+      expect(productModel.createProduct).toHaveBeenCalledWith({
+        data: {
+          name: productData.name,
+          price: productData.price,
+          quantity: 0,
+          barcode: productData.barcode,
+          description: productData.description,
+          categoryId: productData.categoryId,
+        },
+        branchId: branchData.id,
+        imgUploadResult,
       });
+    });
+
+    it("should delete the image if an error occurs", async () => {
+      (uploadImage as jest.Mock).mockResolvedValue(imgUploadResult);
+      (productModel.createProduct as jest.Mock).mockRejectedValue(new Error());
+      (deleteImage as jest.Mock).mockResolvedValue({ result: "success" });
+
+      await expect(
+        productService.create({
+          branchId: branchData.id,
+          productData: {
+            name: productData.name,
+            price: productData.price,
+            quantity: 0,
+            barcode: productData.barcode,
+            description: productData.description,
+            categoryId: productData.categoryId,
+          },
+          filePath: "filePaht",
+          mimetype: "image/png",
+        }),
+      ).rejects.toThrow();
+
+      expect(deleteImage).toHaveBeenCalledWith(imgUploadResult.public_id);
+      expect(productModel.createProduct).toHaveBeenCalled();
     });
   });
 
@@ -124,12 +152,13 @@ describe("Product Service", () => {
     });
 
     it("should update a product with an image", async () => {
-      const imageUrl = "http://example.com/image.png";
-      (uploadImage as jest.Mock).mockResolvedValue(imageUrl);
+      (uploadImage as jest.Mock).mockResolvedValue(imgUploadResult);
+      (deleteImage as jest.Mock).mockResolvedValue({ result: "success" });
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
       (prisma.product.update as jest.Mock).mockResolvedValue({
         ...productData,
-        imgURL: imageUrl,
+        imgURL: imgUploadResult.secure_url,
+        imgPublicId: imgUploadResult.public_id,
       });
 
       const result = await productService.update({
@@ -140,15 +169,56 @@ describe("Product Service", () => {
           barcode: productData.barcode,
           description: productData.description,
         },
-        imageBuffer: Buffer.from(""),
+        filePath: "filePaht",
         mimetype: "image/png",
       });
 
-      expect(result).toEqual({ ...productData, imgURL: imageUrl });
+      expect(uploadImage).toHaveBeenCalledWith(
+        "filePaht",
+        "image/png",
+        "product",
+      );
+      expect(result).toEqual({
+        ...restProducts,
+        imgURL: imgUploadResult.secure_url,
+        imgPublicId: imgUploadResult.public_id,
+      });
       expect(prisma.product.update).toHaveBeenCalledWith({
         where: { id: productData.id },
-        data: { ...productData, imgURL: imageUrl },
+        data: {
+          name: productData.name,
+          price: productData.price,
+          barcode: productData.barcode,
+          description: productData.description,
+          imgURL: imgUploadResult.secure_url,
+          imgPublicId: imgUploadResult.public_id,
+        },
       });
+      expect(deleteImage).toHaveBeenCalled();
+    });
+
+    it("should delete the image if an error occurs", async () => {
+      (uploadImage as jest.Mock).mockResolvedValue(imgUploadResult);
+      (deleteImage as jest.Mock).mockResolvedValue({ result: "success" });
+      (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
+      (prisma.product.update as jest.Mock).mockRejectedValue(new Error());
+
+      await expect(
+        productService.update({
+          id: productData.id,
+          productData: {
+            name: productData.name,
+            price: productData.price,
+            barcode: productData.barcode,
+            description: productData.description,
+          },
+          filePath: "filePaht",
+          mimetype: "image/png",
+        }),
+      ).rejects.toThrow();
+
+      expect(deleteImage).toHaveBeenCalledWith(imgUploadResult.public_id);
+      expect(prisma.product.update).toHaveBeenCalled();
     });
   });
 

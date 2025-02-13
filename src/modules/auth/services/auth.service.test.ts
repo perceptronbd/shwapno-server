@@ -46,6 +46,8 @@ describe("Auth Service", () => {
       expect(result).toEqual({
         user: {
           id: userData.id,
+          firstName: userData.firstName,
+          phone: userData.phone,
           email,
           roles: ["admin"],
         },

@@ -23,19 +23,19 @@ describe("Stock Validator", () => {
     it("should validate a valid stock", () => {
       const request = {
         body: { quantity: 10, productId: "1" },
-        params: { id: "1" },
+        params: { branchId: "1" },
       };
 
-      expect(() => validateStock.update.parse(request)).not.toThrow();
+      expect(() => validateStock.add.parse(request)).not.toThrow();
     });
 
     it("should throw an error for an invalid stock", () => {
       const request = {
         body: { quantity: -10, productId: "1" },
-        params: { id: "1" },
+        params: { branchId: "1" },
       };
 
-      expect(() => validateStock.update.parse(request)).toThrow();
+      expect(() => validateStock.add.parse(request)).toThrow();
     });
   });
 
@@ -54,24 +54,6 @@ describe("Stock Validator", () => {
       };
 
       expect(() => validateStock.remove.parse(request)).toThrow();
-    });
-  });
-
-  describe("Get All Stocks (company)", () => {
-    it("should validate a valid request", () => {
-      const request = {
-        params: { id: "1" },
-      };
-
-      expect(() => validateStock.getAll.parse(request)).not.toThrow();
-    });
-
-    it("should throw an error for an invalid request", () => {
-      const request = {
-        params: { id: null },
-      };
-
-      expect(() => validateStock.getAll.parse(request)).toThrow();
     });
   });
 
@@ -96,7 +78,7 @@ describe("Stock Validator", () => {
   describe("Get Stock By Branch", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { id: "1" },
+        params: { branchId: "1" },
       };
 
       expect(() => validateStock.getByBranch.parse(request)).not.toThrow();
@@ -104,7 +86,7 @@ describe("Stock Validator", () => {
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        params: { id: null },
+        params: { branchId: null },
       };
 
       expect(() => validateStock.getByBranch.parse(request)).toThrow();
