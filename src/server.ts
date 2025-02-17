@@ -19,7 +19,7 @@ app.use(cookieParser());
 // cross origin resource sharing
 const corsOptions = {
   // allow all in the development mode
-  origin: process.env.NODE_ENV === "development" ? "*" : process.env.CLIENT_URL,
+  origin: process.env.CLIENT_URL,
   credentials: true,
 };
 
