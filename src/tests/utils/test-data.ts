@@ -1,7 +1,22 @@
+export const userProfile = {
+  id: "88d7cee4-981d-47d3-af70-4e5c9234d6e7",
+  email: "shohag@shwapno.com",
+  firstName: "MD Shohag",
+  lastName: "Miya",
+  phone: "01712345678",
+  userRoles: [
+    {
+      role: {
+        name: "admin",
+      },
+    },
+  ],
+};
+
 export const userData = {
   id: "user-001",
   firstName: "Shohag",
-  hone: "1234567890",
+  phone: "1234567890",
   email: "user_00@gmail.com",
   password: "admin1234",
   policy: {

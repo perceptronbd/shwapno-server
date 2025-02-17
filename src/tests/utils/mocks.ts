@@ -1,8 +1,8 @@
 import { AuthRequest } from "@/types/auth.types";
-import { Request, Response } from "express";
+import { Response } from "express";
 
 const createMockReqRes = (
-  requestOverrides: Partial<Request> = {},
+  requestOverrides: Partial<AuthRequest> = {},
   responseOverrides: Partial<Response> = {},
 ) => {
   const mockJson = jest.fn();
@@ -10,7 +10,7 @@ const createMockReqRes = (
   const mockCookie = jest.fn();
   const mockHeader = jest.fn();
 
-  const req: Partial<Request> = {
+  const req = {
     body: {},
     params: {},
     query: {},
