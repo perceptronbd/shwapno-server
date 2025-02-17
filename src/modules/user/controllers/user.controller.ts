@@ -15,7 +15,12 @@ const getProfile = async (req: AuthRequest, res: Response) => {
 
   console.log(result);
 
-  sendResponse(res, result, HTTP_STATUS_CODES.OK);
+  sendResponse(
+    res,
+    result,
+    HTTP_STATUS_CODES.OK,
+    "Profile data fetched successfully",
+  );
 };
 
 export const userController = {
