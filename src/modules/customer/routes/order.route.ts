@@ -16,4 +16,4 @@ router.get(
   asyncHandler(orderController.track),
 );
 
-export const OrderRoutes = router;
+export const orderRoutes = router;

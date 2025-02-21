@@ -1,12 +1,12 @@
-import { CategoryRoutes } from "./category.route";
-import { ProductRoutes } from "./product.route";
-import { StockRoutes } from "./stock.route";
+import { categoryRoutes } from "./category.route";
+import { productsRoutes } from "./product.route";
+import { stockRoutes } from "./stock.route";
 import { Router } from "express";
 
 const router = Router();
 
-router.use("/stocks", StockRoutes);
-router.use("/categories", CategoryRoutes);
-router.use("/", ProductRoutes);
+router.use("/stocks", stockRoutes);
+router.use("/categories", categoryRoutes);
+router.use("/", productsRoutes);
 
-export const Product = router;
+export const productRoutes = router;

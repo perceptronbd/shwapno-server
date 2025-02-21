@@ -7,26 +7,6 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post(
-  "/:branchId",
-  upload.single("image"),
-  validate(validateProduct.create),
-  asyncHandler(productController.create),
-);
-
-router.patch(
-  "/:id",
-  upload.single("image"),
-  validate(validateProduct.update),
-  asyncHandler(productController.update),
-);
-
-router.delete(
-  "/:id",
-  validate(validateProduct.remove),
-  asyncHandler(productController.remove),
-);
-
 router.get(
   "/",
   validate(validateProduct.getAll),
@@ -50,5 +30,24 @@ router.get(
   validate(validateProduct.getByBranch),
   asyncHandler(productController.getByBranch),
 );
+router.post(
+  "/:branchId",
+  upload.single("image"),
+  validate(validateProduct.create),
+  asyncHandler(productController.create),
+);
 
-export const ProductRoutes = router;
+router.patch(
+  "/:id",
+  upload.single("image"),
+  validate(validateProduct.update),
+  asyncHandler(productController.update),
+);
+
+router.delete(
+  "/:id",
+  validate(validateProduct.remove),
+  asyncHandler(productController.remove),
+);
+
+export const productsRoutes = router;
