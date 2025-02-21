@@ -1,12 +1,13 @@
 import {
+  TCreateProduct,
+  TGetProductByBranch,
+  TUpdateProduct,
+} from "../validators/product.validator";
+import {
   CloudinaryUploadResult,
   deleteImage,
   uploadImage,
 } from "@/utils/cloudinary.util";
-import {
-  TCreateProduct,
-  TUpdateProduct,
-} from "../validators/product.validator";
 import { productModel } from "../models/product.model";
 import prisma from "@/config/db.config";
 
@@ -139,31 +140,8 @@ const getByCategory = async ({
   return result;
 };
 
-const getByBranch = async ({
-  branchId,
-  page = 1,
-}: {
-  branchId: string;
-  page: number;
-  limit: number;
-}) => {
-  const result = await prisma.product.findMany({
-    where: {
-      stock: {
-        some: {
-          branchId, // Use `branchId` as part of the `some` filter
-        },
-      },
-    },
-    take: 10, // Pagination limit
-    skip: 10 * (page - 1), // Skip based on the page number
-    select: {
-      name: true,
-      price: true,
-      imgURL: true,
-      category: { select: { name: true } },
-    },
-  });
+const getByBranch = async ({ branchId, page, limit }: TGetProductByBranch) => {
+  const result = await productModel.getProducts({ branchId, page, limit });
 
   return result;
 };

@@ -124,7 +124,8 @@ export type TRemoveProduct = z.infer<typeof remove>["params"];
 export type TGetAllProducts = z.infer<typeof getAll>;
 export type TGetProductById = z.infer<typeof getById>["params"];
 export type TGetProductByCategory = z.infer<typeof getByCategory>["query"];
-export type TGetProductByBranch = z.infer<typeof getByBranch>["query"];
+export type TGetProductByBranch = z.infer<typeof getByBranch>["query"] &
+  z.infer<typeof getByBranch>["params"];
 
 export const validateProduct = {
   create,
