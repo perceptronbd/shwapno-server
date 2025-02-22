@@ -41,4 +41,4 @@ router.get(
   asyncHandler(categoryController.getByBranch),
 );
 
-export const CategoryRoutes = router;
+export const categoryRoutes = router;

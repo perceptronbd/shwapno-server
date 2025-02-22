@@ -1,9 +1,11 @@
-import { OrderRoutes } from "./order.route";
-import { CartRoutes } from "./cart.route";
+import { productRoutes } from "./product.route";
+import { orderRoutes } from "./order.route";
+import { cartRoutes } from "./cart.route";
 import { Router } from "express";
 const router = Router();
 
-router.use("/cart", CartRoutes);
-router.use("/order", OrderRoutes);
+router.use("/cart", cartRoutes);
+router.use("/order", orderRoutes);
+router.use("/products", productRoutes);
 
-export const CustomerRoutes = router;
+export const customerRoutes = router;

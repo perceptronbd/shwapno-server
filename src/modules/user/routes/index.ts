@@ -19,4 +19,4 @@ router.get(
   asyncHandler(userController.getProfile),
 );
 
-export const UserRotes = router;
+export const userRotes = router;

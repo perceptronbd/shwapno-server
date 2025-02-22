@@ -29,4 +29,4 @@ router.patch(
   asyncHandler(cartController.update),
 );
 
-export const CartRoutes = router;
+export const cartRoutes = router;

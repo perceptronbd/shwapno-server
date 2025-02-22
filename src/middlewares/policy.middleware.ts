@@ -1,7 +1,8 @@
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { sendResponse } from "@/handlers/response.handler";
-import { Request, Response, NextFunction } from "express";
 import { Action, Resource } from "@prisma/client";
+import { AuthRequest } from "@/types/auth.types";
+import { Response, NextFunction } from "express";
 import prisma from "@/config/db.config";
 import cache from "@/helpers/cache";
 import { STATUS_CODES } from "http";
@@ -53,12 +54,11 @@ async function fetchRolePermissions(userId: string): Promise<IPolicy> {
 }
 
 export function checkPolicy(role: string, action: Action, resource: Resource) {
-  return async (_req: Request, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     const permission = `${action}:${resource}`;
 
     try {
-      // const userId = req.cookies.userId;
-      const userId = "920e12d7-9e6d-48de-bc1f-c7ae6910f4bf";
+      const userId = req.user!.id;
 
       if (!userId) {
         sendResponse(

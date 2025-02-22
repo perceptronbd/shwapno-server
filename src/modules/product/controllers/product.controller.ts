@@ -95,15 +95,15 @@ const getByCategory = async (req: Request, res: Response) => {
     res,
     result,
     HTTP_STATUS_CODES.OK,
-    "Products retrieved successfully",
+    "Products fetched successfully",
   );
 };
 
 const getByBranch = async (req: Request, res: Response) => {
   const { branchId } = req.params;
   const { limit, page } = req.query;
-  const limitValue = parseInt(limit as string, 10);
-  const pageValue = parseInt(page as string, 10);
+  const limitValue = parseInt(limit as string, 10) || 10;
+  const pageValue = parseInt(page as string, 10) || 1;
 
   const products = await productService.getByBranch({
     branchId,
