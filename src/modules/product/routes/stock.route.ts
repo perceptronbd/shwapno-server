@@ -48,4 +48,4 @@ router.delete(
   asyncHandler(stockController.remove),
 );
 
-export const StockRoutes = router;
+export const stockRoutes = router;

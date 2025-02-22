@@ -315,7 +315,7 @@ describe("Product Controller", () => {
         res,
         mockProducts,
         HTTP_STATUS_CODES.OK,
-        "Products retrieved successfully",
+        "Products fetched successfully",
       );
     });
 

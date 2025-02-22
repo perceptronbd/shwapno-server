@@ -21,4 +21,4 @@ router.post("/logout", asyncHandler(authController.logout));
 
 router.post("/refresh", asyncHandler(authController.refreshTokens));
 
-export const AuthRoutes = router;
+export const authRoutes = router;

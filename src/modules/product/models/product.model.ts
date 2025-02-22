@@ -1,4 +1,7 @@
-import { TCreateProduct } from "../validators/product.validator";
+import {
+  TCreateProduct,
+  TGetProductByBranch,
+} from "../validators/product.validator";
 import { CloudinaryUploadResult } from "@/utils/cloudinary.util";
 import prisma from "@/config/db.config";
 
@@ -36,6 +39,38 @@ const createProduct = async ({
   });
 };
 
+const getProducts = async ({ branchId, page, limit }: TGetProductByBranch) => {
+  const skip = (page - 1) * limit;
+
+  const result = await prisma.product.findMany({
+    where: {
+      stock: {
+        some: {
+          branchId,
+        },
+      },
+    },
+    skip,
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      barcode: true,
+      price: true,
+      imgURL: true,
+      category: { select: { name: true } },
+    },
+  });
+
+  const transformedResult = result.map((product) => ({
+    ...product,
+    category: product.category ? product.category.name : null,
+  }));
+
+  return transformedResult;
+};
+
 export const productModel = {
   createProduct,
+  getProducts,
 };

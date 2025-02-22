@@ -1,8 +1,8 @@
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { connectDB } from "./config/db.config";
 import express, { Application } from "express";
-import router from "./modules/routes/index";
 import cookieParser from "cookie-parser";
+import router from "./root.route";
 import dotenv from "dotenv";
 import cors from "cors";
 
