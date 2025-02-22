@@ -1,24 +1,17 @@
 import { orderData } from "@/tests/utils/test-data";
 import { orderModel } from "../models/order.model";
 import { orderService } from "./order.service";
-import prisma from "@/config/db.config";
 
 jest.mock("../models/order.model", () => ({
-  updateStatus: jest.fn(),
-}));
-jest.mock("@/config/db.config", () => ({
-  $transaction: jest.fn(),
-  order: {
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
+  orderModel: {
+    updateStatus: jest.fn(),
+    getByBranch: jest.fn(),
+    getById: jest.fn(),
+    remove: jest.fn(),
   },
 }));
 
 describe("Order Service", () => {
-  beforeEach(() => {
-    (prisma.$transaction as jest.Mock).mockImplementation((fn) => fn(prisma));
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -26,8 +19,13 @@ describe("Order Service", () => {
   describe("Get Orders", () => {
     it("should get all orders by branch Id", async () => {
       const mockOrdersData = [orderData, orderData];
-
-      (prisma.order.findMany as jest.Mock).mockResolvedValue(mockOrdersData);
+      const mockResult = {
+        orders: mockOrdersData,
+        total: mockOrdersData.length,
+        page: 1,
+        limit: 10,
+      };
+      (orderModel.getByBranch as jest.Mock).mockResolvedValue(mockResult);
 
       const result = await orderService.getByBranch({
         branchId: "1",
@@ -35,26 +33,28 @@ describe("Order Service", () => {
         limit: 10,
       });
 
-      expect(prisma.order.findMany).toHaveBeenCalledWith({
-        where: { branchId: "1" },
+      expect(orderModel.getByBranch).toHaveBeenCalledWith({
+        branchId: "1",
+        page: 1,
+        limit: 10,
       });
-      expect(result).toEqual(mockOrdersData);
+      expect(result).toEqual(mockResult);
     });
 
     it("should get an order by Id", async () => {
-      (prisma.order.findUnique as jest.Mock).mockResolvedValue([orderData]);
+      const id = "1";
+      (orderModel.getById as jest.Mock).mockResolvedValue(orderData);
 
-      const result = await orderService.getById("1");
+      const result = await orderService.getById(id);
 
-      expect(prisma.order.findUnique).toHaveBeenCalledWith({
-        where: { id: "1" },
-      });
+      expect(orderModel.getById).toHaveBeenCalledWith(id);
       expect(result).toEqual(orderData);
     });
   });
 
   describe("Update Order Status", () => {
     it("should update order status", async () => {
+      (orderModel.getById as jest.Mock).mockResolvedValue(orderData.id);
       (orderModel.updateStatus as jest.Mock).mockResolvedValue(orderData);
 
       const result = await orderService.updateStatus({
@@ -72,13 +72,13 @@ describe("Order Service", () => {
 
   describe("Remove Order", () => {
     it("should remove an order", async () => {
-      (prisma.order.delete as jest.Mock).mockResolvedValue(orderData);
+      (orderModel.getById as jest.Mock).mockResolvedValue(orderData.id);
+      (orderModel.remove as jest.Mock).mockResolvedValue(orderData.id);
 
-      const result = await orderService.remove("1");
+      const result = await orderService.remove(orderData.id);
 
-      expect(prisma.order.delete).toHaveBeenCalledWith({
-        where: { id: "1" },
-      });
+      expect(orderModel.getById).toHaveBeenCalledWith(orderData.id);
+      expect(orderModel.remove).toHaveBeenCalledWith(orderData.id);
       expect(result).toEqual({ result: "success" });
     });
   });

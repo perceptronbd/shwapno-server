@@ -31,7 +31,7 @@ const getByBranch = async (req: Request, res: Response) => {
     res,
     result,
     HTTP_STATUS_CODES.OK,
-    "Orders retrieved successfully",
+    "Orders fetched successfully!",
   );
 };
 
@@ -43,7 +43,7 @@ const getById = async (req: Request, res: Response) => {
     res,
     order,
     HTTP_STATUS_CODES.OK,
-    "Order retrieved successfully",
+    "Orders fetched successfully!",
   );
 };
 

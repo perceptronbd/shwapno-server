@@ -4,7 +4,7 @@ describe("Product Validator", () => {
   describe("Get Products By Branch", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { branchId: "1" },
+        params: { branchId: "123e4567-e89b-12d3-a456-426614174000" },
         query: { page: 1, limit: 10 },
       };
 
@@ -23,7 +23,7 @@ describe("Product Validator", () => {
   describe("Get Product By Id", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { id: "1" },
+        params: { id: "123e4567-e89b-12d3-a456-426614174000" },
       };
 
       expect(() => validateOrder.getById.parse(request)).not.toThrow();
@@ -41,7 +41,7 @@ describe("Product Validator", () => {
   describe("Update Product Status", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { id: "1" },
+        params: { id: "123e4567-e89b-12d3-a456-426614174000" },
         body: { status: "COMPLETED" },
       };
 
@@ -61,7 +61,7 @@ describe("Product Validator", () => {
   describe("Remove Product", () => {
     it("should validate a valid request", () => {
       const request = {
-        params: { id: "1" },
+        params: { id: "123e4567-e89b-12d3-a456-426614174000" },
       };
 
       expect(() => validateOrder.remove.parse(request)).not.toThrow();

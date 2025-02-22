@@ -1,5 +1,8 @@
-import { TGetAllOrder, TGetByBranchOrder } from "../validator/order.validate";
-import { OrderStatus } from "@prisma/client";
+import {
+  TGetAllOrder,
+  TGetByBranchOrder,
+  TUpdateStatusOrder,
+} from "../validator/order.validate";
 import prisma from "@/config/db.config";
 
 const getAll = async ({ userId, page, limit }: TGetAllOrder) => {
@@ -86,7 +89,7 @@ const getById = async (id: string) => {
   });
 };
 
-const updateStatus = async (id: string, status: OrderStatus) => {
+const updateStatus = async ({ id, status }: TUpdateStatusOrder) => {
   return await prisma.order.update({
     where: { id },
     data: { status },

@@ -41,6 +41,7 @@ describe("Order Controller", () => {
         res,
         mockOrdersData,
         HTTP_STATUS_CODES.OK,
+        "Orders fetched successfully!",
       );
     });
 
@@ -58,6 +59,7 @@ describe("Order Controller", () => {
         res,
         orderData,
         HTTP_STATUS_CODES.OK,
+        "Orders fetched successfully!",
       );
     });
   });
@@ -106,21 +108,25 @@ describe("Order Controller", () => {
     });
   });
 
-  it("should remove an order", async () => {
-    const { req, res } = mocks.createMockReqRes({
-      params: { id: "1" },
+  describe("Remove Order", () => {
+    it("should remove an order", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        params: { id: "1" },
+      });
+
+      (orderService.remove as jest.Mock).mockResolvedValue({
+        result: "success",
+      });
+
+      await orderController.remove(req as Request, res as Response);
+
+      expect(orderService.remove).toHaveBeenCalledWith("1");
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        null,
+        HTTP_STATUS_CODES.OK,
+        "Order deleted successfully",
+      );
     });
-
-    (orderService.remove as jest.Mock).mockResolvedValue({ result: "success" });
-
-    await orderController.remove(req as Request, res as Response);
-
-    expect(orderService.remove).toHaveBeenCalledWith("1");
-    expect(sendResponse).toHaveBeenCalledWith(
-      res,
-      { result: "success" },
-      HTTP_STATUS_CODES.OK,
-      "Order removed successfully",
-    );
   });
 });

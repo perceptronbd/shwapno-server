@@ -36,7 +36,9 @@ const updateStatus = async ({ id, status }: TUpdateStatusOrder) => {
   if (!order) {
     throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Order not found");
   }
-  return await orderModel.updateStatus(id, status);
+  const updatedOrder = await orderModel.updateStatus({ id, status });
+
+  return updatedOrder;
 };
 
 const remove = async (id: string) => {
@@ -44,7 +46,8 @@ const remove = async (id: string) => {
   if (!order) {
     throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Order not found");
   }
-  return await orderModel.remove(id);
+  await orderModel.remove(id);
+  return { result: "success" };
 };
 
 export const orderService = {
