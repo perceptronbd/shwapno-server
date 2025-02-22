@@ -21,7 +21,11 @@ jest.mock("@/utils/cloudinary.util", () => ({
   uploadImage: jest.fn(),
   deleteImage: jest.fn(),
 }));
-jest.mock("../models/product.model");
+jest.mock("../models/product.model", () => ({
+  productModel: {
+    getProducts: jest.fn(),
+  },
+}));
 
 const branchData = {
   id: "1",
@@ -249,11 +253,12 @@ describe("Product Service", () => {
       const mockFilteredProducts = [productData].map((product) => ({
         imgURL: product.imgURL,
         name: product.name,
+        barcode: product.barcode,
         price: product.price,
         category: product.category,
       }));
 
-      (prisma.product.findMany as jest.Mock).mockResolvedValue(
+      (productModel.getProducts as jest.Mock).mockResolvedValue(
         mockFilteredProducts,
       );
 
@@ -264,16 +269,10 @@ describe("Product Service", () => {
       });
 
       expect(result).toEqual(mockFilteredProducts);
-      expect(prisma.product.findMany).toHaveBeenCalledWith({
-        where: { stock: { some: { branchId: branchData.id } } },
-        take: 10,
-        skip: 10 * (page - 1),
-        select: {
-          imgURL: true,
-          name: true,
-          price: true,
-          category: { select: { name: true } },
-        },
+      expect(productModel.getProducts).toHaveBeenCalledWith({
+        branchId: branchData.id,
+        limit: 10,
+        page,
       });
     });
   });
