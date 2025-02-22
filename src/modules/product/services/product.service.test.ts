@@ -22,9 +22,7 @@ jest.mock("@/utils/cloudinary.util", () => ({
   deleteImage: jest.fn(),
 }));
 jest.mock("../models/product.model", () => ({
-  productModel: {
-    getProducts: jest.fn(),
-  },
+  productModel: { createProduct: jest.fn(), getProducts: jest.fn() },
 }));
 
 const branchData = {
