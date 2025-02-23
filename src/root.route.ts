@@ -2,6 +2,7 @@ import { authenticateJWT } from "@/middlewares/auth.middleware";
 import { authRoutes } from "@modules/auth/routes/auth.route";
 import { customerRoutes } from "./modules/customer/routes";
 import { productRoutes } from "./modules/product/routes";
+import { companyRoute } from "./modules/company/routes";
 import { ordersRoutes } from "./modules/order/routes";
 import { userRotes } from "./modules/user/routes";
 import { Router } from "express";
@@ -13,6 +14,11 @@ const moduleRoutes = [
     protected: false,
     path: "/auth",
     module: authRoutes,
+  },
+  {
+    protected: true,
+    path: "/companies",
+    module: companyRoute,
   },
   {
     protected: true,
