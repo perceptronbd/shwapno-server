@@ -7,6 +7,7 @@ import { validatePassword } from "@/helpers/auth.helper";
 import { generateTokens } from "@/utils/token.util";
 import { authModels } from "../models/auth.model";
 import { AppError } from "@/types/error.type";
+import { TPermissions } from "../types";
 import jwt from "jsonwebtoken";
 
 const login = async ({ email, password, rememberMe }: TLoginRequest) => {
@@ -56,7 +57,11 @@ const refreshTokens = async (refreshToken: string, rememberMe: boolean) => {
     const decoded = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string,
-    ) as jwt.JwtPayload;
+    ) as {
+      id: string;
+      email: string;
+      roles: { roles: string[]; permissions: TPermissions[] };
+    };
 
     const { id, email, roles } = decoded;
 
