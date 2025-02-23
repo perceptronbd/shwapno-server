@@ -1,16 +1,12 @@
+import { QRService } from "@/modules/company/services/qr.service";
 import { PrismaClient, Action, Resource } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function clearDatabse() {
-  await prisma.userRole.deleteMany({});
-  await prisma.rolePermission.deleteMany({});
-  await prisma.permission.deleteMany({});
-  await prisma.role.deleteMany({});
-  await prisma.branch.deleteMany({});
-  await prisma.company.deleteMany({});
-  await prisma.user.deleteMany({});
+  // Delete all data from all tables
+  await prisma.$executeRaw`TRUNCATE "role_permissions", "permissions", "user_roles", "roles", "users", "stocks", "products", "invoices", "sales", "orders", "customers", "branches", "companies" CASCADE;`;
 }
 
 async function main() {
@@ -28,6 +24,8 @@ async function main() {
       companyId: company.id,
     },
   });
+
+  QRService.generate({ company: company.id, branchId: branch.id });
 
   // Create roles
   const adminRole = await prisma.role.create({
