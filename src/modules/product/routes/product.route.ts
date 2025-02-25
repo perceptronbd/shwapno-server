@@ -26,7 +26,7 @@ router.get(
 );
 
 router.get(
-  "/branch/:id",
+  "/branch/:branchId",
   validate(validateProduct.getByBranch),
   asyncHandler(productController.getByBranch),
 );
