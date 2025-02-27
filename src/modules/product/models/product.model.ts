@@ -56,6 +56,7 @@ const getProducts = async ({ branchId, page, limit }: TGetProductByBranch) => {
       id: true,
       name: true,
       barcode: true,
+      description: true,
       price: true,
       imgURL: true,
       category: { select: { name: true } },
