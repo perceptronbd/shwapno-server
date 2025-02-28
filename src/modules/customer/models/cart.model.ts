@@ -124,13 +124,19 @@ const update = async ({
       };
     }
 
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) return;
+
     // If product doesn't exist in cart, add new item
     const newItem = await prisma.shoppingCartItem.create({
       data: {
         cartId: cart.id,
         productId,
         quantity,
-        price: 0, // Price will be fetched from product relation
+        price: product.price, // Price will be fetched from product relation
       },
       include: {
         product: true,
