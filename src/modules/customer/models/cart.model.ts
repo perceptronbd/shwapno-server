@@ -85,52 +85,62 @@ const update = async ({
     // Step 1: Check if the cart exists for the given `sessionId`.
     const cart = await prisma.shoppingCart.findUnique({
       where: { sessionId },
-      omit: { customerId: true },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!cart) return;
 
     // Step 2: Check if the product exists in the cart
-    const cartItem = await prisma.shoppingCartItem.findFirst({
-      where: {
-        cartId: cart.id,
-        productId,
-      },
-    });
+    const existingItem = cart.items.find(
+      (item) => item.productId === productId,
+    );
 
-    if (!cartItem) {
-      return;
-    }
-
-    // Step 3: If the product exists, update its quantity
-
-    // If quantity is 0 or less, remove the item from the cart
-    if (quantity <= 0) {
-      await prisma.shoppingCartItem.delete({
+    if (existingItem) {
+      // Update existing item quantity
+      const updatedItem = await prisma.shoppingCartItem.update({
         where: {
-          id: cartItem.id,
-        },
-      });
-    } else {
-      // Otherwise, update the quantity
-      const items = await prisma.shoppingCartItem.update({
-        where: {
-          id: cartItem.id,
+          id: existingItem.id,
         },
         data: {
-          quantity,
+          quantity: quantity,
         },
         include: {
           product: true,
         },
       });
 
-      // Step 4: Return the updated cart
       return {
         ...cart,
-        items: [items],
+        items: [
+          ...cart.items.filter((item) => item.id !== existingItem.id),
+          updatedItem,
+        ],
       };
     }
+
+    // If product doesn't exist in cart, add new item
+    const newItem = await prisma.shoppingCartItem.create({
+      data: {
+        cartId: cart.id,
+        productId,
+        quantity,
+        price: 0, // Price will be fetched from product relation
+      },
+      include: {
+        product: true,
+      },
+    });
+
+    return {
+      ...cart,
+      items: [...cart.items, newItem],
+    };
   });
 };
 
