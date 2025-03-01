@@ -280,11 +280,12 @@ describe("Product Service", () => {
   });
 
   describe("Delete", () => {
-    it("should delete a product and the image", () => {
+    it("should delete a product and the image", async () => {
+      (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
       (productModel.deleteProduct as jest.Mock).mockResolvedValue(productData);
       (deleteImage as jest.Mock).mockResolvedValue({ result: "success" });
 
-      productService.remove({ id: productData.id });
+      await productService.remove({ id: productData.id });
 
       expect(productModel.deleteProduct).toHaveBeenCalledWith({
         id: productData.id,
