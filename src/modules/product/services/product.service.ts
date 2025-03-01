@@ -105,9 +105,9 @@ const update = async ({
 };
 
 const remove = async ({ id }: { id: string }) => {
-  return await prisma.product.delete({
-    where: { id },
-  });
+  const result = await productModel.deleteProduct({ id });
+
+  return result;
 };
 
 const getAll = async () => {
