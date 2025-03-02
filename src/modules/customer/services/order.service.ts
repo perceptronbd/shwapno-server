@@ -12,7 +12,7 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
 };
 
 const track = async ({ id }: { id: string }) => {
-  return await orderModel.findOne(id);
+  return await orderModel.find(id);
 };
 
 export const orderService = {
