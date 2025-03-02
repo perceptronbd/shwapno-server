@@ -11,11 +11,11 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
   return result;
 };
 
-const track = async ({ id }: { id: string }) => {
+const get = async ({ id }: { id: string }) => {
   return await orderModel.find(id);
 };
 
 export const orderService = {
   create,
-  track,
+  get,
 };

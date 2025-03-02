@@ -22,7 +22,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 };
 
 const track = async (req: Request, res: Response) => {
-  const orderData = await orderService.track({ id: req?.params?.id });
+  const orderData = await orderService.get({ id: req?.params?.id });
   sendResponse(
     res,
     orderData,
