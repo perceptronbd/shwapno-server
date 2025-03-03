@@ -29,23 +29,12 @@ const add = async ({ productId, quantity, sessionId }: TAddCartRequest) => {
 };
 
 const update = async ({ items, sessionId }: TUpdateManyCartRequest) => {
-  const cart = await cartModel.findBySessionId(sessionId, {
-    customerId: true,
-  });
-
-  if (!cart) {
-    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
-  }
-
-  const updatedCartItems = await cartModel.updateMany({
+  const cart = await cartModel.findAndUpdate({
     items,
-    cartId: cart.id,
+    sessionId,
   });
 
-  return {
-    ...cart,
-    items: updatedCartItems,
-  };
+  return cart;
 };
 
 const get = async (id: string) => {

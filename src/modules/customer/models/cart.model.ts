@@ -150,31 +150,55 @@ const update = async ({
   });
 };
 
-const updateMany = async ({
-  items,
-  cartId,
-}: Omit<TUpdateManyCartRequest, "sessionId"> & { cartId: string }) => {
-  return items.map(
-    async (item) =>
-      await prisma.shoppingCartItem.update({
-        where: {
-          cartId_productId: {
-            cartId,
-            productId: item.productId,
+const findAndUpdate = async ({ items, sessionId }: TUpdateManyCartRequest) => {
+  return await prisma.$transaction(async (prisma) => {
+    const cart = await prisma.shoppingCart.findUnique({
+      where: {
+        sessionId,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
           },
         },
-        data: {
-          quantity: item.quantity, // Update the quantity for the specific product
-        },
-        include: {
-          product: true,
-        },
-      }),
-  );
+      },
+    });
+
+    if (!cart)
+      throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
+
+    // Update all items
+    const updatedItems = await Promise.all(
+      items.map((item) =>
+        prisma.shoppingCartItem.update({
+          where: {
+            cartId_productId: {
+              cartId: cart.id,
+              productId: item.productId,
+            },
+          },
+          data: {
+            quantity: item.quantity,
+          },
+          include: {
+            product: true,
+          },
+        }),
+      ),
+    );
+
+    // Return the cart with updated items
+    return {
+      ...cart,
+      items: updatedItems,
+    };
+  });
 };
+
 export const cartModel = {
   create,
   update,
-  updateMany,
+  findAndUpdate,
   findBySessionId,
 };
