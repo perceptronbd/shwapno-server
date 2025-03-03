@@ -56,6 +56,9 @@ const getById = async ({ id }: { id: string }) => {
 const getByBranch = async ({ branchId }: { branchId: string }) => {
   const result = await prisma.stock.findMany({
     where: { branchId },
+    include: {
+      product: true,
+    },
   });
   return result;
 };
