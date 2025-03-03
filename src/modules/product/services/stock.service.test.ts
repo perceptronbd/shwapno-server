@@ -80,6 +80,9 @@ describe("Stock Service", () => {
       expect(result).toEqual(stockData);
       expect(prisma.stock.findUnique).toHaveBeenCalledWith({
         where: { id: stockData.id },
+        include: {
+          product: true,
+        },
       });
     });
   });

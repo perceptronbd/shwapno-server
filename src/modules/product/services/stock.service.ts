@@ -42,6 +42,9 @@ const getAll = async ({
 const getById = async ({ id }: { id: string }) => {
   const result = await prisma.stock.findUnique({
     where: { id },
+    include: {
+      product: true,
+    },
   });
   return result;
 };
