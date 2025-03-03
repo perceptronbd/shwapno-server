@@ -1,24 +1,6 @@
 import { validateStock } from "./stock.validator";
 
 describe("Stock Validator", () => {
-  describe("Create Stock", () => {
-    it("should validate a valid stock", () => {
-      const request = {
-        body: { quantity: 10, productId: "1", branchId: "1" },
-      };
-
-      expect(() => validateStock.create.parse(request)).not.toThrow();
-    });
-
-    it("should throw an error for an invalid stock", () => {
-      const request = {
-        body: { quantity: -10, productId: "1" },
-      };
-
-      expect(() => validateStock.create.parse(request)).toThrow();
-    });
-  });
-
   describe("Update Stock", () => {
     it("should validate a valid stock", () => {
       const request = {

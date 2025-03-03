@@ -21,21 +21,6 @@ describe("Stock Service", () => {
     jest.clearAllMocks();
   });
 
-  describe("Create Stock", () => {
-    it("should create a stock", async () => {
-      const { id, ...stock } = stockData;
-
-      (prisma.stock.create as jest.Mock).mockResolvedValue(stockData);
-
-      const result = await stockService.create(stock);
-
-      expect(result).toEqual(stockData);
-      expect(prisma.stock.create).toHaveBeenCalledWith({
-        data: stock,
-      });
-    });
-  });
-
   describe("Add Stock", () => {
     it("should add a stock", async () => {
       const { id, branchId, ...stock } = stockData;
@@ -112,6 +97,9 @@ describe("Stock Service", () => {
       expect(result).toEqual(mockResult);
       expect(prisma.stock.findMany).toHaveBeenCalledWith({
         where: { branchId: stockData.branchId },
+        include: {
+          product: true,
+        },
       });
     });
   });

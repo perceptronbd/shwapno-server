@@ -4,16 +4,6 @@ import { stockService } from "../services/stock.service";
 import { AuthRequest } from "@/types/auth.types";
 import { Response, Request } from "express";
 
-const create = async (req: Request, res: Response) => {
-  const stock = await stockService.create(req.body);
-  sendResponse(
-    res,
-    stock,
-    HTTP_STATUS_CODES.CREATED,
-    "Stock created successfully",
-  );
-};
-
 const add = async (req: Request, res: Response) => {
   const { branchId } = req.params;
   const stock = await stockService.add({ branchId, data: req.body });
@@ -64,7 +54,6 @@ const getByBranch = async (req: Request, res: Response) => {
 };
 
 export const stockController = {
-  create,
   add,
   remove,
   getAll,
