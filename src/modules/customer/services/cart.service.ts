@@ -6,7 +6,6 @@ import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { generateSessionId } from "@/utils/generate";
 import { cartModel } from "../models/cart.model";
 import { AppError } from "@/types/error.type";
-import prisma from "@/config/db.config";
 
 const add = async ({ productId, quantity, sessionId }: TAddCartRequest) => {
   if (sessionId) {
@@ -43,15 +42,22 @@ const get = async (id: string) => {
   return cart;
 };
 
-const remove = async (id: string) => {
-  const cart = await cartModel.findBySessionId(id);
-  if (!cart) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
-  return await prisma.shoppingCart.delete({ where: { id: cart.id } });
+const deleteItem = async ({
+  cartId,
+  productId,
+}: {
+  cartId: string;
+  productId: string;
+}) => {
+  return await cartModel.deleteItem({
+    cartId,
+    productId,
+  });
 };
 
 export const cartService = {
   add,
   update,
   get,
-  remove,
+  deleteItem,
 };

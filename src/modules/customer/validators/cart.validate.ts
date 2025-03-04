@@ -43,7 +43,8 @@ export const updateMany = z.object({
   params: cartId,
 });
 
-const remove = z.object({
+const deleteItem = z.object({
+  body: z.object({ productId }),
   params: cartId,
 });
 
@@ -62,6 +63,6 @@ export const validateCart = {
   create,
   updateOne,
   updateMany,
-  remove,
+  deleteItem,
   get,
 };

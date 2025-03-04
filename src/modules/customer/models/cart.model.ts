@@ -196,9 +196,27 @@ const findAndUpdate = async ({ items, sessionId }: TUpdateManyCartRequest) => {
   });
 };
 
+const deleteItem = ({
+  cartId,
+  productId,
+}: {
+  cartId: string;
+  productId: string;
+}) => {
+  return prisma.shoppingCartItem.delete({
+    where: {
+      cartId_productId: {
+        cartId,
+        productId,
+      },
+    },
+  });
+};
+
 export const cartModel = {
   create,
   update,
   findAndUpdate,
   findBySessionId,
+  deleteItem,
 };
