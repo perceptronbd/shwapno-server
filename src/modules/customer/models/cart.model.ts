@@ -28,8 +28,6 @@ const findBySessionId = async (
   });
 
   if (!cart) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
-  if (!cart.items.length)
-    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "The cart is empty");
   return cart;
 };
 
@@ -197,18 +195,18 @@ const findAndUpdate = async ({ items, sessionId }: TUpdateManyCartRequest) => {
 };
 
 const deleteItem = ({
-  cartId,
+  sessionId,
   productId,
 }: {
-  cartId: string;
+  sessionId: string;
   productId: string;
 }) => {
-  return prisma.shoppingCartItem.delete({
+  return prisma.shoppingCartItem.deleteMany({
     where: {
-      cartId_productId: {
-        cartId,
-        productId,
+      cart: {
+        sessionId,
       },
+      productId,
     },
   });
 };

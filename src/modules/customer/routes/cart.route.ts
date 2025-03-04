@@ -18,7 +18,7 @@ router.get(
 );
 
 router.delete(
-  "/item/:id",
+  "/item/:sessionId",
   validate(validateCart.deleteItem),
   asyncHandler(cartController.deleteItem),
 );

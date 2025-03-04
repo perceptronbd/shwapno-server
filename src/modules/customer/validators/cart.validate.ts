@@ -44,8 +44,12 @@ export const updateMany = z.object({
 });
 
 const deleteItem = z.object({
-  body: z.object({ productId }),
-  params: cartId,
+  body: z.object({
+    productId,
+  }),
+  params: z.object({
+    sessionId: z.string().min(1, "Session ID is required"),
+  }),
 });
 
 const get = z.object({

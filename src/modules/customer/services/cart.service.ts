@@ -43,16 +43,13 @@ const get = async (id: string) => {
 };
 
 const deleteItem = async ({
-  cartId,
+  sessionId,
   productId,
 }: {
-  cartId: string;
+  sessionId: string;
   productId: string;
 }) => {
-  return await cartModel.deleteItem({
-    cartId,
-    productId,
-  });
+  return await cartModel.deleteItem({ sessionId, productId });
 };
 
 export const cartService = {

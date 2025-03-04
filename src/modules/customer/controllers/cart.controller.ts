@@ -43,9 +43,9 @@ const get = async (req: Request, res: Response) => {
 };
 
 const deleteItem = async (req: Request, res: Response) => {
-  const cartId = req.params.id;
+  const sessionId = req.params.sessionId;
   const productId = req.body.productId;
-  await cartService.deleteItem({ cartId, productId });
+  await cartService.deleteItem({ sessionId, productId });
   sendResponse(res, null, HTTP_STATUS_CODES.OK, "Item removed successfully!");
 };
 
