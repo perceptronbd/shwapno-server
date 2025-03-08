@@ -27,13 +27,6 @@ router.get(
   asyncHandler(stockController.getById),
 );
 
-// POST create new stock
-router.post(
-  "/",
-  validate(validateStock.create),
-  asyncHandler(stockController.create),
-);
-
 // PATCH update stock quantity
 router.patch(
   "/branch/:branchId",

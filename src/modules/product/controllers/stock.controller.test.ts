@@ -15,44 +15,6 @@ describe("Stock Controller", () => {
     jest.clearAllMocks();
   });
 
-  describe("Create Stock", () => {
-    it("should create a stock", async () => {
-      const { id, ...stock } = stockData;
-
-      const { req, res } = mocks.createMockReqRes({
-        body: stock,
-      });
-
-      const mockResult = { ...stockData };
-
-      (stockService.create as jest.Mock).mockResolvedValue(mockResult);
-
-      await stockController.create(req as Request, res as Response);
-
-      expect(stockService.create).toHaveBeenCalledWith(req.body);
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        mockResult,
-        HTTP_STATUS_CODES.CREATED,
-        "Stock created successfully",
-      );
-    });
-
-    it("should handle errors", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        body: { quantity: -10, productId: 1 },
-      });
-
-      (stockService.create as jest.Mock).mockRejectedValue(new Error());
-
-      await expect(
-        stockController.create(req as Request, res as Response),
-      ).rejects.toThrow();
-
-      expect(stockService.create).toHaveBeenCalledWith(req.body);
-    });
-  });
-
   describe("Add Stock", () => {
     it("should add a stock", async () => {
       const { id, branchId, ...stock } = stockData;

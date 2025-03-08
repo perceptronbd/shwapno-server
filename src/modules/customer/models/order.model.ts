@@ -1,26 +1,31 @@
-import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { Decimal } from "@prisma/client/runtime/library";
 import { TOrderPayload } from "../types/order";
-import { AppError } from "@/types/error.type";
 import { cartModel } from "./cart.model";
 import prisma from "@/config/db.config";
 
 const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
   return await prisma.$transaction(async (trx) => {
-    // Create customer and get the customer ID
-    const customerData = await trx.customer.create({
-      data: {
-        ...customer,
+    // Check if customer exists
+    let customerData = await trx.customer.findFirst({
+      where: {
+        AND: [{ email: customer.email }, { mobile: customer.mobile }],
       },
     });
 
+    // If customer doesn't exist, create new customer
+    if (!customerData) {
+      customerData = await trx.customer.create({
+        data: {
+          ...customer,
+        },
+      });
+    }
+
     // get the cartItems by sessionId
     const cartItems = await cartModel.findBySessionId(sessionId);
-    //create order with customerId, branchId and cartItems
+
     const totalAmount = cartItems.items.reduce((total, item) => {
-      // convert to decimal
       const price = new Decimal(item.price);
-      // add the price to the total
       return total.add(price.mul(item.quantity));
     }, new Decimal(0));
 
@@ -40,7 +45,7 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
         },
       },
     });
-    // create orderItems
+
     const orderItems = await trx.orderItem.createManyAndReturn({
       data: cartItems.items.map((item) => ({
         orderId: order.id,
@@ -52,7 +57,7 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
         product: true,
       },
     });
-    // delete cartItems
+
     await trx.shoppingCartItem.deleteMany({
       where: {
         cartId: cartItems.id,
@@ -65,19 +70,27 @@ const create = async ({ customer, sessionId, branchId }: TOrderPayload) => {
 
 const update = async () => {};
 
-const findOne = async (customerId: string) => {
-  const order = await prisma.order.findFirst({
+const find = async (customerId: string) => {
+  const order = await prisma.order.findMany({
     where: {
       customerId,
     },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+    orderBy: {
+      orderDate: "desc",
+    },
   });
-  if (!order)
-    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Order not found");
   return order;
 };
 
 export const orderModel = {
   create,
-  findOne,
+  find,
   update,
 };

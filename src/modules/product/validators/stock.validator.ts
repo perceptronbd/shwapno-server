@@ -8,15 +8,6 @@ const branchId = z.string({ invalid_type_error: "Invalid ID format" });
 const productId = z.string({ invalid_type_error: "Invalid ID format" });
 const quantity = z.number().positive().int().default(1);
 
-// Validation for Create Stock
-const create = z.object({
-  body: z.object({
-    quantity,
-    productId,
-    branchId: id,
-  }),
-});
-
 // Validation for Update Stock
 const add = z.object({
   body: z.object({
@@ -57,7 +48,6 @@ const getByBranch = z.object({
   }),
 });
 
-export type TCreateStock = z.infer<typeof create>["body"];
 export type TUpdateStock = z.infer<typeof add>["body"];
 export type TDeleteStock = z.infer<typeof remove>["params"];
 export type TGetAllStocks = z.infer<typeof getAll>["query"];
@@ -66,7 +56,6 @@ export type TGetStockByBranch = z.infer<typeof getByBranch>["params"];
 
 // Exporting all schemas
 export const validateStock = {
-  create,
   add,
   remove,
   getAll,

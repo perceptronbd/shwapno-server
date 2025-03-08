@@ -22,7 +22,11 @@ jest.mock("@/utils/cloudinary.util", () => ({
   deleteImage: jest.fn(),
 }));
 jest.mock("../models/product.model", () => ({
-  productModel: { createProduct: jest.fn(), getProducts: jest.fn() },
+  productModel: {
+    createProduct: jest.fn(),
+    getProducts: jest.fn(),
+    deleteProduct: jest.fn(),
+  },
 }));
 
 const branchData = {
@@ -43,7 +47,7 @@ describe("Product Service", () => {
     jest.clearAllMocks();
   });
 
-  describe("Create Product", () => {
+  describe("Create", () => {
     it("should create a product without an image", async () => {
       (productModel.createProduct as jest.Mock).mockResolvedValue(restProducts);
 
@@ -126,7 +130,7 @@ describe("Product Service", () => {
     });
   });
 
-  describe("Update Product", () => {
+  describe("Update", () => {
     it("should update a product without an image", async () => {
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
       (prisma.product.update as jest.Mock).mockResolvedValue(productData);
@@ -224,7 +228,7 @@ describe("Product Service", () => {
     });
   });
 
-  describe("Get Products By Category", () => {
+  describe("Get By Category", () => {
     it("should get products by category", async () => {
       (prisma.product.findMany as jest.Mock).mockResolvedValue([productData]);
 
@@ -244,7 +248,7 @@ describe("Product Service", () => {
     });
   });
 
-  describe("Get Products By Branch", () => {
+  describe("Get By Branch", () => {
     it("should get products by branch with pagination", async () => {
       const page = 1;
 
@@ -272,6 +276,21 @@ describe("Product Service", () => {
         limit: 10,
         page,
       });
+    });
+  });
+
+  describe("Delete", () => {
+    it("should delete a product and the image", async () => {
+      (prisma.product.findUnique as jest.Mock).mockResolvedValue(productData);
+      (productModel.deleteProduct as jest.Mock).mockResolvedValue(productData);
+      (deleteImage as jest.Mock).mockResolvedValue({ result: "success" });
+
+      await productService.remove({ id: productData.id });
+
+      expect(productModel.deleteProduct).toHaveBeenCalledWith({
+        id: productData.id,
+      });
+      expect(deleteImage).toHaveBeenCalledWith(productData.imgPublicId);
     });
   });
 });

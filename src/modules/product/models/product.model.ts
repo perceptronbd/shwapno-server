@@ -71,7 +71,31 @@ const getProducts = async ({ branchId, page, limit }: TGetProductByBranch) => {
   return transformedResult;
 };
 
+const deleteProduct = async ({ id }: { id: string }) => {
+  return await prisma.$transaction(async (prisma) => {
+    await prisma.shoppingCartItem.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    await prisma.orderItem.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    await prisma.stock.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    return await prisma.product.delete({
+      where: { id },
+    });
+  });
+};
+
 export const productModel = {
   createProduct,
   getProducts,
+  deleteProduct,
 };
