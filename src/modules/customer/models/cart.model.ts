@@ -28,8 +28,6 @@ const findBySessionId = async (
   });
 
   if (!cart) throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
-  if (!cart.items.length)
-    throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "The cart is empty");
   return cart;
 };
 
@@ -85,80 +83,138 @@ const update = async ({
     // Step 1: Check if the cart exists for the given `sessionId`.
     const cart = await prisma.shoppingCart.findUnique({
       where: { sessionId },
-      omit: { customerId: true },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!cart) return;
 
     // Step 2: Check if the product exists in the cart
-    const cartItem = await prisma.shoppingCartItem.findFirst({
-      where: {
+    const existingItem = cart.items.find(
+      (item) => item.productId === productId,
+    );
+
+    if (existingItem) {
+      // Update existing item quantity
+      const updatedItem = await prisma.shoppingCartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: quantity,
+        },
+        include: {
+          product: true,
+        },
+      });
+
+      return {
+        ...cart,
+        items: [
+          ...cart.items.filter((item) => item.id !== existingItem.id),
+          updatedItem,
+        ],
+      };
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) return;
+
+    // If product doesn't exist in cart, add new item
+    const newItem = await prisma.shoppingCartItem.create({
+      data: {
         cartId: cart.id,
         productId,
+        quantity,
+        price: product.price, // Price will be fetched from product relation
+      },
+      include: {
+        product: true,
       },
     });
 
-    if (!cartItem) {
-      return;
-    }
-
-    // Step 3: If the product exists, update its quantity
-
-    // If quantity is 0 or less, remove the item from the cart
-    if (quantity <= 0) {
-      await prisma.shoppingCartItem.delete({
-        where: {
-          id: cartItem.id,
-        },
-      });
-    } else {
-      // Otherwise, update the quantity
-      const items = await prisma.shoppingCartItem.update({
-        where: {
-          id: cartItem.id,
-        },
-        data: {
-          quantity,
-        },
-        include: {
-          product: true,
-        },
-      });
-
-      // Step 4: Return the updated cart
-      return {
-        ...cart,
-        items: [items],
-      };
-    }
+    return {
+      ...cart,
+      items: [...cart.items, newItem],
+    };
   });
 };
 
-const updateMany = async ({
-  items,
-  cartId,
-}: Omit<TUpdateManyCartRequest, "sessionId"> & { cartId: string }) => {
-  return items.map(
-    async (item) =>
-      await prisma.shoppingCartItem.update({
-        where: {
-          cartId_productId: {
-            cartId,
-            productId: item.productId,
+const findAndUpdate = async ({ items, sessionId }: TUpdateManyCartRequest) => {
+  return await prisma.$transaction(async (prisma) => {
+    const cart = await prisma.shoppingCart.findUnique({
+      where: {
+        sessionId,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
           },
         },
-        data: {
-          quantity: item.quantity, // Update the quantity for the specific product
-        },
-        include: {
-          product: true,
-        },
-      }),
-  );
+      },
+    });
+
+    if (!cart)
+      throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Cart not found");
+
+    // Update all items
+    const updatedItems = await Promise.all(
+      items.map((item) =>
+        prisma.shoppingCartItem.update({
+          where: {
+            cartId_productId: {
+              cartId: cart.id,
+              productId: item.productId,
+            },
+          },
+          data: {
+            quantity: item.quantity,
+          },
+          include: {
+            product: true,
+          },
+        }),
+      ),
+    );
+
+    // Return the cart with updated items
+    return {
+      ...cart,
+      items: updatedItems,
+    };
+  });
 };
+
+const deleteItem = ({
+  sessionId,
+  productId,
+}: {
+  sessionId: string;
+  productId: string;
+}) => {
+  return prisma.shoppingCartItem.deleteMany({
+    where: {
+      cart: {
+        sessionId,
+      },
+      productId,
+    },
+  });
+};
+
 export const cartModel = {
   create,
   update,
-  updateMany,
+  findAndUpdate,
   findBySessionId,
+  deleteItem,
 };

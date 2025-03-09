@@ -43,8 +43,13 @@ export const updateMany = z.object({
   params: cartId,
 });
 
-const remove = z.object({
-  params: cartId,
+const deleteItem = z.object({
+  body: z.object({
+    productId,
+  }),
+  params: z.object({
+    sessionId: z.string().min(1, "Session ID is required"),
+  }),
 });
 
 const get = z.object({
@@ -62,6 +67,6 @@ export const validateCart = {
   create,
   updateOne,
   updateMany,
-  remove,
+  deleteItem,
   get,
 };

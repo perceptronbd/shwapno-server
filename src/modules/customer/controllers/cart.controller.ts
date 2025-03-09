@@ -42,14 +42,16 @@ const get = async (req: Request, res: Response) => {
   );
 };
 
-const remove = async (req: Request, res: Response) => {
-  await cartService.remove(req.params.id);
-  sendResponse(res, null, HTTP_STATUS_CODES.OK, "Cart removed successfully");
+const deleteItem = async (req: Request, res: Response) => {
+  const sessionId = req.params.sessionId;
+  const productId = req.body.productId;
+  await cartService.deleteItem({ sessionId, productId });
+  sendResponse(res, null, HTTP_STATUS_CODES.OK, "Item removed successfully!");
 };
 
 export const cartController = {
   add,
   update,
   get,
-  remove,
+  deleteItem,
 };

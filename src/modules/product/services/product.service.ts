@@ -105,9 +105,16 @@ const update = async ({
 };
 
 const remove = async ({ id }: { id: string }) => {
-  return await prisma.product.delete({
+  const existingProduct = await prisma.product.findUnique({
     where: { id },
   });
+  const result = await productModel.deleteProduct({ id });
+
+  if (existingProduct?.imgPublicId && result) {
+    await deleteImage(existingProduct.imgPublicId);
+  }
+
+  return result;
 };
 
 const getAll = async () => {

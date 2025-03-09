@@ -17,9 +17,22 @@ app.use(express.json());
 app.use(cookieParser());
 
 // cross origin resource sharing
+const allowedOrigins = [
+  process.env.CLIENT_ADMIN_URL,
+  process.env.CLIENT_ECOM_URL,
+].filter((origin): origin is string => Boolean(origin)); // Ensures only valid strings
+
 const corsOptions = {
-  // allow all in the development mode
-  origin: process.env.CLIENT_URL,
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void,
+  ) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 };
 
