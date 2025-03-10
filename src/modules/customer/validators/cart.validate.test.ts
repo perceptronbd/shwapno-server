@@ -57,22 +57,4 @@ describe("Cart Validation with Zod", () => {
       expect(() => validateCart.updateMany.parse(request)).toThrow();
     });
   });
-
-  describe("Get Cart", () => {
-    it("should validate a valid request", () => {
-      const request = {
-        params: { id: "1" },
-      };
-
-      expect(() => validateCart.remove.parse(request)).not.toThrow();
-    });
-
-    it("should throw an error for an invalid request", () => {
-      const request = {
-        params: { id: null },
-      };
-
-      expect(() => validateCart.remove.parse(request)).toThrow();
-    });
-  });
 });

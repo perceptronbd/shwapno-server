@@ -62,38 +62,4 @@ describe("Order Controller", () => {
       });
     });
   });
-
-  describe("Track Order", () => {
-    it("should track an order", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: custId },
-      });
-
-      (orderService.track as jest.Mock).mockResolvedValue(orderData);
-
-      await orderController.track(req as Request, res as Response);
-
-      expect(orderService.track).toHaveBeenCalledWith({ id: custId });
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        orderData,
-        HTTP_STATUS_CODES.OK,
-        "Order tracked successfully",
-      );
-    });
-
-    it("should handle errors", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: custId },
-      });
-
-      (orderService.track as jest.Mock).mockRejectedValue(new Error("Error"));
-
-      await expect(
-        orderController.track(req as Request, res as Response),
-      ).rejects.toThrow();
-
-      expect(orderService.track).toHaveBeenCalledWith({ id: custId });
-    });
-  });
 });

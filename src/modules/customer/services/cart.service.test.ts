@@ -59,30 +59,17 @@ describe("Cart Service", () => {
     it("should update product in cart", async () => {
       const { customerId: _, ...cartResult } = cartData;
 
-      (cartModel.findBySessionId as jest.Mock).mockResolvedValue({
-        ...cartResult,
-        id: cartData.id,
-      });
+      (cartModel.findAndUpdate as jest.Mock).mockResolvedValue(cartResult);
 
-      (cartModel.updateMany as jest.Mock).mockResolvedValue(cartResult);
-
-      const result = await cartService.update({
+      const updateData = {
         items: [{ productId: productData.id, quantity: 2 }],
         sessionId: cartData.sessionId,
-      });
+      };
 
-      expect(result).toEqual({
-        ...cartResult,
-        items: cartResult,
-      });
-      expect(cartModel.findBySessionId).toHaveBeenCalledWith(
-        cartData.sessionId,
-        { customerId: true },
-      );
-      expect(cartModel.updateMany).toHaveBeenCalledWith({
-        items: [{ productId: productData.id, quantity: 2 }],
-        cartId: cartData.id,
-      });
+      const result = await cartService.update(updateData);
+
+      expect(result).toEqual(cartResult);
+      expect(cartModel.findAndUpdate).toHaveBeenCalledWith(updateData);
     });
   });
 
