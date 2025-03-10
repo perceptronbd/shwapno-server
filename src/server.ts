@@ -20,21 +20,26 @@ app.use(cookieParser());
 const allowedOrigins = [
   process.env.CLIENT_ADMIN_URL,
   process.env.CLIENT_ECOM_URL,
-].filter((origin): origin is string => Boolean(origin));
+];
 
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void,
+  ) => {
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "Cross-Origin-Opener-Policy",
-  ],
-  exposedHeaders: ["Authorization", "Set-Cookie"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Authorization"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
-app.options("*", cors(corsOptions));
 
+app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 
 // Routes
