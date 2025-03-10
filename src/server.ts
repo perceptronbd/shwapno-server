@@ -34,7 +34,8 @@ const corsOptions = {
     }
   },
   credentials: true,
-  exposedHeaders: ["Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Authorization", "Set-Cookie"],
 };
 
 app.use(cors(corsOptions));
