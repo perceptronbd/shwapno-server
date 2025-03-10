@@ -1,21 +1,20 @@
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 
 export const setCookie = (
   res: Response,
   name: string,
   value: string,
-  options: {
-    httpOnly?: boolean;
-    secure?: boolean;
-    sameSite?: "strict" | "lax" | "none";
-    maxAge?: number;
-  } = {},
+  options: CookieOptions = {},
 ) => {
-  const defaultOptions = {
+  const defaultOptions: CookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "strict" as "strict" | "lax" | "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    domain:
+      process.env.NODE_ENV === "production"
+        ? new URL(process.env.CLIENT_ADMIN_URL || "").hostname
+        : undefined,
   };
 
   const cookieOptions = { ...defaultOptions, ...options };

@@ -34,6 +34,7 @@ const corsOptions = {
     }
   },
   credentials: true,
+  exposedHeaders: ["Authorization"],
 };
 
 app.use(cors(corsOptions));
