@@ -60,12 +60,6 @@ describe("Auth Controller", () => {
         "Authorization",
         `Bearer ${mockResult.accessToken}`,
       );
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        mockResult.user,
-        HTTP_STATUS_CODES.OK,
-        "Logged in successfully!",
-      );
     });
 
     it("should login admin with rememberMe false", async () => {

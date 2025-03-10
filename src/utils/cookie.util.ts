@@ -6,17 +6,17 @@ export const setCookie = (
   value: string,
   options: CookieOptions = {},
 ) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   const defaultOptions: CookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    secure: isProduction, // Must be true in production for SameSite=None
+    sameSite: isProduction ? "none" : "lax", // Critical fix
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    domain: process.env.COOKIE_DOMAIN ?? ".onrender.com",
+    domain: isProduction ? ".onrender.com" : undefined, // Remove domain for localhost
   };
 
-  const cookieOptions = { ...defaultOptions, ...options };
-
-  res.cookie(name, value, cookieOptions);
+  res.cookie(name, value, { ...defaultOptions, ...options });
 };
 
 export const clearCookieAndHeader = (res: Response) => {

@@ -20,23 +20,20 @@ app.use(cookieParser());
 const allowedOrigins = [
   process.env.CLIENT_ADMIN_URL,
   process.env.CLIENT_ECOM_URL,
-].filter((origin): origin is string => Boolean(origin)); // Ensures only valid strings
+].filter((origin): origin is string => Boolean(origin));
 
 const corsOptions = {
-  origin: (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void,
-  ) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "Cross-Origin-Opener-Policy",
+  ],
   exposedHeaders: ["Authorization", "Set-Cookie"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
+app.options("*", cors(corsOptions));
 
 app.use(cors(corsOptions));
 
@@ -51,7 +48,6 @@ app.get("/", (_req, res) => {
 });
 
 // start the server
-
 const start = async () => {
   try {
     await connectDB();
