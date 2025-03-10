@@ -10,10 +10,13 @@ export const setCookie = (
 
   const defaultOptions: CookieOptions = {
     httpOnly: true,
-    secure: isProduction, // Must be true in production for SameSite=None
-    sameSite: isProduction ? "none" : "lax", // Critical fix
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: isProduction
+      ? new URL(process.env.CLIENT_ADMIN_URL!).hostname
+      : undefined,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    domain: isProduction ? ".onrender.com" : undefined, // Remove domain for localhost
   };
 
   res.cookie(name, value, { ...defaultOptions, ...options });
