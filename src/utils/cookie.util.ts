@@ -13,7 +13,7 @@ export const setCookie = (
     secure: isProduction,
     sameSite: isProduction ? "none" : "lax",
     path: "/",
-    domain: isProduction ? "shwapno-company-dev.onrender.com" : undefined,
+    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
