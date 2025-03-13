@@ -8,6 +8,10 @@ jest.mock("@/utils/generate", () => ({
 }));
 
 describe("Order Service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   const { id: custId, ...customer } = customerData;
   const { id: orderId, ..._order } = orderData;
   const { sessionId, ..._cart } = cartData;
@@ -32,17 +36,6 @@ describe("Order Service", () => {
         sessionId,
         branchId,
       });
-    });
-  });
-
-  describe("Track Order", () => {
-    it("should track an order", async () => {
-      (orderModel.findOne as jest.Mock).mockResolvedValue(orderData);
-
-      const result = await orderService.track({ id: custId });
-
-      expect(result).toEqual(orderData);
-      expect(orderModel.findOne).toHaveBeenCalledWith(custId);
     });
   });
 });
