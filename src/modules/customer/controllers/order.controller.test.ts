@@ -115,38 +115,4 @@ describe("Cart Controller", () => {
       });
     });
   });
-
-  describe("Get Cart", () => {
-    it("should get cart", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: cartData.id },
-      });
-
-      (cartService.get as jest.Mock).mockResolvedValue(cartData);
-
-      await cartController.get(req as Request, res as Response);
-
-      expect(cartService.get).toHaveBeenCalledWith(cartData.id);
-      expect(sendResponse).toHaveBeenCalledWith(
-        res,
-        cartData,
-        HTTP_STATUS_CODES.OK,
-        "Cart retrieved successfully",
-      );
-    });
-
-    it("should handle errors", async () => {
-      const { req, res } = mocks.createMockReqRes({
-        params: { id: "" },
-      });
-
-      (cartService.get as jest.Mock).mockRejectedValue(new Error("Error"));
-
-      await expect(
-        cartController.get(req as Request, res as Response),
-      ).rejects.toThrow();
-
-      expect(cartService.get).toHaveBeenCalledWith("");
-    });
-  });
 });

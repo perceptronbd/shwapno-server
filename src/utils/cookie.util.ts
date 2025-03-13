@@ -1,26 +1,23 @@
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 
 export const setCookie = (
   res: Response,
   name: string,
   value: string,
-  options: {
-    httpOnly?: boolean;
-    secure?: boolean;
-    sameSite?: "strict" | "lax" | "none";
-    maxAge?: number;
-  } = {},
+  options: CookieOptions = {},
 ) => {
-  const defaultOptions = {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const defaultOptions: CookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "strict" as "strict" | "lax" | "none",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
-  const cookieOptions = { ...defaultOptions, ...options };
-
-  res.cookie(name, value, cookieOptions);
+  res.cookie(name, value, { ...defaultOptions, ...options });
 };
 
 export const clearCookieAndHeader = (res: Response) => {
