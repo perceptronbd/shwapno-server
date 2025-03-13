@@ -11,6 +11,7 @@ describe("Product Validator", () => {
           barcode: "1234567890",
           branchId: "1",
           description: "",
+          category: "Category",
         },
         file: {
           mimetype: IMAGE_MIME.PNG,
@@ -29,6 +30,7 @@ describe("Product Validator", () => {
           barcode: "1234567890",
           branchId: "1",
           description: "",
+          category: "Category",
         },
       };
 
