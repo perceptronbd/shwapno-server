@@ -15,7 +15,10 @@ const product = z.object({
     .optional(),
   qrCode: z.string().optional(),
   description: z.string().optional(),
-  categoryId: z.string().optional(),
+  category: z
+    .string()
+    .min(1, "Category name is required")
+    .transform((val) => val.toLowerCase()),
   branchId: id,
 });
 
@@ -39,7 +42,7 @@ const create = z.object({
     quantity: product.shape.quantity,
     barcode: product.shape.barcode,
     description: product.shape.description,
-    categoryId: product.shape.categoryId,
+    category: product.shape.category,
   }),
   file: imageFile.optional(),
 });
@@ -54,6 +57,7 @@ const update = z.object({
     price: product.shape.price.optional(),
     barcode: product.shape.barcode.optional(),
     description: product.shape.description.optional(),
+    category: product.shape.category.optional(),
   }),
   file: imageFile.optional(),
 });

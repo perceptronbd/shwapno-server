@@ -29,6 +29,7 @@ model Category {
 
     BranchCategory BranchCategory[]
 
+    @@index([name])
     @@map("categories")
 }
 
