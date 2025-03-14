@@ -23,6 +23,7 @@ export const userData = {
     roles: ["admin"],
     permissions: ["CREATE:ALL"],
   },
+  branches: [{ id: "branch-001", name: "Nurer Chala" }],
 };
 
 export const customerData = {
