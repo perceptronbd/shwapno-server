@@ -25,7 +25,7 @@ async function main() {
     },
   });
 
-  QRService.generate({ company: company.id, branchId: branch.id });
+  QRService.generate({ company: company.id, branchName: branch.name });
 
   // Create roles
   const adminRole = await prisma.role.create({

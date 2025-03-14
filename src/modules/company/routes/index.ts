@@ -1,11 +1,8 @@
-import { validate } from "@/middlewares/validate.middleware";
-import { QRcontroller } from "../controllers/qr.controller";
-import { validateQR } from "../validators/qr.validator";
-import { asyncHandler } from "@/handlers/async.handler";
+import { branchRoutes } from "./branch.route";
 import { Router } from "express";
 
-const route = Router();
+const router = Router();
 
-route.get("/", validate(validateQR.get), asyncHandler(QRcontroller.get));
+router.use("/branch", branchRoutes);
 
-export const companyRoute = route;
+export const companyRoutes = router;

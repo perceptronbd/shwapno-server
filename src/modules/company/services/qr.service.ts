@@ -3,13 +3,13 @@ import prisma from "@/config/db.config";
 
 const generate = async ({
   company,
-  branchId,
+  branchName,
 }: {
   company: string;
-  branchId: string;
+  branchName: string;
 }) => {
   const customerURL = process.env.CUSTOMER_URL ?? "http://localhost:3000";
-  const eComUrl = `${customerURL}/${company}/${branchId}=`;
+  const eComUrl = `${customerURL}/${company}/${branchName}=`;
 
   const opts: QRCodeToDataURLOptions = {
     errorCorrectionLevel: "H",
@@ -24,7 +24,7 @@ const generate = async ({
   const qrDataUrl = await QRCode.toDataURL(eComUrl, opts);
 
   return await prisma.branch.update({
-    where: { id: branchId },
+    where: { name: branchName },
     data: { qrURL: qrDataUrl },
   });
 };
