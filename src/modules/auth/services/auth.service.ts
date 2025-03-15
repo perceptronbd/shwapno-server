@@ -41,6 +41,7 @@ const login = async ({ email, password, rememberMe }: TLoginRequest) => {
       phone: user.phone,
       email: user.email,
       roles: user.policy.roles,
+      branches: user.branches,
     },
   };
 };
