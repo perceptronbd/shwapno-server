@@ -25,7 +25,7 @@ const allowedOrigins = [
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "development"
-      ? "*"
+      ? true
       : (
           origin: string | undefined,
           callback: (err: Error | null, allow?: boolean) => void,
