@@ -1,9 +1,20 @@
 import QRCode, { QRCodeToDataURLOptions } from "qrcode";
 import prisma from "@/config/db.config";
 
-const generate = async ({ branchName }: { branchName: string }) => {
-  console.log("generate service branchName:", branchName);
+const generate = async ({ branchId }: { branchId: string }) => {
   const customerURL = process.env.CLIENT_ECOM_URL;
+
+  const branchData = await prisma.branch.findUnique({
+    where: { id: branchId },
+    select: { name: true },
+  });
+
+  if (!branchData) {
+    throw new Error("Branch not found");
+  }
+
+  const branchName = branchData.name;
+
   const eComUrl = `${customerURL}/${branchName}=`;
 
   const opts: QRCodeToDataURLOptions = {
@@ -11,8 +22,8 @@ const generate = async ({ branchName }: { branchName: string }) => {
     type: "image/png" as const,
     margin: 1,
     color: {
-      dark: "#000000",
-      light: "#ff0000",
+      dark: "#df0000",
+      light: "#ffffff",
     },
   };
 

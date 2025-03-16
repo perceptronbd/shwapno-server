@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-const getByName = z.object({
+const getById = z.object({
   params: z.object({
-    name: z.string().min(1, "Branch name is required"),
+    branchId: z.string().min(1, "Branch name is required"),
   }),
 });
 
 export const validateBranch = {
-  getByName,
+  getById,
 };

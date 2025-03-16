@@ -9,26 +9,49 @@ jest.mock("@/handlers/response.handler");
 jest.mock("../services/branch.service");
 
 describe("Branch Controller", () => {
-  describe("getByName", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("getById", () => {
     it("should return branch data", async () => {
+      const branchId = "branch-123";
       const { req, res } = mocks.createMockReqRes({
-        params: { name: "Main Branch" },
+        params: { branchId },
       });
 
-      (branchService.getByName as jest.Mock).mockResolvedValue({
-        id: 1,
+      (branchService.getById as jest.Mock).mockResolvedValue({
+        id: branchId,
         name: "Main Branch",
       });
 
-      await branchController.getByName(req as Request, res as Response);
+      await branchController.getById(req as Request, res as Response);
 
-      expect(branchService.getByName).toHaveBeenCalledWith("Main Branch");
+      expect(branchService.getById).toHaveBeenCalledWith(branchId);
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        { id: 1, name: "Main Branch" },
+        { id: branchId, name: "Main Branch" },
         HTTP_STATUS_CODES.OK,
         "Branch retrieved successfully",
       );
+    });
+
+    it("should handle errors when fetching branch", async () => {
+      const branchId = "branch-123";
+      const error = new Error("Failed to fetch branch");
+
+      const { req, res } = mocks.createMockReqRes({
+        params: { branchId },
+      });
+
+      (branchService.getById as jest.Mock).mockRejectedValue(error);
+
+      await expect(
+        branchController.getById(req as Request, res as Response),
+      ).rejects.toThrow("Failed to fetch branch");
+
+      expect(branchService.getById).toHaveBeenCalledWith(branchId);
+      expect(sendResponse).not.toHaveBeenCalled();
     });
   });
 });

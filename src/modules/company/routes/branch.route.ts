@@ -9,12 +9,12 @@ import { Router } from "express";
 const router = Router();
 
 router.get(
-  "/:name",
-  validate(validateBranch.getByName),
-  asyncHandler(branchController.getByName),
+  "/:branchId",
+  validate(validateBranch.getById),
+  asyncHandler(branchController.getById),
 );
 router.post(
-  "/",
+  "/:branchId",
   validate(validateQR.create),
   asyncHandler(QRcontroller.create),
 );

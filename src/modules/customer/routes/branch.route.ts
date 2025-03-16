@@ -7,8 +7,8 @@ import { Router } from "express";
 const router = Router();
 router.get(
   "/:name",
-  validate(validateBranch.getByName),
-  asyncHandler(branchController.getByName),
+  validate(validateBranch.getById),
+  asyncHandler(branchController.getById),
 );
 
 export const branchRoute = router;

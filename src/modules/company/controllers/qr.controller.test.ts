@@ -14,6 +14,7 @@ describe("QR Controller", () => {
   });
 
   describe("get", () => {
+    // This test remains unchanged as the get method hasn't changed
     it("should fetch QR code by branch ID", async () => {
       const branchId = "branch-123";
       const mockQRURL = { qrURL: "data:image/png;base64,abc123" };
@@ -56,22 +57,22 @@ describe("QR Controller", () => {
 
   describe("create", () => {
     it("should create QR code for a branch", async () => {
-      const branchName = "Main Branch";
+      const branchId = "branch-123";
       const mockQRURL = {
-        id: "branch-123",
-        name: branchName,
+        id: branchId,
+        name: "Main Branch",
         qrURL: "data:image/png;base64,abc123",
       };
 
       const { req, res } = mocks.createMockReqRes({
-        body: { branchName },
+        params: { branchId },
       });
 
       (QRService.generate as jest.Mock).mockResolvedValue(mockQRURL);
 
       await QRcontroller.create(req as Request, res as Response);
 
-      expect(QRService.generate).toHaveBeenCalledWith({ branchName });
+      expect(QRService.generate).toHaveBeenCalledWith({ branchId });
       expect(sendResponse).toHaveBeenCalledWith(
         res,
         mockQRURL,
@@ -81,11 +82,11 @@ describe("QR Controller", () => {
     });
 
     it("should handle errors when creating QR code", async () => {
-      const branchName = "Main Branch";
+      const branchId = "branch-123";
       const error = new Error("Failed to create QR code");
 
       const { req, res } = mocks.createMockReqRes({
-        body: { branchName },
+        params: { branchId },
       });
 
       (QRService.generate as jest.Mock).mockRejectedValue(error);
@@ -94,7 +95,7 @@ describe("QR Controller", () => {
         QRcontroller.create(req as Request, res as Response),
       ).rejects.toThrow("Failed to create QR code");
 
-      expect(QRService.generate).toHaveBeenCalledWith({ branchName });
+      expect(QRService.generate).toHaveBeenCalledWith({ branchId });
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
