@@ -6,6 +6,13 @@ const get = z.object({
   }),
 });
 
+const create = z.object({
+  body: z.object({
+    branchName: z.string().min(1, "Branch name is required"),
+  }),
+});
+
 export const validateQR = {
   get,
+  create,
 };

@@ -13,6 +13,10 @@ router.get(
   validate(validateBranch.getByName),
   asyncHandler(branchController.getByName),
 );
-router.get("/", validate(validateQR.get), asyncHandler(QRcontroller.get));
+router.post(
+  "/",
+  validate(validateQR.create),
+  asyncHandler(QRcontroller.create),
+);
 
 export const branchRoutes = router;
