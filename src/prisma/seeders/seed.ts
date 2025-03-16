@@ -1,4 +1,3 @@
-import { QRService } from "@/modules/company/services/qr.service";
 import { PrismaClient, Action, Resource } from "@prisma/client";
 import bcrypt from "bcrypt";
 
@@ -24,8 +23,6 @@ async function main() {
       companyId: company.id,
     },
   });
-
-  QRService.generate({ company: company.id, branchName: branch.name });
 
   // Create roles
   const adminRole = await prisma.role.create({

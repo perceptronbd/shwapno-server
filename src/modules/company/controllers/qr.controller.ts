@@ -14,6 +14,18 @@ const get = async (req: Request, res: Response) => {
   );
 };
 
+const create = async (req: Request, res: Response) => {
+  const { branchName } = req.body;
+  const qrURL = await QRService.generate({ branchName });
+  sendResponse(
+    res,
+    qrURL,
+    HTTP_STATUS_CODES.CREATED,
+    "QR code created successfully",
+  );
+};
+
 export const QRcontroller = {
   get,
+  create,
 };

@@ -24,19 +24,18 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin:
-    // process.env.NODE_ENV === "development"
-    //   ? "*"
-    //   :
-    (
-      origin: string | undefined,
-      callback: (err: Error | null, allow?: boolean) => void,
-    ) => {
-      if (origin && allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    process.env.NODE_ENV === "development"
+      ? true
+      : (
+          origin: string | undefined,
+          callback: (err: Error | null, allow?: boolean) => void,
+        ) => {
+          if (origin && allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Authorization"],

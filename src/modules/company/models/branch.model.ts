@@ -1,7 +1,7 @@
 import prisma from "@/config/db.config";
 
 const getByName = async (name: string) => {
-  return await prisma.branch.findFirst({
+  const result = await prisma.branch.findFirst({
     where: {
       name: {
         equals: name,
@@ -9,6 +9,12 @@ const getByName = async (name: string) => {
       },
     },
   });
+
+  if (!result) {
+    throw new Error("Branch not found");
+  }
+
+  return result;
 };
 
 export const branchModel = {

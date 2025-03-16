@@ -1,15 +1,10 @@
 import QRCode, { QRCodeToDataURLOptions } from "qrcode";
 import prisma from "@/config/db.config";
 
-const generate = async ({
-  company,
-  branchName,
-}: {
-  company: string;
-  branchName: string;
-}) => {
-  const customerURL = process.env.CUSTOMER_URL ?? "http://localhost:3000";
-  const eComUrl = `${customerURL}/${company}/${branchName}=`;
+const generate = async ({ branchName }: { branchName: string }) => {
+  console.log("generate service branchName:", branchName);
+  const customerURL = process.env.CLIENT_ECOM_URL;
+  const eComUrl = `${customerURL}/${branchName}=`;
 
   const opts: QRCodeToDataURLOptions = {
     errorCorrectionLevel: "H",
