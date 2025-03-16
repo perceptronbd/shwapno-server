@@ -1,19 +1,33 @@
 import { validateBranch } from "./branch.validator";
 
 describe("Branch Validator", () => {
-  describe("Get Branch by Name", () => {
+  describe("Get Branch by ID", () => {
     it("should validate valid request", () => {
       const req = {
-        params: { name: "Main Branch" },
+        params: { branchId: "branch-123" },
       };
-      expect(() => validateBranch.getByName.parse(req)).not.toThrow();
+      expect(() => validateBranch.getById.parse(req)).not.toThrow();
     });
 
-    it("should reject invalid request", () => {
+    it("should reject invalid request with empty ID", () => {
       const req = {
-        params: { name: "" },
+        params: { branchId: "" },
       };
-      expect(() => validateBranch.getByName.parse(req)).toThrow();
+      expect(() => validateBranch.getById.parse(req)).toThrow();
+    });
+
+    it("should reject invalid request with missing ID", () => {
+      const req = {
+        params: {},
+      };
+      expect(() => validateBranch.getById.parse(req)).toThrow();
+    });
+
+    it("should reject invalid request with null ID", () => {
+      const req = {
+        params: { branchId: null },
+      };
+      expect(() => validateBranch.getById.parse(req)).toThrow();
     });
   });
 });

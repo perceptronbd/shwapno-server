@@ -30,7 +30,7 @@ describe("QR Validator", () => {
   describe("create", () => {
     it("should validate a valid request", () => {
       const request = {
-        body: { branchName: "Main Branch" },
+        params: { branchId: "branch-123" },
       };
 
       expect(() => validateQR.create.parse(request)).not.toThrow();
@@ -38,15 +38,15 @@ describe("QR Validator", () => {
 
     it("should throw an error for an invalid request", () => {
       const request = {
-        body: { branchName: "" },
+        params: { branchId: null },
       };
 
       expect(() => validateQR.create.parse(request)).toThrow();
     });
 
-    it("should throw an error when branchName is missing", () => {
+    it("should throw an error when branchId is missing", () => {
       const request = {
-        body: {},
+        params: {},
       };
 
       expect(() => validateQR.create.parse(request)).toThrow();

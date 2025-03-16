@@ -4,23 +4,37 @@ import { branchService } from "./branch.service";
 jest.mock("../models/branch.model");
 
 describe("Branch Service", () => {
-  describe("getByName", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("getById", () => {
     it("should return branch data", async () => {
-      (branchModel.getByName as jest.Mock).mockResolvedValue({
-        id: 1,
+      const branchId = "branch-123";
+      const mockBranch = {
+        id: branchId,
         name: "Main Branch",
-      });
-      const result = await branchService.getByName("Main Branch");
-      expect(result).toEqual({ id: 1, name: "Main Branch" });
+      };
+
+      (branchModel.getById as jest.Mock).mockResolvedValue(mockBranch);
+
+      const result = await branchService.getById(branchId);
+
+      expect(branchModel.getById).toHaveBeenCalledWith(branchId);
+      expect(result).toEqual(mockBranch);
     });
 
     it("should handle errors", async () => {
-      (branchModel.getByName as jest.Mock).mockRejectedValue(
-        new Error("Database error"),
-      );
-      await expect(branchService.getByName("Main Branch")).rejects.toThrow(
+      const branchId = "branch-123";
+      const error = new Error("Database error");
+
+      (branchModel.getById as jest.Mock).mockRejectedValue(error);
+
+      await expect(branchService.getById(branchId)).rejects.toThrow(
         "Database error",
       );
+
+      expect(branchModel.getById).toHaveBeenCalledWith(branchId);
     });
   });
 });

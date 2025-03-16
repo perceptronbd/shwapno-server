@@ -3,8 +3,8 @@ import { sendResponse } from "@/handlers/response.handler";
 import { branchService } from "../services/branch.service";
 import { Request, Response } from "express";
 
-const getByName = async (req: Request, res: Response) => {
-  const branch = await branchService.getByName(req.params.name);
+const getById = async (req: Request, res: Response) => {
+  const branch = await branchService.getById(req.params.branchId);
   sendResponse(
     res,
     branch,
@@ -14,5 +14,5 @@ const getByName = async (req: Request, res: Response) => {
 };
 
 export const branchController = {
-  getByName,
+  getById,
 };

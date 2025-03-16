@@ -18,18 +18,30 @@ describe("QR Service", () => {
 
   describe("generate", () => {
     it("should generate a QR code and update branch", async () => {
+      const branchId = "branch-123";
       const branchName = "Main Branch";
       const qrDataUrl = "data:image/png;base64,abc123";
       const mockBranch = {
-        id: "branch-123",
+        id: branchId,
         name: branchName,
         qrURL: qrDataUrl,
       };
 
+      // Mock the branch lookup
+      (prisma.branch.findUnique as jest.Mock).mockResolvedValueOnce({
+        name: branchName,
+      });
+
       (QRCode.toDataURL as jest.Mock).mockResolvedValue(qrDataUrl);
       (prisma.branch.update as jest.Mock).mockResolvedValue(mockBranch);
 
-      const result = await QRService.generate({ branchName });
+      const result = await QRService.generate({ branchId });
+
+      // Verify branch lookup was called
+      expect(prisma.branch.findUnique).toHaveBeenCalledWith({
+        where: { id: branchId },
+        select: { name: true },
+      });
 
       expect(QRCode.toDataURL).toHaveBeenCalledWith(
         `https://example.com/${branchName}=`,
@@ -38,8 +50,8 @@ describe("QR Service", () => {
           type: "image/png",
           margin: 1,
           color: {
-            dark: "#000000",
-            light: "#ff0000",
+            dark: "#df0000",
+            light: "#ffffff",
           },
         }),
       );
@@ -52,13 +64,32 @@ describe("QR Service", () => {
       expect(result).toEqual(mockBranch);
     });
 
+    it("should throw an error if branch is not found", async () => {
+      const branchId = "branch-123";
+
+      // Mock branch not found
+      (prisma.branch.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      await expect(QRService.generate({ branchId })).rejects.toThrow(
+        "Branch not found",
+      );
+
+      expect(QRCode.toDataURL).not.toHaveBeenCalled();
+      expect(prisma.branch.update).not.toHaveBeenCalled();
+    });
+
     it("should handle errors when generating QR code", async () => {
-      const branchName = "Main Branch";
+      const branchId = "branch-123";
       const error = new Error("Failed to generate QR code");
+
+      // Mock the branch lookup
+      (prisma.branch.findUnique as jest.Mock).mockResolvedValueOnce({
+        name: "Main Branch",
+      });
 
       (QRCode.toDataURL as jest.Mock).mockRejectedValue(error);
 
-      await expect(QRService.generate({ branchName })).rejects.toThrow(
+      await expect(QRService.generate({ branchId })).rejects.toThrow(
         "Failed to generate QR code",
       );
 

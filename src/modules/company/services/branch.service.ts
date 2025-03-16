@@ -1,9 +1,9 @@
 import { branchModel } from "../models/branch.model";
 
-const getByName = async (name: string) => {
-  return await branchModel.getByName(name);
+const getById = async (id: string) => {
+  return await branchModel.getById(id);
 };
 
 export const branchService = {
-  getByName,
+  getById,
 };

@@ -15,8 +15,8 @@ const get = async (req: Request, res: Response) => {
 };
 
 const create = async (req: Request, res: Response) => {
-  const { branchName } = req.body;
-  const qrURL = await QRService.generate({ branchName });
+  const { branchId } = req.params;
+  const qrURL = await QRService.generate({ branchId });
   sendResponse(
     res,
     qrURL,
