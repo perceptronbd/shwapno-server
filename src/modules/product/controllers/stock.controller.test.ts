@@ -5,14 +5,153 @@ import { stockController } from "./stock.controller";
 import { stockData } from "@/tests/utils/test-data";
 import { mocks } from "@/tests/utils/mocks";
 import { Request, Response } from "express";
+import { Readable } from "stream";
 
 // Mock dependencies
 jest.mock("@handlers/response.handler");
 jest.mock("../services/stock.service");
+jest.mock("fs", () => ({
+  readFileSync: jest.fn().mockImplementation(() => Buffer.from("test data")),
+  existsSync: jest.fn().mockReturnValue(true),
+  unlinkSync: jest.fn(),
+}));
 
 describe("Stock Controller", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("Upload Excel", () => {
+    it("should handle file upload and start processing", async () => {
+      // Create a readable stream for the mock file
+      const buffer = Buffer.from("test data");
+      const stream = new Readable();
+      stream.push(buffer);
+      stream.push(null);
+
+      const mockFile = {
+        buffer: buffer,
+        originalname: "test.xlsx",
+        fieldname: "file",
+        encoding: "7bit",
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        size: 100,
+        destination: "",
+        filename: "",
+        path: "temp/test.xlsx",
+        stream: stream,
+      };
+
+      const { req, res } = mocks.createMockReqRes({
+        params: { branchId: "1" },
+        file: mockFile,
+      });
+
+      const mockResult = {
+        processed: 0,
+        created: 0,
+        updated: 0,
+        errors: [],
+      };
+
+      (stockService.processExcelUpload as jest.Mock).mockResolvedValue(
+        mockResult,
+      );
+
+      await stockController.uploadExcel(req as Request, res as Response);
+
+      // Since the controller now sends an immediate response and processes in the background,
+      // we need to check that the initial response was sent correctly
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        { message: "File upload received, processing started" },
+        HTTP_STATUS_CODES.ACCEPTED,
+        "Processing started",
+      );
+
+      // Use setTimeout to allow the async processing to complete
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Now check that the service was called with the right parameters
+      expect(stockService.processExcelUpload).toHaveBeenCalledWith({
+        branchId: "1",
+        fileBuffer: expect.any(Buffer),
+      });
+    });
+
+    it("should handle missing file error", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        params: { branchId: "1" },
+        file: undefined,
+      });
+
+      await stockController.uploadExcel(req as Request, res as Response);
+
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        null,
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        "No file uploaded",
+      );
+    });
+
+    it("should handle processing error", async () => {
+      // Create a readable stream for the mock file
+      const buffer = Buffer.from("test data");
+      const stream = new Readable();
+      stream.push(buffer);
+      stream.push(null);
+
+      const mockFile = {
+        buffer: buffer,
+        originalname: "test.xlsx",
+        fieldname: "file",
+        encoding: "7bit",
+        mimetype:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        size: 100,
+        destination: "",
+        filename: "",
+        path: "temp/test.xlsx",
+        stream: stream,
+      };
+
+      const { req, res } = mocks.createMockReqRes({
+        params: { branchId: "1" },
+        file: mockFile,
+      });
+
+      // Mock the error that will be thrown during processing
+      const mockError = new Error("Processing failed");
+      (stockService.processExcelUpload as jest.Mock).mockRejectedValue(
+        mockError,
+      );
+
+      // Mock console.error to prevent actual error output during tests
+      const originalConsoleError = console.error;
+      console.error = jest.fn();
+
+      // Call the controller method
+      await stockController.uploadExcel(req as Request, res as Response);
+
+      // Check that the initial response was sent correctly
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        { message: "File upload received, processing started" },
+        HTTP_STATUS_CODES.ACCEPTED,
+        "Processing started",
+      );
+
+      // Wait for the setTimeout to execute
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // Verify that processExcelUpload was called
+      expect(stockService.processExcelUpload).toHaveBeenCalled();
+
+      // Restore console.error
+      console.error = originalConsoleError;
+    });
   });
 
   describe("Add Stock", () => {

@@ -1,6 +1,70 @@
-import { validateStock } from "./stock.validator";
+import { excelRowSchema, validateStock } from "./stock.validator";
 
 describe("Stock Validator", () => {
+  describe("Excel Row Schema", () => {
+    it("should validate valid excel row data", () => {
+      const validRow = {
+        subCategory: "Test Category",
+        productCode: "TEST001",
+        productName: "Test Product",
+        stock: "100",
+      };
+
+      const result = excelRowSchema.safeParse(validRow);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toEqual({
+          subCategory: "Test Category",
+          productCode: "TEST001",
+          productName: "Test Product",
+          stock: 100,
+        });
+      }
+    });
+
+    it("should handle stock with apostrophes", () => {
+      const rowWithApostrophe = {
+        subCategory: "Test Category",
+        productCode: "TEST001",
+        productName: "Test Product",
+        stock: "'100'",
+      };
+
+      const result = excelRowSchema.safeParse(rowWithApostrophe);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.stock).toBe(100);
+      }
+    });
+
+    it("should reject invalid data", () => {
+      const invalidRow = {
+        subCategory: "",
+        productCode: "",
+        productName: "",
+        stock: "-1",
+      };
+
+      const result = excelRowSchema.safeParse(invalidRow);
+      expect(result.success).toBe(false);
+    });
+
+    it("should handle missing stock value", () => {
+      const rowWithoutStock = {
+        subCategory: "Test Category",
+        productCode: "TEST001",
+        productName: "Test Product",
+        stock: "",
+      };
+
+      const result = excelRowSchema.safeParse(rowWithoutStock);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.stock).toBe(0);
+      }
+    });
+  });
+
   describe("Update Stock", () => {
     it("should validate a valid stock", () => {
       const request = {
