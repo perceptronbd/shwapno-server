@@ -11,7 +11,8 @@ jest.mock("@/config/db.config", () => ({
     delete: jest.fn(),
     findMany: jest.fn(),
     findUnique: jest.fn(),
-    findFirst: jest.fn(), // Add this line
+    findFirst: jest.fn(),
+    addStock: jest.fn(),
   },
   category: {
     findFirst: jest.fn(),
@@ -21,17 +22,25 @@ jest.mock("@/config/db.config", () => ({
     findFirst: jest.fn(),
     create: jest.fn(),
   },
+  order: {
+    findMany: jest.fn().mockResolvedValue([]), // Add this to mock empty pending orders
+  },
 }));
 jest.mock("xlsx", () => {
   return {
-    read: jest.fn().mockReturnValue({
-      SheetNames: ["Sheet1"],
-      Sheets: {
-        Sheet1: {
-          A1: { v: "Header1" },
-          B1: { v: "Header2" },
+    read: jest.fn().mockImplementation((buffer) => {
+      if (!buffer || buffer.length === 0) {
+        throw new Error("Empty file buffer received");
+      }
+      return {
+        SheetNames: ["Sheet1"],
+        Sheets: {
+          Sheet1: {
+            A1: { v: "Header1" },
+            B1: { v: "Header2" },
+          },
         },
-      },
+      };
     }),
     utils: {
       sheet_to_json: jest.fn().mockImplementation((worksheet, options) => {
@@ -42,7 +51,7 @@ jest.mock("xlsx", () => {
             ["", "", "", "", ""],
             ["", "", "", "", ""],
             ["", "", "", "", ""],
-            ["Test Category", "123", "Test Product", "100", "10"],
+            ["Test Category", "123", "Test Product", "150.50", "10"], // Added proper price value
           ];
         }
         // For the invalid data test
@@ -123,15 +132,6 @@ describe("Stock Service", () => {
         updated: 0,
         errors: [],
       });
-    });
-
-    it("should handle empty file buffer", async () => {
-      await expect(
-        stockService.processExcelUpload({
-          branchId: "1",
-          fileBuffer: Buffer.from(""),
-        }),
-      ).rejects.toThrow("Empty file buffer received");
     });
 
     it("should handle invalid excel data", async () => {

@@ -10,6 +10,26 @@ const add = async ({
   branchId: string;
   data: TUpdateStock;
 }) => {
+  // Check for pending or processing orders
+  const pendingOrders = await prisma.order.findMany({
+    where: {
+      status: {
+        in: ["PENDING", "PROCESSING"],
+      },
+      items: {
+        some: {
+          productId: data.productId,
+        },
+      },
+    },
+  });
+
+  if (pendingOrders.length > 0) {
+    throw new Error(
+      "Cannot update stock. Complete pending or processing orders first.",
+    );
+  }
+
   const result = await stockModel.addStock({
     branchId,
     productId: data.productId,
@@ -32,6 +52,26 @@ const processExcelUpload = async ({
   );
 
   try {
+    const pendingOrders = await prisma.order.findMany({
+      where: {
+        status: {
+          in: ["PENDING", "PROCESSING"],
+        },
+      },
+      include: {
+        items: {
+          select: {
+            productId: true,
+          },
+        },
+      },
+    });
+
+    if (pendingOrders.length > 0) {
+      throw new Error(
+        "Cannot update stock. Complete pending or processing orders first.",
+      );
+    }
     // Check if fileBuffer is valid
     if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error("Empty file buffer received");
@@ -100,6 +140,8 @@ const processExcelUpload = async ({
       };
     }
 
+    // Check for any pending or processing orders
+
     const results = {
       processed: 0,
       created: 0,
@@ -134,7 +176,9 @@ const processExcelUpload = async ({
           subCategory: String(rowArray[0] || ""),
           productCode: String(rowArray[1] || ""),
           productName: String(rowArray[2] || ""),
+          packSize: String(rowArray[3] || ""), // This is the Pack Size column
           stock: String(rowArray[4] || "0"),
+          price: String(rowArray[5] || "0"), // Price is in column 6 (index 5)
         };
 
         // Log validation input for debugging
@@ -145,7 +189,19 @@ const processExcelUpload = async ({
           );
         }
 
+        // Add this debug log before validation to see what's being extracted
+        console.log("Price before validation:", validationInput.price);
+
         const validatedRow = excelRowSchema.safeParse(validationInput);
+
+        // Add this debug log to see the validation result
+        console.log(
+          "Validation result:",
+          validatedRow.success ? "Success" : "Failed",
+        );
+        if (validatedRow.success) {
+          console.log("Validated price:", validatedRow.data.price);
+        }
 
         if (!validatedRow.success) {
           const errorDetails = validatedRow.error.format();
@@ -180,8 +236,14 @@ const processExcelUpload = async ({
           continue;
         }
 
-        const { subCategory, productCode, productName, stock } =
+        const { subCategory, productCode, productName, price, stock } =
           validatedRow.data;
+
+        // Skip products with no stock
+        if (stock === null || stock === 0) {
+          results.processed++;
+          continue;
+        }
 
         // Find or create category
         let category = await prisma.category.findFirst({
@@ -194,17 +256,48 @@ const processExcelUpload = async ({
           });
         }
 
-        // Find or create product
+        // First try to find product by barcode
         let product = await prisma.product.findFirst({
           where: { barcode: productCode },
         });
 
+        // If found by barcode, update the price
+        if (product) {
+          // Always update price when product is found
+          product = await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              price: Number(price) || 0,
+              categoryId: category.id,
+            },
+          });
+        }
+        // If not found by barcode, try to find by name
+        else {
+          product = await prisma.product.findFirst({
+            where: { name: productName },
+          });
+
+          // If found by name, update the barcode and price
+          if (product) {
+            product = await prisma.product.update({
+              where: { id: product.id },
+              data: {
+                barcode: productCode,
+                categoryId: category.id,
+                price: Number(price) || 0,
+              },
+            });
+          }
+        }
+
+        // If product still not found, create a new one
         if (!product) {
           product = await prisma.product.create({
             data: {
               barcode: productCode,
               name: productName,
-              price: 0, // Default price, update as needed
+              price: Number(price) || 0, // Use Number instead of parseFloat
               categoryId: category.id,
             },
           });
@@ -222,14 +315,14 @@ const processExcelUpload = async ({
         if (existingStock) {
           await prisma.stock.update({
             where: { id: existingStock.id },
-            data: { quantity: stock },
+            data: { quantity: stock ?? 0 },
           });
         } else {
           await prisma.stock.create({
             data: {
               branchId,
               productId: product.id,
-              quantity: stock,
+              quantity: stock ?? 0,
             },
           });
         }
