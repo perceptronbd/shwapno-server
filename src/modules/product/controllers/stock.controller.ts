@@ -1,5 +1,6 @@
 import { HTTP_STATUS_CODES } from "@/utils/http-status-codes";
 import { sendResponse } from "@/handlers/response.handler";
+import { jobStatusService } from "../services/job.service";
 import { stockService } from "../services/stock.service";
 import { AuthRequest } from "@/types/auth.types";
 import { Response, Request } from "express";
@@ -14,7 +15,6 @@ const add = async (req: Request, res: Response) => {
 const uploadExcel = async (req: Request, res: Response) => {
   const { branchId } = req.params;
   const file = req.file;
-  console.log("🚀 ~ uploadExcel ~ file:", file);
 
   if (!file) {
     return sendResponse(
@@ -27,23 +27,18 @@ const uploadExcel = async (req: Request, res: Response) => {
 
   try {
     // Start processing immediately and send a response
-    sendResponse(
-      res,
-      { message: "File upload received, processing started" },
-      HTTP_STATUS_CODES.ACCEPTED,
-      "Processing started",
-    );
+    const job = jobStatusService.createJob();
+    sendResponse(res, job, HTTP_STATUS_CODES.ACCEPTED, "Processing started");
 
     // Process the file asynchronously after sending the response
     setTimeout(async () => {
       try {
         // Read the file from disk
         const fileBuffer = fs.readFileSync(file.path);
-        console.log("🚀 ~ setTimeout ~ processing...:");
-
         // Process the file
         await stockService.processExcelUpload({
           branchId,
+          jobId: job.id,
           fileBuffer,
         });
 
@@ -76,6 +71,21 @@ const uploadExcel = async (req: Request, res: Response) => {
       error instanceof Error ? error.message : "Failed to process Excel file",
     );
   }
+};
+
+const getUploadStatus = async (req: Request, res: Response) => {
+  console.log("getUploadStatus");
+  const { jobId } = req.params;
+  const job = jobStatusService.getJob(jobId);
+  if (!job) {
+    return sendResponse(
+      res,
+      null,
+      HTTP_STATUS_CODES.NOT_FOUND,
+      "Job not found",
+    );
+  }
+  sendResponse(res, job, HTTP_STATUS_CODES.OK, "Job status retrieved");
 };
 
 const remove = async (req: Request, res: Response) => {
@@ -128,4 +138,5 @@ export const stockController = {
   getAll,
   getById,
   getByBranch,
+  getUploadStatus,
 };

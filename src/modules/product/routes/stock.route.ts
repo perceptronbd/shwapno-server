@@ -14,6 +14,9 @@ router.get(
   asyncHandler(stockController.getAll),
 );
 
+// GET upload status
+router.get("/status/:jobId", stockController.getUploadStatus);
+
 // GET stocks by branch
 router.get(
   "/branch/:branchId",

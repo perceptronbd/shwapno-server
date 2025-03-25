@@ -1,5 +1,7 @@
 import { excelRowSchema, TUpdateStock } from "../validators/stock.validator";
 import { stockModel } from "../models/stock.model";
+import { jobStatusService } from "./job.service";
+import { ExcelRow } from "../types/stock.type";
 import prisma from "@/config/db.config";
 import * as XLSX from "xlsx";
 
@@ -41,17 +43,23 @@ const add = async ({
 
 const processExcelUpload = async ({
   branchId,
+  jobId,
   fileBuffer,
 }: {
   branchId: string;
+  jobId: string;
   fileBuffer: Buffer;
 }) => {
-  console.log(
-    "🚀processExcelUpload ~ fileBuffer length:",
-    fileBuffer?.length || 0,
-  );
-
   try {
+    // Initialize job status at the beginning of processing
+    jobStatusService.updateJob(jobId, {
+      status: "processing",
+      progress: 0,
+      processed: 0,
+      errors: [],
+    });
+
+    // Check for any pending orders that might conflict with stock updates
     const pendingOrders = await prisma.order.findMany({
       where: {
         status: {
@@ -72,13 +80,13 @@ const processExcelUpload = async ({
         "Cannot update stock. Complete pending or processing orders first.",
       );
     }
-    // Check if fileBuffer is valid
+
+    // Validate file buffer before processing
     if (!fileBuffer || fileBuffer.length === 0) {
       throw new Error("Empty file buffer received");
     }
 
-    // Parse the Excel file with specific options for XLSB format
-    console.log("Attempting to parse Excel file...");
+    // Parse Excel file with optimized settings
     const workbook = XLSX.read(fileBuffer, {
       type: "buffer",
       cellFormula: false,
@@ -87,45 +95,32 @@ const processExcelUpload = async ({
       cellStyles: false,
       bookVBA: false,
     });
-    console.log("Excel file parsed successfully");
 
-    // Check if workbook has sheets
+    // Ensure the Excel file has at least one sheet
     if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
       throw new Error("Excel file contains no sheets");
     }
 
+    // Get the first sheet (we only process one sheet)
     const sheetName = workbook.SheetNames[0];
-    console.log("Using sheet:", sheetName);
     const worksheet = workbook.Sheets[sheetName];
 
     if (!worksheet) {
       throw new Error("Could not access worksheet data");
     }
 
-    // Define a proper interface for Excel row data - adjust column names based on your actual Excel structure
-    interface ExcelRow {
-      [key: string]: unknown;
-    }
-
-    // Get raw data first
+    // Convert Excel sheet to JSON format
     const rawData = XLSX.utils.sheet_to_json<ExcelRow>(worksheet, {
-      header: 1, // Use array of arrays format
-      defval: "", // Default empty string for empty cells
-      blankrows: false, // Skip blank rows
+      header: 1,
+      defval: "",
+      blankrows: false,
     });
 
-    console.log(`Extracted ${rawData.length} raw rows from Excel file`);
-
-    // Skip the first 4 rows and process the rest
-    const dataStartRow = 4; // 0-indexed, so this is the 5th row
+    // Skip header rows (first 1 row)
+    const dataStartRow = 1;
     const processableData = rawData.slice(dataStartRow);
 
-    // Log the first few rows to debug
-    console.log("First few rows after skipping header:");
-    processableData.slice(0, 3).forEach((row, idx) => {
-      console.log(`Row ${idx + dataStartRow + 1}:`, JSON.stringify(row));
-    });
-
+    // Handle empty data case
     if (processableData.length === 0) {
       return {
         processed: 0,
@@ -140,8 +135,7 @@ const processExcelUpload = async ({
       };
     }
 
-    // Check for any pending or processing orders
-
+    // Initialize results tracking object
     const results = {
       processed: 0,
       created: 0,
@@ -149,20 +143,19 @@ const processExcelUpload = async ({
       errors: [] as { row: number; message: string }[],
     };
 
-    // Process each row
+    // Update job with total rows to be processed
+    const totalRows = processableData.length;
+    jobStatusService.updateJob(jobId, {
+      total: totalRows,
+      status: "processing",
+    });
+
+    // Process each row in the Excel data
     for (let i = 0; i < processableData.length; i++) {
       try {
         const rowArray = processableData[i] as unknown as unknown[];
 
-        // Log the raw row data for debugging
-        if (i < 3 || i === processableData.length - 1) {
-          console.log(
-            `Row ${i + dataStartRow + 1} data:`,
-            JSON.stringify(rowArray),
-          );
-        }
-
-        // Skip rows that don't have enough data
+        // Skip rows with insufficient data
         if (!rowArray || rowArray.length < 4) {
           results.errors.push({
             row: i + dataStartRow + 1,
@@ -171,55 +164,40 @@ const processExcelUpload = async ({
           continue;
         }
 
-        // Extract data from specific columns (adjust indices as needed)
+        // Update job progress after each row
+        const processed = i + 1;
+        jobStatusService.updateJob(jobId, {
+          processed,
+          progress: Math.round((processed / totalRows) * 100),
+        });
+
+        // Extract data from Excel columns
         const validationInput = {
-          subCategory: String(rowArray[0] || ""),
-          productCode: String(rowArray[1] || ""),
-          productName: String(rowArray[2] || ""),
-          packSize: String(rowArray[3] || ""), // This is the Pack Size column
-          stock: String(rowArray[4] || "0"),
-          price: String(rowArray[5] || "0"), // Price is in column 6 (index 5)
+          subCategory: String(rowArray[0]),
+          productCode: String(rowArray[1]),
+          productName: String(rowArray[2]),
+          packSize: String(rowArray[3]),
+          stock: String(rowArray[4]),
+          price: String(rowArray[5]),
         };
 
-        // Log validation input for debugging
-        if (i < 3 || i === processableData.length - 1) {
-          console.log(
-            `Row ${i + dataStartRow + 1} validation input:`,
-            JSON.stringify(validationInput),
-          );
-        }
-
-        // Add this debug log before validation to see what's being extracted
-        console.log("Price before validation:", validationInput.price);
-
+        // Validate row data using Zod schema
         const validatedRow = excelRowSchema.safeParse(validationInput);
 
-        // Add this debug log to see the validation result
-        console.log(
-          "Validation result:",
-          validatedRow.success ? "Success" : "Failed",
-        );
-        if (validatedRow.success) {
-          console.log("Validated price:", validatedRow.data.price);
-        }
-
+        // Handle validation errors
         if (!validatedRow.success) {
           const errorDetails = validatedRow.error.format();
-          // Fix the type issue with error formatting
           let errorMessage = "Validation error";
 
           try {
+            // Format validation errors for better readability
             errorMessage = Object.entries(errorDetails)
               .filter(([key]) => key !== "_errors")
               .map(([key, value]) => {
-                // Handle the type correctly
                 const errors =
-                  typeof value === "object" &&
-                  value !== null &&
-                  "_errors" in value
+                  typeof value === "object" && "_errors" in value
                     ? value._errors
                     : [];
-
                 return errors.length ? `${key}: ${errors.join(", ")}` : "";
               })
               .filter(Boolean)
@@ -230,16 +208,17 @@ const processExcelUpload = async ({
           }
 
           results.errors.push({
-            row: i + 2, // +2 because Excel is 1-indexed and has header row
+            row: i + 2, // +2 for Excel's 1-based indexing and header offset
             message: errorMessage || validatedRow.error.message,
           });
           continue;
         }
 
+        // Extract validated data
         const { subCategory, productCode, productName, price, stock } =
           validatedRow.data;
 
-        // Skip products with no stock
+        // Skip products with zero stock
         if (stock === null || stock === 0) {
           results.processed++;
           continue;
@@ -256,14 +235,14 @@ const processExcelUpload = async ({
           });
         }
 
-        // First try to find product by barcode
+        // Product lookup strategy:
+        // 1. Try to find by barcode first
         let product = await prisma.product.findFirst({
           where: { barcode: productCode },
         });
 
-        // If found by barcode, update the price
         if (product) {
-          // Always update price when product is found
+          // Update existing product found by barcode
           product = await prisma.product.update({
             where: { id: product.id },
             data: {
@@ -271,15 +250,14 @@ const processExcelUpload = async ({
               categoryId: category.id,
             },
           });
-        }
-        // If not found by barcode, try to find by name
-        else {
+        } else {
+          // 2. If not found by barcode, try to find by name
           product = await prisma.product.findFirst({
             where: { name: productName },
           });
 
-          // If found by name, update the barcode and price
           if (product) {
+            // Update existing product found by name
             product = await prisma.product.update({
               where: { id: product.id },
               data: {
@@ -291,20 +269,19 @@ const processExcelUpload = async ({
           }
         }
 
-        // If product still not found, create a new one
+        // 3. If product still not found, create a new one
         if (!product) {
           product = await prisma.product.create({
             data: {
               barcode: productCode,
               name: productName,
-              price: Number(price) || 0, // Use Number instead of parseFloat
+              price: Number(price) || 0,
               categoryId: category.id,
             },
           });
-          results.created++;
         }
 
-        // Update or create stock
+        // Find existing stock for this product at this branch
         const existingStock = await prisma.stock.findFirst({
           where: {
             branchId,
@@ -312,12 +289,16 @@ const processExcelUpload = async ({
           },
         });
 
+        // Update or create stock entry
         if (existingStock) {
+          // Update existing stock quantity
           await prisma.stock.update({
             where: { id: existingStock.id },
             data: { quantity: stock ?? 0 },
           });
+          results.updated++;
         } else {
+          // Create new stock entry
           await prisma.stock.create({
             data: {
               branchId,
@@ -325,11 +306,10 @@ const processExcelUpload = async ({
               quantity: stock ?? 0,
             },
           });
+          results.created++;
         }
-
-        results.updated++;
-        results.processed++;
       } catch (error) {
+        // Handle errors for individual rows
         results.errors.push({
           row: i + 2,
           message: error instanceof Error ? error.message : "Unknown error",
@@ -337,13 +317,30 @@ const processExcelUpload = async ({
       }
     }
 
-    console.log("🚀 ~ results:", results);
+    // Update job status on successful completion
+    jobStatusService.updateJob(jobId, {
+      status: "completed",
+      progress: 100,
+      result: {
+        created: results.created,
+        updated: results.updated,
+        processed: results.processed,
+      },
+    });
 
     return results;
   } catch (error) {
-    throw new Error(
-      `Failed to process Excel file: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    // Handle global errors and update job status
+    jobStatusService.updateJob(jobId, {
+      status: "failed",
+      errors: [
+        {
+          row: 0,
+          message: error instanceof Error ? error.message : "Unknown error",
+        },
+      ],
+    });
+    throw error;
   }
 };
 
