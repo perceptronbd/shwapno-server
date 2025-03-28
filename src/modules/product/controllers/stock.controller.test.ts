@@ -1,4 +1,5 @@
 import { HTTP_STATUS_CODES } from "@utils/http-status-codes";
+import { jobStatusService } from "../services/job.service";
 import { sendResponse } from "@handlers/response.handler";
 import { stockService } from "../services/stock.service";
 import { stockController } from "./stock.controller";
@@ -10,6 +11,7 @@ import { Readable } from "stream";
 // Mock dependencies
 jest.mock("@handlers/response.handler");
 jest.mock("../services/stock.service");
+jest.mock("../services/job.service");
 jest.mock("fs", () => ({
   readFileSync: jest.fn().mockImplementation(() => Buffer.from("test data")),
   existsSync: jest.fn().mockReturnValue(true),
@@ -55,17 +57,32 @@ describe("Stock Controller", () => {
         errors: [],
       };
 
+      // Mock job creation
+      const mockJob = {
+        id: "test-job-id",
+        status: "pending",
+        progress: 0,
+        processed: 0,
+        total: 0,
+        errors: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (jobStatusService.create as jest.Mock).mockResolvedValue(mockJob);
       (stockService.processExcelUpload as jest.Mock).mockResolvedValue(
         mockResult,
       );
 
       await stockController.uploadExcel(req as Request, res as Response);
 
-      // Since the controller now sends an immediate response and processes in the background,
-      // we need to check that the initial response was sent correctly
+      // Check that the job was created
+      expect(jobStatusService.create).toHaveBeenCalled();
+
+      // Check that the initial response was sent with the job object
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        { message: "File upload received, processing started" },
+        mockJob,
         HTTP_STATUS_CODES.ACCEPTED,
         "Processing started",
       );
@@ -76,6 +93,7 @@ describe("Stock Controller", () => {
       // Now check that the service was called with the right parameters
       expect(stockService.processExcelUpload).toHaveBeenCalledWith({
         branchId: "1",
+        jobId: mockJob.id,
         fileBuffer: expect.any(Buffer),
       });
     });
@@ -122,6 +140,20 @@ describe("Stock Controller", () => {
         file: mockFile,
       });
 
+      // Mock job creation
+      const mockJob = {
+        id: "test-job-id",
+        status: "pending",
+        progress: 0,
+        processed: 0,
+        total: 0,
+        errors: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (jobStatusService.create as jest.Mock).mockResolvedValue(mockJob);
+
       // Mock the error that will be thrown during processing
       const mockError = new Error("Processing failed");
       (stockService.processExcelUpload as jest.Mock).mockRejectedValue(
@@ -131,6 +163,8 @@ describe("Stock Controller", () => {
       // Mock console.error to prevent actual error output during tests
       const originalConsoleError = console.error;
       console.error = jest.fn();
+      const originalConsoleLog = console.log;
+      console.log = jest.fn();
 
       // Call the controller method
       await stockController.uploadExcel(req as Request, res as Response);
@@ -138,7 +172,7 @@ describe("Stock Controller", () => {
       // Check that the initial response was sent correctly
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        { message: "File upload received, processing started" },
+        mockJob,
         HTTP_STATUS_CODES.ACCEPTED,
         "Processing started",
       );
@@ -149,8 +183,58 @@ describe("Stock Controller", () => {
       // Verify that processExcelUpload was called
       expect(stockService.processExcelUpload).toHaveBeenCalled();
 
-      // Restore console.error
+      // Restore console functions
       console.error = originalConsoleError;
+      console.log = originalConsoleLog;
+    });
+  });
+
+  describe("Get Upload Status", () => {
+    it("should get job status", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        params: { jobId: "test-job-id" },
+      });
+
+      const mockJob = {
+        id: "test-job-id",
+        status: "completed",
+        progress: 100,
+        processed: 10,
+        total: 10,
+        errors: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (jobStatusService.get as jest.Mock).mockResolvedValue(mockJob);
+
+      await stockController.getUploadStatus(req as Request, res as Response);
+
+      expect(jobStatusService.get).toHaveBeenCalledWith("test-job-id");
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        mockJob,
+        HTTP_STATUS_CODES.OK,
+        "Job status retrieved",
+      );
+    });
+
+    it("should handle job not found", async () => {
+      const { req, res } = mocks.createMockReqRes({
+        params: { jobId: "non-existent-id" },
+      });
+
+      (jobStatusService.get as jest.Mock).mockResolvedValue(null);
+
+      await stockController.getUploadStatus(req as Request, res as Response);
+
+      expect(jobStatusService.get).toHaveBeenCalledWith("non-existent-id");
+      expect(sendResponse).toHaveBeenCalledWith(
+        res,
+        null,
+        HTTP_STATUS_CODES.NOT_FOUND,
+        "Job not found",
+      );
     });
   });
 
@@ -197,6 +281,7 @@ describe("Stock Controller", () => {
     });
   });
 
+  // Rest of the test cases remain unchanged
   describe("Delete Stock", () => {
     it("should delete a stock", async () => {
       const { req, res } = mocks.createMockReqRes({
