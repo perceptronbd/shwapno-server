@@ -52,7 +52,7 @@ const processExcelUpload = async ({
 }) => {
   try {
     // Initialize job status at the beginning of processing
-    jobStatusService.updateJob(jobId, {
+    await jobStatusService.update(jobId, {
       status: "processing",
       progress: 0,
       processed: 0,
@@ -145,7 +145,7 @@ const processExcelUpload = async ({
 
     // Update job with total rows to be processed
     const totalRows = processableData.length;
-    jobStatusService.updateJob(jobId, {
+    await jobStatusService.update(jobId, {
       total: totalRows,
       status: "processing",
     });
@@ -166,7 +166,7 @@ const processExcelUpload = async ({
 
         // Update job progress after each row
         const processed = i + 1;
-        jobStatusService.updateJob(jobId, {
+        await jobStatusService.update(jobId, {
           processed,
           progress: Math.round((processed / totalRows) * 100),
         });
@@ -318,7 +318,7 @@ const processExcelUpload = async ({
     }
 
     // Update job status on successful completion
-    jobStatusService.updateJob(jobId, {
+    await jobStatusService.update(jobId, {
       status: "completed",
       progress: 100,
       result: {
@@ -331,7 +331,7 @@ const processExcelUpload = async ({
     return results;
   } catch (error) {
     // Handle global errors and update job status
-    jobStatusService.updateJob(jobId, {
+    await jobStatusService.update(jobId, {
       status: "failed",
       errors: [
         {

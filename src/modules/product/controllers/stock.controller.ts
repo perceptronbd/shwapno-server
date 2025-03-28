@@ -27,7 +27,7 @@ const uploadExcel = async (req: Request, res: Response) => {
 
   try {
     // Start processing immediately and send a response
-    const job = jobStatusService.createJob();
+    const job = await jobStatusService.create();
     sendResponse(res, job, HTTP_STATUS_CODES.ACCEPTED, "Processing started");
 
     // Process the file asynchronously after sending the response
@@ -76,7 +76,7 @@ const uploadExcel = async (req: Request, res: Response) => {
 const getUploadStatus = async (req: Request, res: Response) => {
   console.log("getUploadStatus");
   const { jobId } = req.params;
-  const job = jobStatusService.getJob(jobId);
+  const job = await jobStatusService.get(jobId);
   if (!job) {
     return sendResponse(
       res,
