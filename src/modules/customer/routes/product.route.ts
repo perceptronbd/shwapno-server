@@ -1,5 +1,5 @@
 import { productController } from "@/modules/product/controllers/product.controller";
-import { validateProduct } from "@/modules/product/validators/product.validator";
+import { validateProduct } from "../validators/product.validate";
 import { validate } from "@/middlewares/validate.middleware";
 import { asyncHandler } from "@/handlers/async.handler";
 import { Router } from "express";
