@@ -6,7 +6,7 @@ describe("Branch Validator", () => {
       // Valid input
       const validInput = {
         params: {
-          branchName: "TestBranch",
+          name: "TestBranch", // Changed from branchName to name to match validator
         },
       };
 
@@ -21,7 +21,7 @@ describe("Branch Validator", () => {
       // Invalid input - empty branch name
       const invalidInput = {
         params: {
-          branchName: "",
+          name: "",
         },
       };
 
@@ -46,8 +46,10 @@ describe("Branch Validator", () => {
 
       // Assertions
       expect(result.success).toBe(false);
+
       if (!result.success) {
-        expect(result.error.issues[0].path).toContain("branchName");
+        expect(result.error.issues[0].message).toBe("Required");
+        expect(result.error.issues[0].path).toEqual(["params", "name"]);
       }
     });
 
@@ -55,7 +57,7 @@ describe("Branch Validator", () => {
       // Invalid input - non-string branch name
       const invalidInput = {
         params: {
-          branchName: 123,
+          name: 123, // Changed from branchName to name
         },
       };
 
