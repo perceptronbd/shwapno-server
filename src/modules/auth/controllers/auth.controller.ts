@@ -47,6 +47,7 @@ const resetPassword = async (req: Request, res: Response) => {
 
 const refreshTokens = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
+
   const rememberMe = req.body.rememberMe;
 
   const tokens = await authService.refreshTokens(refreshToken, rememberMe);
