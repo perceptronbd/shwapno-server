@@ -13,6 +13,11 @@ export const app: Application = express();
 const port = process.env.PORT ?? 5000;
 
 // Middleware
+// app.use((req, res, next) => {
+//   console.log(req.path, req.method);
+//   console.log(req.headers["content-type"]);
+//   next();
+// });
 app.use(express.json());
 app.use(cookieParser());
 

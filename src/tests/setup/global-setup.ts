@@ -1,8 +1,8 @@
 import express, { Application } from "express";
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
 import dotenv from "dotenv";
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
 export const app: Application = express();
 
@@ -18,7 +18,7 @@ export default async function globalSetup() {
     });
 
     console.log("Connecting to the database");
-    await prisma.$connect();
+    // await prisma.$connect();
   } catch (error) {
     console.error("Failed to connect to the database:", error);
     process.exit(1);
