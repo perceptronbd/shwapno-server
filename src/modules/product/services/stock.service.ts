@@ -60,26 +60,26 @@ const processExcelUpload = async ({
     });
 
     // Check for any pending orders that might conflict with stock updates
-    const pendingOrders = await prisma.order.findMany({
-      where: {
-        status: {
-          in: ["PENDING", "PROCESSING"],
-        },
-      },
-      include: {
-        items: {
-          select: {
-            productId: true,
-          },
-        },
-      },
-    });
+    // const pendingOrders = await prisma.order.findMany({
+    //   where: {
+    //     status: {
+    //       in: ["PENDING", "PROCESSING"],
+    //     },
+    //   },
+    //   include: {
+    //     items: {
+    //       select: {
+    //         productId: true,
+    //       },
+    //     },
+    //   },
+    // });
 
-    if (pendingOrders.length > 0) {
-      throw new Error(
-        "Cannot update stock. Complete pending or processing orders first.",
-      );
-    }
+    // if (pendingOrders.length > 0) {
+    //   throw new Error(
+    //     "Cannot update stock. Complete pending or processing orders first.",
+    //   );
+    // }
 
     // Validate file buffer before processing
     if (!fileBuffer || fileBuffer.length === 0) {
