@@ -122,12 +122,13 @@ const getById = async (req: Request, res: Response) => {
 
 const getByBranch = async (req: Request, res: Response) => {
   const { branchId } = req.params;
-  const stock = await stockService.getByBranch({ branchId });
+  const { data, meta } = await stockService.getByBranch(branchId, req?.query);
   sendResponse(
     res,
-    stock,
+    data,
     HTTP_STATUS_CODES.OK,
     "Stocks retrieved successfully",
+    meta,
   );
 };
 

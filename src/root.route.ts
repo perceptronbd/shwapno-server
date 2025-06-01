@@ -26,7 +26,7 @@ const moduleRoutes = [
     module: userRotes,
   },
   {
-    protected: true, //changed for testing
+    protected: true,
     path: "/products",
     module: productRoutes,
   },
