@@ -9,6 +9,7 @@ import {
   uploadImage,
 } from "@/utils/cloudinary.util";
 import { productModel } from "../models/product.model";
+import { TMeta } from "@/handlers/response.handler";
 import prisma from "@/config/db.config";
 
 const create = async ({
@@ -68,6 +69,23 @@ const update = async ({
   }
 
   try {
+    // check for category change
+    const categoryName = productData.category?.trim() as string;
+
+    const isCategoryExists = await prisma.category.findUnique({
+      where: {
+        name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+      },
+    });
+
+    if (!isCategoryExists) {
+      await prisma.category.create({
+        data: {
+          name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+        },
+      });
+    }
+
     updatedProduct = await productModel.update(id, {
       ...productData,
       ...(uploadResult && {
@@ -75,6 +93,8 @@ const update = async ({
         imgPublicId: uploadResult.public_id,
       }),
     });
+
+    console.log(updatedProduct);
 
     return updatedProduct;
   } catch (error: unknown) {
@@ -96,9 +116,33 @@ const remove = async ({ id }: { id: string }) => {
   return result;
 };
 
-const getAll = async () => {
-  const result = await prisma.product.findMany();
-  return result;
+const getAll = async (query?: Record<string, unknown>) => {
+  const limit = query?.limit ? Number(query.limit) : 20;
+  const page = query?.page ? Number(query.page) : 1;
+
+  const result = await prisma.product.findMany({
+    include: {
+      category: true,
+    },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+
+  const total = await prisma.stock.count({});
+
+  const totalPage = Math.ceil(total / limit);
+
+  const meta: TMeta = {
+    page: page,
+    limit: limit,
+    totalPage: totalPage,
+    totalData: total,
+  };
+
+  return {
+    data: result,
+    meta,
+  };
 };
 
 const getById = async (id: string) => {
