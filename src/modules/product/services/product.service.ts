@@ -129,6 +129,9 @@ const getAll = async (query?: Record<string, unknown>) => {
 const getById = async (id: string) => {
   const result = await prisma.product.findUnique({
     where: { id },
+    include: {
+      category: true,
+    },
   });
   return result;
 };
