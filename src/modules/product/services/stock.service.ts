@@ -229,12 +229,14 @@ const processExcelUpload = async ({
 
         // Find or create category
         let category = await prisma.category.findFirst({
-          where: { name: subCategory },
+          where: { name: subCategory.trim().toLowerCase() },
         });
+
+        console.log("Category:", category);
 
         if (!category) {
           category = await prisma.category.create({
-            data: { name: subCategory },
+            data: { name: subCategory.trim().toLowerCase() },
           });
         }
 

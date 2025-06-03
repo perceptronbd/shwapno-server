@@ -69,23 +69,6 @@ const update = async ({
   }
 
   try {
-    // check for category change
-    const categoryName = productData.category?.trim() as string;
-
-    const isCategoryExists = await prisma.category.findUnique({
-      where: {
-        name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
-      },
-    });
-
-    if (!isCategoryExists) {
-      await prisma.category.create({
-        data: {
-          name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
-        },
-      });
-    }
-
     updatedProduct = await productModel.update(id, {
       ...productData,
       ...(uploadResult && {
@@ -93,8 +76,6 @@ const update = async ({
         imgPublicId: uploadResult.public_id,
       }),
     });
-
-    console.log(updatedProduct);
 
     return updatedProduct;
   } catch (error: unknown) {
