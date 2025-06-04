@@ -109,7 +109,7 @@ const getAll = async (query?: Record<string, unknown>) => {
     take: limit,
   });
 
-  const total = await prisma.stock.count({});
+  const total = await prisma.product.count({});
 
   const totalPage = Math.ceil(total / limit);
 
