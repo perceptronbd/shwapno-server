@@ -15,6 +15,7 @@ jest.mock("@/config/db.config", () => ({
     findUnique: jest.fn(),
     findFirst: jest.fn(),
     addStock: jest.fn(),
+    count: jest.fn(),
   },
   category: {
     findFirst: jest.fn(),
@@ -259,12 +260,62 @@ describe("Stock Service", () => {
 
   describe("Get Stock By Branch", () => {
     it("should get a stock by branch", async () => {
-      const mockResult = [stockData];
+      const mockData = [stockData];
+      const mockMeta = {
+        page: 1,
+        limit: 20,
+        totalPage: 1,
+        totalData: 1,
+      };
+      const mockResult = {
+        data: mockData,
+        meta: mockMeta,
+      };
 
-      (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockResult);
+      // Mock findMany to return the stock data
+      (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockData);
+      // Mock count to return the total count
+      (prisma.stock.count as jest.Mock).mockResolvedValue(1);
 
-      const result = await stockService.getByBranch({
-        branchId: stockData.branchId,
+      // Call the service with correct parameters: branchId as string, query as object
+      const result = await stockService.getByBranch(stockData.branchId);
+
+      expect(result).toEqual(mockResult);
+      expect(prisma.stock.findMany).toHaveBeenCalledWith({
+        where: { branchId: stockData.branchId },
+        include: {
+          product: true,
+        },
+        skip: 0, // (page - 1) * limit = (1 - 1) * 20 = 0
+        take: 20, // default limit
+      });
+      expect(prisma.stock.count).toHaveBeenCalledWith({
+        where: { branchId: stockData.branchId },
+      });
+    });
+
+    it("should get a stock by branch with custom pagination", async () => {
+      const mockData = [stockData];
+      const mockMeta = {
+        page: 2,
+        limit: 10,
+        totalPage: 1,
+        totalData: 5,
+      };
+      const mockResult = {
+        data: mockData,
+        meta: mockMeta,
+      };
+
+      // Mock findMany to return the stock data
+      (prisma.stock.findMany as jest.Mock).mockResolvedValue(mockData);
+      // Mock count to return the total count
+      (prisma.stock.count as jest.Mock).mockResolvedValue(5);
+
+      // Call the service with query parameters
+      const result = await stockService.getByBranch(stockData.branchId, {
+        page: 2,
+        limit: 10,
       });
 
       expect(result).toEqual(mockResult);
@@ -273,6 +324,11 @@ describe("Stock Service", () => {
         include: {
           product: true,
         },
+        skip: 10, // (page - 1) * limit = (2 - 1) * 10 = 10
+        take: 10, // specified limit
+      });
+      expect(prisma.stock.count).toHaveBeenCalledWith({
+        where: { branchId: stockData.branchId },
       });
     });
   });
