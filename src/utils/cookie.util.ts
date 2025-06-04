@@ -32,6 +32,4 @@ export const clearCookieAndHeader = (res: Response) => {
   });
 
   res.removeHeader("Authorization");
-
-  res.setHeader("Authorization", "");
 };
