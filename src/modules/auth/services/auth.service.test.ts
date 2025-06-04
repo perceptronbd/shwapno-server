@@ -50,6 +50,7 @@ describe("Auth Service", () => {
           phone: userData.phone,
           email,
           roles: ["admin"],
+          branches: userData.branches,
         },
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,

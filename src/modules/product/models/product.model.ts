@@ -1,11 +1,12 @@
 import {
   TCreateProduct,
   TGetProductByBranch,
+  TUpdateProduct,
 } from "../validators/product.validator";
 import { CloudinaryUploadResult } from "@/utils/cloudinary.util";
 import prisma from "@/config/db.config";
 
-const createProduct = async ({
+const create = async ({
   data,
   branchId,
   imgUploadResult,
@@ -14,14 +15,22 @@ const createProduct = async ({
   branchId: string;
   imgUploadResult: CloudinaryUploadResult | null;
 }) => {
-  const { categoryId, ...product } = data;
+  const { category, ...product } = data;
   const quantity = data.quantity ?? 0;
 
   return prisma.$transaction(async (prisma) => {
+    const categoryRecord = await prisma.category.upsert({
+      where: {
+        name: category.toLowerCase(),
+      },
+      update: {},
+      create: { name: category.toLowerCase() },
+    });
+
     const createdProduct = await prisma.product.create({
       data: {
         ...product,
-        category: { connect: { id: categoryId } },
+        category: { connect: { id: categoryRecord.id } },
         imgURL: imgUploadResult?.secure_url ?? null,
         imgPublicId: imgUploadResult?.public_id ?? null,
       },
@@ -39,7 +48,32 @@ const createProduct = async ({
   });
 };
 
-const getProducts = async ({ branchId, page, limit }: TGetProductByBranch) => {
+const update = async (id: string, data: TUpdateProduct) => {
+  const { category, ...updateData } = data;
+
+  return prisma.$transaction(async (prisma) => {
+    let categoryRecord;
+    if (category) {
+      categoryRecord = await prisma.category.upsert({
+        where: { name: category.toLowerCase() },
+        update: {},
+        create: { name: category.toLowerCase() },
+      });
+    }
+
+    return await prisma.product.update({
+      where: { id },
+      data: {
+        ...updateData,
+        ...(categoryRecord && {
+          category: { connect: { id: categoryRecord.id } },
+        }),
+      },
+    });
+  });
+};
+
+const get = async ({ branchId, page, limit }: TGetProductByBranch) => {
   const skip = (page - 1) * limit;
 
   const result = await prisma.product.findMany({
@@ -71,7 +105,7 @@ const getProducts = async ({ branchId, page, limit }: TGetProductByBranch) => {
   return transformedResult;
 };
 
-const deleteProduct = async ({ id }: { id: string }) => {
+const remove = async ({ id }: { id: string }) => {
   return await prisma.$transaction(async (prisma) => {
     await prisma.shoppingCartItem.deleteMany({
       where: {
@@ -95,7 +129,8 @@ const deleteProduct = async ({ id }: { id: string }) => {
 };
 
 export const productModel = {
-  createProduct,
-  getProducts,
-  deleteProduct,
+  create,
+  update,
+  get,
+  remove,
 };

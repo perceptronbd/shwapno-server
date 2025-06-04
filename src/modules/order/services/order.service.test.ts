@@ -1,10 +1,13 @@
 import { orderData } from "@/tests/utils/test-data";
 import { orderModel } from "../models/order.model";
 import { orderService } from "./order.service";
+import { AppError } from "@/types/error.type";
 
 jest.mock("../models/order.model", () => ({
   orderModel: {
+    getAll: jest.fn(),
     updateStatus: jest.fn(),
+    updateStatusWithStockDeduction: jest.fn(),
     getByBranch: jest.fn(),
     getById: jest.fn(),
     remove: jest.fn(),
@@ -53,9 +56,10 @@ describe("Order Service", () => {
   });
 
   describe("Update Order Status", () => {
-    it("should update order status", async () => {
-      (orderModel.getById as jest.Mock).mockResolvedValue(orderData.id);
-      (orderModel.updateStatus as jest.Mock).mockResolvedValue(orderData);
+    it("should update order status for non-PENDING to PROCESSING transitions", async () => {
+      const mockOrder = { ...orderData, status: "COMPLETED" };
+      (orderModel.getById as jest.Mock).mockResolvedValue(mockOrder);
+      (orderModel.updateStatus as jest.Mock).mockResolvedValue(mockOrder);
 
       const result = await orderService.updateStatus({
         id: "1",
@@ -66,13 +70,70 @@ describe("Order Service", () => {
         id: "1",
         status: "COMPLETED",
       });
-      expect(result).toEqual(orderData);
+      expect(orderModel.updateStatusWithStockDeduction).not.toHaveBeenCalled();
+      expect(result).toEqual(mockOrder);
+    });
+
+    it("should use stock deduction when updating from PENDING to PROCESSING", async () => {
+      const pendingOrder = {
+        ...orderData,
+        id: "1",
+        status: "PENDING",
+        branchId: "branch-123",
+      };
+      const updatedOrder = { ...pendingOrder, status: "PROCESSING" };
+
+      (orderModel.getById as jest.Mock).mockResolvedValue(pendingOrder);
+      (
+        orderModel.updateStatusWithStockDeduction as jest.Mock
+      ).mockResolvedValue(updatedOrder);
+
+      const result = await orderService.updateStatus({
+        id: "1",
+        status: "PROCESSING",
+      });
+
+      expect(orderModel.updateStatusWithStockDeduction).toHaveBeenCalledWith(
+        "1",
+        "PROCESSING",
+        "branch-123",
+      );
+      expect(orderModel.updateStatus).not.toHaveBeenCalled();
+      expect(result).toEqual(updatedOrder);
+    });
+
+    it("should handle errors during stock deduction", async () => {
+      const pendingOrder = {
+        ...orderData,
+        id: "1",
+        status: "PENDING",
+        branchId: "branch-123",
+      };
+
+      (orderModel.getById as jest.Mock).mockResolvedValue(pendingOrder);
+      (
+        orderModel.updateStatusWithStockDeduction as jest.Mock
+      ).mockRejectedValue(new Error("Insufficient stock"));
+
+      await expect(
+        orderService.updateStatus({
+          id: "1",
+          status: "PROCESSING",
+        }),
+      ).rejects.toThrow(AppError);
+
+      expect(orderModel.updateStatusWithStockDeduction).toHaveBeenCalledWith(
+        "1",
+        "PROCESSING",
+        "branch-123",
+      );
+      expect(orderModel.updateStatus).not.toHaveBeenCalled();
     });
   });
 
   describe("Remove Order", () => {
     it("should remove an order", async () => {
-      (orderModel.getById as jest.Mock).mockResolvedValue(orderData.id);
+      (orderModel.getById as jest.Mock).mockResolvedValue(orderData);
       (orderModel.remove as jest.Mock).mockResolvedValue(orderData.id);
 
       const result = await orderService.remove(orderData.id);

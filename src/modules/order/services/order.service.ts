@@ -36,8 +36,26 @@ const updateStatus = async ({ id, status }: TUpdateStatusOrder) => {
   if (!order) {
     throw new AppError(HTTP_STATUS_CODES.NOT_FOUND, "Order not found");
   }
-  const updatedOrder = await orderModel.updateStatus({ id, status });
 
+  // Check if status is being updated from PENDING to PROCESSING
+  if (status === "PROCESSING" && order.status === "PENDING") {
+    try {
+      // Use the model's transaction function for stock deduction
+      return await orderModel.updateStatusWithStockDeduction(
+        id,
+        status,
+        order.branchId,
+      );
+    } catch (error) {
+      throw new AppError(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error instanceof Error ? error.message : "Failed to process order",
+      );
+    }
+  }
+
+  // If not changing from PENDING to PROCESSING, just update status
+  const updatedOrder = await orderModel.updateStatus({ id, status });
   return updatedOrder;
 };
 

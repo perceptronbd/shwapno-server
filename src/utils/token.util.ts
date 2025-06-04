@@ -17,9 +17,9 @@ export const generateTokens = ({
   const accessTokenSecret: Secret = process.env.ACCESS_TOKEN_SECRET!;
   const refreshTokenSecret: Secret = process.env.REFRESH_TOKEN_SECRET!;
 
-  const accessTokenOptions: SignOptions = { expiresIn: "15m" };
+  const accessTokenOptions: SignOptions = { expiresIn: "1m" };
   const refreshTokenOptions: SignOptions = {
-    expiresIn: rememberMe ? "7d" : ("1d" as const),
+    expiresIn: rememberMe ? "7d" : "1d",
   };
 
   const accessToken = jwt.sign(

@@ -1,6 +1,10 @@
-import { QRService } from "@/modules/company/services/qr.service";
 import { PrismaClient, Action, Resource } from "@prisma/client";
+import * as dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import path from "path";
+
+// Load environment variables from .env file
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const prisma = new PrismaClient();
 
@@ -24,8 +28,6 @@ async function main() {
       companyId: company.id,
     },
   });
-
-  QRService.generate({ company: company.id, branchId: branch.id });
 
   // Create roles
   const adminRole = await prisma.role.create({

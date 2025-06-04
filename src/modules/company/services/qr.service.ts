@@ -1,30 +1,36 @@
 import QRCode, { QRCodeToDataURLOptions } from "qrcode";
 import prisma from "@/config/db.config";
 
-const generate = async ({
-  company,
-  branchId,
-}: {
-  company: string;
-  branchId: string;
-}) => {
-  const customerURL = process.env.CUSTOMER_URL ?? "http://localhost:3000";
-  const eComUrl = `${customerURL}/${company}/${branchId}=`;
+const generate = async ({ branchId }: { branchId: string }) => {
+  const customerURL = process.env.CLIENT_ECOM_URL;
+
+  const branchData = await prisma.branch.findUnique({
+    where: { id: branchId },
+    select: { name: true },
+  });
+
+  if (!branchData) {
+    throw new Error("Branch not found");
+  }
+
+  const branchName = branchData.name;
+
+  const eComUrl = `${customerURL}/${branchName}=`;
 
   const opts: QRCodeToDataURLOptions = {
     errorCorrectionLevel: "H",
     type: "image/png" as const,
     margin: 1,
     color: {
-      dark: "#000000",
-      light: "#ff0000",
+      dark: "#df0000",
+      light: "#ffffff",
     },
   };
 
   const qrDataUrl = await QRCode.toDataURL(eComUrl, opts);
 
   return await prisma.branch.update({
-    where: { id: branchId },
+    where: { name: branchName },
     data: { qrURL: qrDataUrl },
   });
 };

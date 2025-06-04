@@ -7,7 +7,13 @@ import prisma from "@/config/db.config";
 
 const getUserByEmail = async (
   email: string,
-): Promise<Omit<TUser, "createdAt" | "updatedAt"> | undefined> => {
+): Promise<
+  | Omit<
+      TUser & { branches: Array<{ id: string; name?: string }> },
+      "createdAt" | "updatedAt"
+    >
+  | undefined
+> => {
   const user = await prisma.user.findUnique({
     where: {
       email: email,
@@ -25,6 +31,7 @@ const getUserByEmail = async (
               },
             },
           },
+          branch: true,
         },
       },
     },
@@ -52,6 +59,10 @@ const getUserByEmail = async (
       roles: role,
       permissions: permissions as unknown as TPermissions[],
     },
+    branches: user.userRoles.map((ur) => ({
+      id: ur.branchId,
+      name: ur.branch?.name,
+    })),
   };
 
   return userResponse;
