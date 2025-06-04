@@ -1,4 +1,5 @@
 import { excelRowSchema, TUpdateStock } from "../validators/stock.validator";
+import { TMeta } from "@/handlers/response.handler";
 import { stockModel } from "../models/stock.model";
 import { jobStatusService } from "./job.service";
 import { ExcelRow } from "../types/stock.type";
@@ -12,6 +13,8 @@ const add = async ({
   branchId: string;
   data: TUpdateStock;
 }) => {
+  console.log("data", data);
+
   // Check for pending or processing orders
   const pendingOrders = await prisma.order.findMany({
     where: {
@@ -226,12 +229,14 @@ const processExcelUpload = async ({
 
         // Find or create category
         let category = await prisma.category.findFirst({
-          where: { name: subCategory },
+          where: { name: subCategory.trim().toLowerCase() },
         });
+
+        console.log("Category:", category);
 
         if (!category) {
           category = await prisma.category.create({
-            data: { name: subCategory },
+            data: { name: subCategory.trim().toLowerCase() },
           });
         }
 
@@ -372,17 +377,43 @@ const getById = async ({ id }: { id: string }) => {
       product: true,
     },
   });
+
   return result;
 };
 
-const getByBranch = async ({ branchId }: { branchId: string }) => {
+const getByBranch = async (
+  branchId: string,
+  query?: Record<string, unknown>,
+) => {
+  const limit = query?.limit ? Number(query.limit) : 20;
+  const page = query?.page ? Number(query.page) : 1;
+
   const result = await prisma.stock.findMany({
     where: { branchId },
     include: {
       product: true,
     },
+    skip: (page - 1) * limit,
+    take: limit,
   });
-  return result;
+
+  const total = await prisma.stock.count({
+    where: { branchId },
+  });
+
+  const totalPage = Math.ceil(total / limit);
+
+  const meta: TMeta = {
+    page: page,
+    limit: limit,
+    totalPage: totalPage,
+    totalData: total,
+  };
+
+  return {
+    data: result,
+    meta,
+  };
 };
 
 export const stockService = {

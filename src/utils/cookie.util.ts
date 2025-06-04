@@ -21,7 +21,15 @@ export const setCookie = (
 };
 
 export const clearCookieAndHeader = (res: Response) => {
-  res.clearCookie("refreshToken");
+  const isProduction = process.env.NODE_ENV === "production";
 
-  res.setHeader("Authorization", "");
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+    domain: isProduction ? process.env.COOKIE_DOMAIN : undefined,
+  });
+
+  res.removeHeader("Authorization");
 };

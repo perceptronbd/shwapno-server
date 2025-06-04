@@ -360,20 +360,23 @@ describe("Stock Controller", () => {
         params: { branchId: "1" },
       });
 
-      const mockResult = { ...stockData };
+      const mockResult = {
+        data: [stockData],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
 
       (stockService.getByBranch as jest.Mock).mockResolvedValue(mockResult);
 
       await stockController.getByBranch(req as Request, res as Response);
 
-      expect(stockService.getByBranch).toHaveBeenCalledWith({
-        branchId: req.params?.branchId,
-      });
+      // Fix: Controller calls with two parameters: branchId and query object
+      expect(stockService.getByBranch).toHaveBeenCalledWith("1", {});
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        mockResult,
+        [stockData], // This should be the data property
         HTTP_STATUS_CODES.OK,
         "Stocks retrieved successfully",
+        { total: 1, page: 1, limit: 10 }, // This should be the meta property
       );
     });
 
@@ -388,9 +391,8 @@ describe("Stock Controller", () => {
         stockController.getByBranch(req as Request, res as Response),
       ).rejects.toThrow();
 
-      expect(stockService.getByBranch).toHaveBeenCalledWith({
-        branchId: req.params?.branchId,
-      });
+      // Fix: Controller calls with two parameters: branchId and query object
+      expect(stockService.getByBranch).toHaveBeenCalledWith("1", {});
     });
   });
 });

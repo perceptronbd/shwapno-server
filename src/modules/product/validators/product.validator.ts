@@ -72,16 +72,8 @@ const remove = z.object({
 // Validation for fetching all products
 const getAll = z.object({
   query: z.object({
-    page: z
-      .number()
-      .int()
-      .positive("Page must be a positive integer")
-      .default(1), // Default to 1 if not provided
-    limit: z
-      .number()
-      .int()
-      .positive("Limit must be a positive integer")
-      .default(10), // Default to 10 if not provided
+    page: z.coerce.number().int().positive().default(1), // Default to 1 if not provided
+    limit: z.coerce.number().int().positive().default(10), // Default to 10 if not provided
   }),
 });
 

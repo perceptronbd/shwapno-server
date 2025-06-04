@@ -61,13 +61,14 @@ const remove = async (req: Request, res: Response) => {
 };
 
 const getAll = async (_: Request, res: Response) => {
-  const result = await productService.getAll();
+  const { data, meta } = await productService.getAll(_?.query);
 
   sendResponse(
     res,
-    result,
+    data,
     HTTP_STATUS_CODES.OK,
     "Products retrieved successfully",
+    meta,
   );
 };
 
