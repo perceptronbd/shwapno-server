@@ -228,29 +228,40 @@ describe("Product Controller", () => {
     it("should get all products", async () => {
       const { req, res } = mocks.createMockReqRes();
 
-      (productService.getAll as jest.Mock).mockResolvedValue(mockProducts);
+      // Mock the service to return an object with data and meta properties
+      const mockServiceResponse = {
+        data: mockProducts,
+        meta: { total: 1, page: 1, limit: 10 },
+      };
+
+      (productService.getAll as jest.Mock).mockResolvedValue(
+        mockServiceResponse,
+      );
 
       await productController.getAll(req as Request, res as Response);
 
-      expect(productService.getAll).toHaveBeenCalledWith();
+      expect(productService.getAll).toHaveBeenCalledWith({});
       expect(sendResponse).toHaveBeenCalledWith(
         res,
-        mockProducts,
+        mockProducts, // This is the data property
         HTTP_STATUS_CODES.OK,
         "Products retrieved successfully",
+        { total: 1, page: 1, limit: 10 }, // This is the meta property
       );
     });
 
     it("should handle errors", async () => {
       const { req, res } = mocks.createMockReqRes();
 
-      (productService.getAll as jest.Mock).mockRejectedValue(new Error());
+      (productService.getAll as jest.Mock).mockClear();
+      (productService.getAll as jest.Mock).mockRejectedValueOnce(new Error());
 
       await expect(
         productController.getAll(req as Request, res as Response),
       ).rejects.toThrow();
 
-      expect(productService.getAll).toHaveBeenCalledWith();
+      expect(productService.getAll).toHaveBeenCalledTimes(1);
+      expect(productService.getAll).toHaveBeenCalledWith({});
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
